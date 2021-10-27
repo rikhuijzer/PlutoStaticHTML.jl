@@ -1,2 +1,4 @@
 # PlutoHTML.jl
-Convert Pluto notebooks to pure HTML
+
+Convert Pluto notebooks to pure HTML (no Javascript).
+

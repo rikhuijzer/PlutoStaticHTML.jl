@@ -22,7 +22,6 @@ In `utils.jl` define:
     Embed a Pluto notebook via:
     https://github.com/rikhuijzer/PlutoHTML.jl
     """
-
     function lx_pluto(com, _)
         file = string(Franklin.content(com.braces[1]))::String
         notebook_path = joinpath("posts", "notebooks", "$file.jl")
@@ -50,9 +49,15 @@ In `utils.jl` define:
             """
     end
 
-Next, the Pluto notebook at "/posts/notebooks/analysis.jl" can be included in a Franklin webpage via:
+Next, the Pluto notebook at "/posts/notebooks/analysis.jl" can be included in a Franklin webpage.
+For example:
 
 ```
++++
+title = "My analysis"
+showall = false
++++
+
 \pluto{analysis}
 ```
 

@@ -1,6 +1,6 @@
 name = "PlutoHTML"
 uuid = "359b1769-a58e-495b-9770-312e911026ad"
-authors = ["Rik Huijzer <rikhuijzer@pm.me>"]
+authors = ["Rik Huijzer <t.h.huijzer@rug.nl>"]
 version = "0.1.0"
 
 [deps]

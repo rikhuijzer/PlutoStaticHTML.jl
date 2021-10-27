@@ -1,1 +1,6 @@
 **/Manifest.toml
+*.so
+.vscode/
+/build
+/docs/build/
+**/*.html

@@ -20,8 +20,11 @@ function code_block(code; class="language-julia")
     return """<pre><code class="$class">$code</code></pre>"""
 end
 
-function output_block(code; class="code-output")
-    return """<pre><code class="$class">$code</code></pre>"""
+function output_block(s; class="code-output")
+    if s == ""
+        return ""
+    end
+    return """<pre><code class="$class">$s</code></pre>"""
 end
 
 function _code2html(code::AbstractString, class)
@@ -35,6 +38,36 @@ function _output2html(body, T::IMAGEMIME, class)
     encoded = base64encode(body)
     uri = "data:$T;base64,$encoded"
     return """<img src="$uri">"""
+end
+
+function _output2html(body, ::MIME"application/vnd.pluto.stacktrace+object", class)
+    return error(body)
+end
+
+function _tr_wrap(elements::Vector)
+    joined = join(elements, '\n')
+    return "<tr>$joined</tr>"
+end
+
+function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.table+object", class)
+    rows = body[:rows]
+    nms = body[:schema][:names]
+    headers = _tr_wrap(["<th>$colname</th>" for colname in nms])
+    contents = map(rows) do row
+        # Drop index.
+        row = row[2:end]
+        # Unpack the type and throw away mime info.
+        elements = first.(only(row))
+        elements = ["<td>$e</td>" for e in elements]
+        return _tr_wrap(elements)
+    end
+    content = join(contents, '\n')
+    return """
+        <table>
+        $headers
+        $content
+        </table>
+        """
 end
 
 _output2html(body, ::MIME"text/plain", class) = output_block(body)
@@ -82,8 +115,7 @@ end
 Run the Pluto notebook at `path` and return the code and output as HTML.
 """
 function notebook2html(path::AbstractString)
-    notebook_file = "/home/rik/Downloads/tmp.jl"
-    notebook = load_notebook_nobackup(notebook_file)
+    notebook = load_notebook_nobackup(path)
     return notebook2html(notebook)
 end
 

@@ -46,6 +46,7 @@ In `utils.jl` define:
             end
             println("~~~\n\$html\n~~~\n")
             ```
+            \\textoutput{pluto}
             """
     end
 

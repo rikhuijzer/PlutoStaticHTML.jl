@@ -13,11 +13,19 @@ end
 # ╔═╡ 751853f6-626f-4040-86b2-088339ef9a3c
 # hideall
 md"""
-This package can be used to convert Pluto notebooks to raw HTML.
-Actually, the web page that you're looking at is defined in
+This package can be used to convert Pluto notebooks to raw HTML via:
+
+```
+using PlutoHTML: notebook2html
+
+path = "/path/to/notebook.jl"
+html = notebook2html(path)
+```
+
+Actually, the web page that you're looking is a Pluto notebook, see 
 [notebook.jl](https://rikhuijzer.github.io/PlutoHTML.jl/dev/notebook.jl).
 
-Compared to the default Javascript Pluto output, raw HTML is easier to embed in Documenter.jl (as this web site demonstrates) or Franklin.jl.
+Note that, compared to the default Javascript Pluto output, raw HTML is easier to embed in Documenter.jl (as this web site demonstrates) or Franklin.jl.
 On the other hand, not all outputs that Pluto supports are supported by HTML.
 """
 

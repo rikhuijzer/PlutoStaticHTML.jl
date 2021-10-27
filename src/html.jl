@@ -70,6 +70,10 @@ function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.table
         """
 end
 
+function _output2html(body, ::MIME"application/vnd.pluto.tree+object", class)
+    return body
+end
+
 _output2html(body, ::MIME"text/plain", class) = output_block(body)
 _output2html(body, ::MIME"text/html", class) = body
 _output2html(body, T::MIME, class) = error("Unknown type: $T")

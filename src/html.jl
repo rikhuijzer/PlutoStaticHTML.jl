@@ -1,68 +1,89 @@
-function code_block(code)
+"""
+    IMAGEMIME
+
+Union of MIME image types.
+Based on Pluto.PlutoRunner.imagemimes.
+"""
+const IMAGEMIME = Union{
+    MIME"image/svg+xml",
+    MIME"image/png",
+    MIME"image/jpg",
+    MIME"image/jpeg",
+    MIME"image/bmp",
+    MIME"image/gif"
+}
+
+function code_block(code; class="language-julia")
     if code == ""
         return ""
     end
-    return """<pre><code class="language-julia">$code</code></pre>"""
+    return """<pre><code class="$class">$code</code></pre>"""
 end
 
-function output_block(code)
-    return """<pre><code class="code-output">$code</code></pre>"""
+function output_block(code; class="code-output")
+    return """<pre><code class="$class">$code</code></pre>"""
 end
 
-
-function _output2html(body, ::MIME"text/plain")
-    return output_block(body)
-end
-
-function _output2html(body, ::MIME"text/html")
-    return body
-end
-
-function data_uri(imtype::AbstractString, body)
-    encoded = base64encode(body)
-    return "data:$imtype;base64,$encoded"
-end
-
-# Fallback.
-function _output2html(body, T::MIME)
-    T_str = string(T)::String
-    if contains(T_str, "image/")
-        uri = data_uri(T_str, body)
-        return """<img src="$uri">"""
-    else
-        error("Unknown type: $T")
-    end
-end
-
-function _code2html(code::AbstractString)
+function _code2html(code::AbstractString, class)
     if contains(code, "# hideall")
         return ""
     end
-    return code_block(code)
+    return code_block(code; class)
 end
 
-function _cell2html(cell::Cell)
-    code = _code2html(cell.code)
-    output = _output2html(cell.output.body, cell.output.mime)
+function _output2html(body, T::IMAGEMIME, class)
+    encoded = base64encode(body)
+    uri = "data:$T;base64,$encoded"
+    return """<img src="$uri">"""
+end
+
+_output2html(body, ::MIME"text/plain", class) = output_block(body)
+_output2html(body, ::MIME"text/html", class) = body
+_output2html(body, T::MIME, class) = error("Unknown type: $T")
+
+function _cell2html(cell::Cell, code_class, output_class)
+    code = _code2html(cell.code, code_class)
+    output = _output2html(cell.output.body, cell.output.mime, output_class)
     return """
         $code
         $output
         """
 end
 
+"""
+    notebook2html(
+        notebook::Notebook;
+        session=ServerSession(),
+        code_class="language-julia",
+        output_class="code-output"
+    )
+
+Run the `notebook` and return the code and output as HTML.
+"""
 function notebook2html(
         notebook::Notebook;
-        session=ServerSession()
+        session=ServerSession(),
+        code_class="language-julia",
+        output_class="code-output"
     )
     cells = [last(e) for e in notebook.cells_dict]
     update_run!(session, notebook, cells)
     order = notebook.cell_order
-    outputs = [_cell2html(notebook.cells_dict[cell_uuid]) for cell_uuid in order]
+    outputs = map(order) do cell_uuid
+        cell = notebook.cells_dict[cell_uuid]
+        _cell2html(cell, code_class, output_class)
+    end
     return join(outputs, '\n')
 end
 
+"""
+    notebook2html(path::AbstractString)
+
+Run the Pluto notebook at `path` and return the code and output as HTML.
+"""
 function notebook2html(path::AbstractString)
     notebook_file = "/home/rik/Downloads/tmp.jl"
     notebook = load_notebook_nobackup(notebook_file)
     return notebook2html(notebook)
 end
+

@@ -75,8 +75,26 @@ function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.table
         """
 end
 
-function _output2html(body, ::MIME"application/vnd.pluto.tree+object", class)
-    return body
+function _clean_pluto_elements(elements::Vector, type)
+    try
+        X = [string(strip(first(last(e)), '"')) for e in elements]
+        if type == :Tuple
+            return Tuple(X)
+        else
+            return X
+        end
+    catch e
+        @warn e
+        return elements
+    end
+end
+
+function _clean_pluto_elements(elements)
+    return elements
+end
+
+function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.tree+object", class)
+    return _clean_pluto_elements(body[:elements], body[:type])
 end
 
 _output2html(body, ::MIME"text/plain", class) = output_block(body)

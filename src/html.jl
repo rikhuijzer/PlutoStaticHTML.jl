@@ -46,8 +46,9 @@ end
 
 function _tr_wrap(elements::Vector)
     joined = join(elements, '\n')
-    return "<tr>$joined</tr>"
+    return "<tr>\n$joined\n</tr>"
 end
+_tr_wrap(::Array{String, 0}) = "<tr>\n<td>...</td>\n</tr>"
 
 function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.table+object", class)
     rows = body[:rows]
@@ -57,7 +58,11 @@ function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.table
         # Drop index.
         row = row[2:end]
         # Unpack the type and throw away mime info.
-        elements = first.(only(row))
+        elements = try
+            first.(only(row))
+        catch
+            first.(first.(row))
+        end
         elements = ["<td>$e</td>" for e in elements]
         return _tr_wrap(elements)
     end

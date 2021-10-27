@@ -22,22 +22,30 @@ In `utils.jl` define:
     Embed a Pluto notebook via:
     https://github.com/rikhuijzer/PlutoHTML.jl
     """
+
     function lx_pluto(com, _)
         file = string(Franklin.content(com.braces[1]))::String
-        path = joinpath("posts", "notebooks", "$file.jl")
+        notebook_path = joinpath("posts", "notebooks", "$file.jl")
+        log_path = joinpath("posts", "notebooks", "$file.log")
+
         return """
             ```julia:pluto
             # hideall
 
             using PlutoHTML: notebook2html
 
-            path = "$path"
+            path = "$notebook_path"
+            log_path = "$log_path"
             @assert isfile(path)
             @info "→ evaluating Pluto notebook at (\$path)"
-            html = notebook2html(path)
+            html = open(log_path, "w") do io
+                redirect_stdout(io) do
+                    html = notebook2html(path)
+                    return html
+                end
+            end
             println("~~~\n\$html\n~~~\n")
             ```
-            \\textoutput{pluto}
             """
     end
 

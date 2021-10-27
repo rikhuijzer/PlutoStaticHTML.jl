@@ -33,7 +33,7 @@ In `utils.jl` define:
 
             path = "$path"
             @assert isfile(path)
-            println("→ evaluating Pluto notebook at (\$path)")
+            @info "→ evaluating Pluto notebook at (\$path)"
             html = notebook2html(path)
             println("~~~\n\$html\n~~~\n")
             ```

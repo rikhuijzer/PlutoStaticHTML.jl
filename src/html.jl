@@ -31,6 +31,10 @@ function _code2html(code::AbstractString, class)
     if contains(code, "# hideall")
         return ""
     end
+    sep = '\n'
+    lines = split(code, sep)
+    filter!(!endswith("# hide"), lines)
+    code = join(lines, sep)
     return code_block(code; class)
 end
 
@@ -89,12 +93,13 @@ function _clean_pluto_elements(elements::Vector, type)
     end
 end
 
-function _clean_pluto_elements(elements)
+function _clean_pluto_elements(elements, type)
     return elements
 end
 
 function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.tree+object", class)
-    return _clean_pluto_elements(body[:elements], body[:type])
+    cleaned = _clean_pluto_elements(body[:elements], body[:type])
+    return output_block(cleaned; class)
 end
 
 _output2html(body, ::MIME"text/plain", class) = output_block(body)

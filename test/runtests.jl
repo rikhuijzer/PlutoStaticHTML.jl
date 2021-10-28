@@ -37,6 +37,7 @@ const PKGDIR = string(pkgdir(PlutoHTML))::String
     ])
     html = notebook2html(notebook)
     lines = split(html, '\n')
-    @test lines[2] == "(\"pluto\", \"tree\", \"object\")"
-    @test lines[5] == "[\"pluto\", \"tree\", \"object\"]"
+    @test contains(lines[2], "(\"pluto\", \"tree\", \"object\")")
+    @test contains(lines[2], "<pre")
+    @test contains(lines[5], "[\"pluto\", \"tree\", \"object\"]")
 end

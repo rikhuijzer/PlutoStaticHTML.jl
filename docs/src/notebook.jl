@@ -34,11 +34,6 @@ lines(1:10, 1:10)
 # ╔═╡ 4ca09326-c8d8-44fb-8582-8dcc071bc76a
 DataFrame(A = [1, 2], B = [3, 4], C = ["some", "text"])
 
-# ╔═╡ dc7b2d56-7217-481a-8e03-67e023fe06d3
-md"""
-Nested objects are also handled to a certain degree:
-"""
-
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -1145,6 +1140,5 @@ version = "3.5.0+0"
 # ╠═3dd303b0-373e-11ec-18e4-69bfc20b5e29
 # ╠═7ca85dab-6066-4b2a-b61c-9d9607b8756c
 # ╠═4ca09326-c8d8-44fb-8582-8dcc071bc76a
-# ╠═dc7b2d56-7217-481a-8e03-67e023fe06d3
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

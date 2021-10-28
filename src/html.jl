@@ -27,7 +27,10 @@ function output_block(s; class="code-output")
     return """<pre><code class="$class">$s</code></pre>"""
 end
 
-function _code2html(code::AbstractString, class)
+function _code2html(code::AbstractString, class, hide_md_code)
+    if hide_md_code && startswith(code, "md\"")
+        return ""
+    end
     if contains(code, "# hideall")
         return ""
     end
@@ -142,9 +145,9 @@ end
 
 # Fallback. This shouldn't happen. Convert to string to avoid failure.
 function _clean_tree(parent, elements, T)
+    @warn "Couldn't convert $parent"
     return string(elements)::String
 end
-
 
 function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.tree+object", class)
     T = symbol2type(body[:type])
@@ -156,8 +159,8 @@ _output2html(body, ::MIME"text/plain", class) = output_block(body)
 _output2html(body, ::MIME"text/html", class) = body
 _output2html(body, T::MIME, class) = error("Unknown type: $T")
 
-function _cell2html(cell::Cell, code_class, output_class)
-    code = _code2html(cell.code, code_class)
+function _cell2html(cell::Cell, code_class, output_class, hide_md_code)
+    code = _code2html(cell.code, code_class, hide_md_code)
     output = _output2html(cell.output.body, cell.output.mime, output_class)
     return """
         $code
@@ -170,7 +173,8 @@ end
         notebook::Notebook;
         session=ServerSession(),
         code_class="language-julia",
-        output_class="code-output"
+        output_class="code-output",
+        hide_md_code=true
     )
 
 Run the `notebook` and return the code and output as HTML.
@@ -179,14 +183,15 @@ function notebook2html(
         notebook::Notebook;
         session=ServerSession(),
         code_class="language-julia",
-        output_class="code-output"
+        output_class="code-output",
+        hide_md_code=true
     )
     cells = [last(e) for e in notebook.cells_dict]
     update_run!(session, notebook, cells)
     order = notebook.cell_order
     outputs = map(order) do cell_uuid
         cell = notebook.cells_dict[cell_uuid]
-        _cell2html(cell, code_class, output_class)
+        _cell2html(cell, code_class, output_class, hide_md_code)
     end
     return join(outputs, '\n')
 end

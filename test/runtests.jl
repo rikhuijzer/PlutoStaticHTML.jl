@@ -44,7 +44,6 @@ const PKGDIR = string(pkgdir(PlutoHTML))::String
 
     @test contains(lines[8], "[1, (2, (3, 4))]")
 
-    # Nested struct
     notebook = Notebook([
         Cell("struct A end"),
         Cell("""
@@ -59,4 +58,15 @@ const PKGDIR = string(pkgdir(PlutoHTML))::String
     html = notebook2html(notebook)
     lines = split(html, '\n')
     @test contains(lines[end-1], "B(1, A())")
+
+    notebook = Notebook([
+        Cell("md\"my text\"")
+    ])
+    html = notebook2html(notebook; hide_md_code=true)
+    lines = split(html, '\n')
+    @test lines[1] == ""
+
+    html = notebook2html(notebook; hide_md_code=false)
+    lines = split(html, '\n')
+    @test lines[1] != ""
 end

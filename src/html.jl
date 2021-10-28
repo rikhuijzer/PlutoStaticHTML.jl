@@ -79,47 +79,66 @@ function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.table
         """
 end
 
+abstract type Struct end
+
 function symbol2type(s::Symbol)
     if s == :Tuple
         return Tuple
     elseif s == :Array
         return Array
+    elseif s == :struct
+        return Struct
     else
-        error("Unknown type: $s")
+        @warn "Missing type: $s"
+        return Missing
     end
 end
 
 """
-    _clean_tree(element::Tuple{Int, Tuple{String, MIME}})
+    _clean_tree(parent, element::Tuple{Int, Tuple{String, MIME}}, T)
 
 Drop metadata.
 For example, `(1, ("\"text\"", MIME type text/plain))` becomes "text".
 """
-function _clean_tree(element::Tuple{Int, Tuple{String, MIME}}, T)
+function _clean_tree(parent, element::Tuple{Int, Tuple{String, MIME}}, T)
     return first(last(element))
 end
 
-function _clean_tree(elements::Tuple{Int, Tuple}, T)
-    body = first(last(elements))
-    T = symbol2type(body[:type])
-    return _clean_tree(body[:elements], T)
+function _clean_tree(parent, element::Tuple{Symbol, Any}, T)
+    dict = first(last(element))
+    struct_name = dict[:prefix]
+    subelements = _clean_tree.(dict[:elements], Nothing)
+    joined = join(subelements, ", ")
+    return struct_name * '(' * joined * ')'
 end
 
-function _clean_tree(elements::AbstractVector, T::Type{Tuple})
-    cleaned = _clean_tree.(elements, Nothing)
+function _clean_tree(parent, elements::Tuple{Int, Tuple}, T)
+    body = first(last(elements))
+    T = symbol2type(body[:type])
+    return _clean_tree(body, body[:elements], T)
+end
+
+function _clean_tree(parent, elements::AbstractVector, T::Type{Tuple})
+    cleaned = [_clean_tree(parent, e, Nothing) for e in elements]
     joined = join(cleaned, ", ")
     return "($joined)"
 end
 
-function _clean_tree(elements::AbstractVector, T::Type{Array})
-    cleaned = _clean_tree.(elements, Nothing)
+function _clean_tree(parent, elements::AbstractVector, T::Type{Array})
+    cleaned = [_clean_tree(parent, e, Nothing) for e in elements]
     joined = join(cleaned, ", ")
     return "[$joined]"
 end
 
+function _clean_tree(parent, elements::AbstractVector, T::Type{Struct})
+    cleaned = [_clean_tree(parent, e, Nothing) for e in elements]
+    joined = join(cleaned, ", ")
+    return parent[:prefix] * '(' * joined * ')'
+end
+
 function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.tree+object", class)
     T = symbol2type(body[:type])
-    cleaned = _clean_tree(body[:elements], T)
+    cleaned = _clean_tree(body, body[:elements], T)
     return output_block(cleaned; class)
 end
 

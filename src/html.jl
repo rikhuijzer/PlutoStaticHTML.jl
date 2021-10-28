@@ -105,9 +105,13 @@ function _clean_tree(parent, element::Tuple{Int, Tuple{String, MIME}}, T)
 end
 
 function _clean_tree(parent, element::Tuple{Symbol, Any}, T)
-    dict = first(last(element))
-    struct_name = dict[:prefix]
-    subelements = _clean_tree.(dict[:elements], Nothing)
+    embedded = first(last(element))
+    if embedded isa String
+        return embedded
+    end
+    struct_name = embedded[:prefix]
+    elements = embedded[:elements]
+    subelements = [_clean_tree(parent, e, Nothing) for e in elements]
     joined = join(subelements, ", ")
     return struct_name * '(' * joined * ')'
 end

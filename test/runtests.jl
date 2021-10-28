@@ -49,12 +49,14 @@ const PKGDIR = string(pkgdir(PlutoHTML))::String
         Cell("struct A end"),
         Cell("""
             struct B
+                x::Int
                 a::A
             end
             """
             ),
-        Cell("B(A())")
+        Cell("B(1, A())")
     ])
     html = notebook2html(notebook)
-
+    lines = split(html, '\n')
+    @test contains(lines[end-1], "B(1, A())")
 end

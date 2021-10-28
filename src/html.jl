@@ -99,19 +99,22 @@ function _clean_tree(element::Tuple{Int, Tuple{String, MIME}}, T)
     return first(last(element))
 end
 
+function _clean_tree(elements::Tuple{Int, Tuple}, T)
+    body = first(last(elements))
+    T = symbol2type(body[:type])
+    return _clean_tree(body[:elements], T)
+end
+
 function _clean_tree(elements::AbstractVector, T::Type{Tuple})
-    return Tuple(_clean_tree.(elements, Nothing))
+    cleaned = _clean_tree.(elements, Nothing)
+    joined = join(cleaned, ", ")
+    return "($joined)"
 end
 
 function _clean_tree(elements::AbstractVector, T::Type{Array})
-    return _clean_tree.(elements, Nothing)
-end
-
-function _clean_tree(element::Tuple, T)
-    for e in element
-        @show e
-    end
-    error(element)
+    cleaned = _clean_tree.(elements, Nothing)
+    joined = join(cleaned, ", ")
+    return "[$joined]"
 end
 
 function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.tree+object", class)

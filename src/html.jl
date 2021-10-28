@@ -89,7 +89,8 @@ function symbol2type(s::Symbol)
     elseif s == :struct
         return Struct
     else
-        error("Unknown type: $s")
+        @warn "Missing type: $s"
+        return Missing
     end
 end
 
@@ -130,6 +131,7 @@ function _clean_tree(parent, elements::AbstractVector, T::Type{Array})
 end
 
 function _clean_tree(parent, elements::AbstractVector, T::Type{Struct})
+    cleaned = [_clean_tree(parent, e, Nothing) for e in elements]
     joined = join(cleaned, ", ")
     return parent[:prefix] * '(' * joined * ')'
 end

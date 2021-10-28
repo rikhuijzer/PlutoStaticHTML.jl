@@ -11,7 +11,6 @@ begin
 end
 
 # ╔═╡ 751853f6-626f-4040-86b2-088339ef9a3c
-# hideall
 md"""
 This package can be used to convert Pluto notebooks to raw HTML via:
 
@@ -36,7 +35,6 @@ lines(1:10, 1:10)
 DataFrame(A = [1, 2], B = [3, 4], C = ["some", "text"])
 
 # ╔═╡ dc7b2d56-7217-481a-8e03-67e023fe06d3
-# hideall
 md"""
 Nested objects are also handled to a certain degree:
 """

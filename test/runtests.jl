@@ -33,7 +33,8 @@ const PKGDIR = string(pkgdir(PlutoHTML))::String
 
     notebook = Notebook([
         Cell("""("pluto", "tree", "object")"""),
-        Cell("""["pluto", "tree", "object"]""")
+        Cell("""["pluto", "tree", "object"]"""),
+        Cell("""[1, (2, (3, 4))]""")
     ])
     html = notebook2html(notebook)
     lines = split(html, '\n')

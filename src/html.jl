@@ -79,26 +79,44 @@ function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.table
         """
 end
 
-function _clean_pluto_elements(elements::Vector, type)
-    try
-        X = [string(strip(first(last(e)), '"')) for e in elements]
-        if type == :Tuple
-            return Tuple(X)
-        else
-            return X
-        end
-    catch e
-        @warn e
-        return elements
+function symbol2type(s::Symbol)
+    if s == :Tuple
+        return Tuple
+    elseif s == :Array
+        return Array
+    else
+        error("Unknown type: $s")
     end
 end
 
-function _clean_pluto_elements(elements, type)
-    return elements
+"""
+    _clean_tree(element::Tuple{Int, Tuple{String, MIME}})
+
+Drop metadata.
+For example, `(1, ("\"text\"", MIME type text/plain))` becomes "text".
+"""
+function _clean_tree(element::Tuple{Int, Tuple{String, MIME}}, T)
+    return first(last(element))
+end
+
+function _clean_tree(elements::AbstractVector, T::Type{Tuple})
+    return Tuple(_clean_tree.(elements, Nothing))
+end
+
+function _clean_tree(elements::AbstractVector, T::Type{Array})
+    return _clean_tree.(elements, Nothing)
+end
+
+function _clean_tree(element::Tuple, T)
+    for e in element
+        @show e
+    end
+    error(element)
 end
 
 function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.tree+object", class)
-    cleaned = _clean_pluto_elements(body[:elements], body[:type])
+    T = symbol2type(body[:type])
+    cleaned = _clean_tree(body[:elements], T)
     return output_block(cleaned; class)
 end
 

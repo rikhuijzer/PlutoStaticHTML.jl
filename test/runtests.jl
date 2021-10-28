@@ -43,4 +43,18 @@ const PKGDIR = string(pkgdir(PlutoHTML))::String
     @test contains(lines[5], "[\"pluto\", \"tree\", \"object\"]")
 
     @test contains(lines[8], "[1, (2, (3, 4))]")
+
+    # Nested struct
+    notebook = Notebook([
+        Cell("struct A end"),
+        Cell("""
+            struct B
+                a::A
+            end
+            """
+            ),
+        Cell("B(A())")
+    ])
+    html = notebook2html(notebook)
+
 end

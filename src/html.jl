@@ -95,16 +95,16 @@ function symbol2type(s::Symbol)
 end
 
 """
-    _clean_tree(parent, element::Tuple{Int, Tuple{String, MIME}}, T)
+    _clean_tree(parent, element::Tuple{Any, Tuple{String, MIME}}, T)
 
 Drop metadata.
 For example, `(1, ("\"text\"", MIME type text/plain))` becomes "text".
 """
-function _clean_tree(parent, element::Tuple{Int, Tuple{String, MIME}}, T)
+function _clean_tree(parent, element::Tuple{Any, Tuple{String, MIME}}, T)
     return first(last(element))
 end
 
-function _clean_tree(parent, element::Tuple{Symbol, Any}, T)
+function _clean_tree(parent, element::Tuple{Any, Any}, T)
     embedded = first(last(element))
     if embedded isa String
         return embedded
@@ -116,7 +116,7 @@ function _clean_tree(parent, element::Tuple{Symbol, Any}, T)
     return struct_name * '(' * joined * ')'
 end
 
-function _clean_tree(parent, elements::Tuple{Int, Tuple}, T)
+function _clean_tree(parent, elements::Tuple{Any, Tuple}, T)
     body = first(last(elements))
     T = symbol2type(body[:type])
     return _clean_tree(body, body[:elements], T)
@@ -139,6 +139,12 @@ function _clean_tree(parent, elements::AbstractVector, T::Type{Struct})
     joined = join(cleaned, ", ")
     return parent[:prefix] * '(' * joined * ')'
 end
+
+# Fallback. This shouldn't happen. Convert to string to avoid failure.
+function _clean_tree(parent, elements, T)
+    return string(elements)::String
+end
+
 
 function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.tree+object", class)
     T = symbol2type(body[:type])

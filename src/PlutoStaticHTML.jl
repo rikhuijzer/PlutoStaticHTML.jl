@@ -1,4 +1,4 @@
-module PlutoHTML
+module PlutoStaticHTML
 
 using Base64: base64encode
 using Pluto:

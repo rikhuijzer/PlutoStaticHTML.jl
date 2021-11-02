@@ -1,4 +1,4 @@
-# PlutoHTML
+# PlutoStaticHTML
 
 ```@raw html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonsp/Pluto.jl@0.16.4/frontend/treeview.css" type="text/css" />

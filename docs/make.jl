@@ -3,7 +3,7 @@ using Documenter:
     HTML,
     deploydocs,
     makedocs
-using PlutoHTML
+using PlutoStaticHTML
 
 """
     write_homepage()
@@ -12,13 +12,13 @@ Write Pluto output to a HTML file.
 This avoidings running via the Documenter.jl evaluation machine, which appears to just hang.
 """
 function write_homepage()
-    dir = joinpath(pkgdir(PlutoHTML), "docs", "src")
+    dir = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
     notebook_path = joinpath(dir, "notebook.jl")
     @info "Running notebook at $notebook_path"
     html = notebook2html(notebook_path)
     index_path = joinpath(dir, "index.md")
     md = """
-        # PlutoHTML
+        # PlutoStaticHTML
 
         ```@raw html
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonsp/Pluto.jl@0.16.4/frontend/treeview.css" type="text/css" />
@@ -39,17 +39,17 @@ end
 
 write_homepage()
 
-sitename = "PlutoHTML.jl"
+sitename = "PlutoStaticHTML.jl"
 pages = [
-    "PlutoHTML" => "index.md"
+    "PlutoStaticHTML" => "index.md"
 ]
 format = HTML(; prettyurls = get(ENV, "CI", nothing) == "true")
-modules = [PlutoHTML]
+modules = [PlutoStaticHTML]
 strict = true
 checkdocs = :none
 makedocs(; sitename, pages, format, modules, strict, checkdocs)
 
-repo = "github.com/rikhuijzer/PlutoHTML.jl.git"
+repo = "github.com/rikhuijzer/PlutoStaticHTML.jl.git"
 push_preview = false
 devbranch = "main"
 deploydocs(; devbranch, repo, push_preview)

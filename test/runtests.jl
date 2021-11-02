@@ -1,4 +1,4 @@
-using PlutoHTML
+using PlutoStaticHTML
 using Pluto:
     Cell,
     Notebook
@@ -6,9 +6,9 @@ using Test:
     @testset,
     @test
 
-const PKGDIR = string(pkgdir(PlutoHTML))::String
+const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
 
-@testset "PlutoHTML" begin
+@testset "StaticHTML" begin
     notebook = Notebook([
         Cell("x = 1 + 1"),
         Cell("using Images: load"),

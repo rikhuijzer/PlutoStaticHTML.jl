@@ -1,4 +1,4 @@
-# PlutoHTML.jl
+# PlutoStaticHTML.jl
 
 Convert Pluto notebooks to pure HTML (without Javascript).
 
@@ -6,7 +6,7 @@ The functionality provided by this package is quite simple.
 It would probably be better to move this into Pluto.jl at some point if the maintainers agree.
 For now, I'm just trying this out a bit to see how well it works.
 
-An example output from a Pluto notebook is visible at <https://rikhuijzer.github.io/PlutoHTML.jl/dev/>.
+An example output from a Pluto notebook is visible at <https://rikhuijzer.github.io/PlutoStaticHTML.jl/dev/>.
 
 ## Documenter.jl
 
@@ -20,7 +20,7 @@ In `utils.jl` define:
         lx_pluto(com, _)
 
     Embed a Pluto notebook via:
-    https://github.com/rikhuijzer/PlutoHTML.jl
+    https://github.com/rikhuijzer/PlutoStaticHTML.jl
     """
     function lx_pluto(com, _)
         file = string(Franklin.content(com.braces[1]))::String
@@ -31,7 +31,7 @@ In `utils.jl` define:
             ```julia:pluto
             # hideall
 
-            using PlutoHTML: notebook2html
+            using PlutoStaticHTML: notebook2html
 
             path = "$notebook_path"
             log_path = "$log_path"

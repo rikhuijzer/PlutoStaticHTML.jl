@@ -1,4 +1,4 @@
-name = "PlutoHTML"
+name = "PlutoStaticHTML"
 uuid = "359b1769-a58e-495b-9770-312e911026ad"
 authors = ["Rik Huijzer <t.h.huijzer@rug.nl>"]
 version = "0.1.0"

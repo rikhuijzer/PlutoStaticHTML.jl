@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.0
+# v0.17.1
 
 using Markdown
 using InteractiveUtils
@@ -15,14 +15,14 @@ md"""
 This package can be used to convert Pluto notebooks to raw HTML via:
 
 ```
-using PlutoHTML: notebook2html
+using PlutoStaticHTML: notebook2html
 
 path = "/path/to/notebook.jl"
 html = notebook2html(path)
 ```
 
 Actually, the web page that you're looking is a Pluto notebook, see 
-[notebook.jl](https://rikhuijzer.github.io/PlutoHTML.jl/dev/notebook.jl).
+[notebook.jl](https://rikhuijzer.github.io/PlutoStaticHTML.jl/dev/notebook.jl).
 
 Note that, compared to the default Javascript Pluto output, raw HTML is easier to embed in Documenter.jl (as this web site demonstrates) or Franklin.jl.
 On the other hand, not all outputs that Pluto supports are supported by HTML.

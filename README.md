@@ -1,10 +1,10 @@
 # PlutoStaticHTML.jl
 
 Convert Pluto notebooks to pure HTML (without Javascript).
+Small discussion with Fons van der Plas at <https://github.com/fonsp/Pluto.jl/discussions/1607>.
 
-The functionality provided by this package is quite simple.
-It would probably be better to move this into Pluto.jl at some point if the maintainers agree.
-For now, I'm just trying this out a bit to see how well it works.
+I'm using this package for my own blog, for example: <https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/>
+A link to the notebook is at the bottom of the page.
 
 An example output from a Pluto notebook is visible at <https://rikhuijzer.github.io/PlutoStaticHTML.jl/dev/>.
 

@@ -10,9 +10,10 @@ using Pluto:
     load_notebook_nobackup,
     update_run!,
     notebook_to_js
+    SessionActions
 
 include("html.jl")
 
-export notebook2html
+export notebook2html, notebook2html2
 
 end # module

@@ -206,3 +206,32 @@ function notebook2html(path::AbstractString)
     return notebook2html(notebook)
 end
 
+"""
+NOTE: NEW API for SessionActions support
+Run the `notebook` and return the code and output as HTML.
+"""
+function notebook2html2(
+        notebook::Notebook;
+        code_class="language-julia",
+        output_class="code-output",
+        hide_md_code=true
+    )
+
+    cells = [last(e) for e in notebook.cells_dict]
+    order = notebook.cell_order
+    outputs = map(order) do cell_uuid
+        cell = notebook.cells_dict[cell_uuid]
+        _cell2html(cell, code_class, output_class, hide_md_code)
+    end
+    return join(outputs, '\n')
+end
+
+"""
+NOTE: NEW API for SessionActions support 
+    notebook2html(path::AbstractString)
+
+Run the Pluto notebook at `path` and return the code and output as HTML.
+"""
+function notebook2html2(notebook::Notebook)
+    return notebook2html2(notebook)
+end

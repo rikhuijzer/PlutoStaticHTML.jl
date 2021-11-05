@@ -61,3 +61,13 @@ showall = false
 \pluto{analysis}
 ```
 
+> NOTE: NEW API Support with SessionActions Support
+
+```julia
+    input = "path/to/PlutoNotebook.jl"
+    session = Pluto.ServerSession();
+    notebook = Pluto.SessionActions.open(session, input; run_async=false)
+
+    html_contents = notebook2html2(notebook)
+    write("$(input)2.html", html_contents)
+```

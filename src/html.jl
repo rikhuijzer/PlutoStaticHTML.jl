@@ -214,7 +214,8 @@ Run the Pluto notebook at `path` and return the code and output as HTML.
 function notebook2html(path::AbstractString; session=ServerSession())
     # "open" in the ServerSession means open `path` into `session`.
     # this will also evaluate code blocks
-    notebook = ServerSession.open(session, path)
-    return notebook2html(notebook; evaluate_cells=false)
+    notebook = SessionActions.open(session, path; run_async=false)
+    html = notebook2html(notebook; evaluate_cells=false)
+    return html
 end
 

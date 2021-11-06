@@ -6,6 +6,7 @@ using Pluto:
     CellOutput,
     Notebook,
     ServerSession,
+    SessionActions,
     generate_html,
     load_notebook_nobackup,
     update_run!,

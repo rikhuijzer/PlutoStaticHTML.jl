@@ -80,3 +80,25 @@ end
     html = notebook2html(notebook; session)
     @test contains(html, "2")
 end
+
+@testset "from_file" begin
+    mktempdir() do dir
+        file = joinpath(dir, "tmp.jl")
+        content = """
+            ### A Pluto.jl notebook ###
+            # v0.17.1
+
+            using Markdown
+            using InteractiveUtils
+
+            # ╔═╡ a6dda572-3f2c-11ec-0eeb-69e2323a92de
+            x = 1 + 2
+
+            # ╔═╡ Cell order:
+            # ╠═a6dda572-3f2c-11ec-0eeb-69e2323a92de
+            """
+        write(file, content)
+        html = notebook2html(file)
+        @test contains(html, "3")
+    end
+end

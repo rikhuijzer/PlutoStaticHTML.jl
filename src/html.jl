@@ -168,6 +168,12 @@ function _cell2html(cell::Cell, code_class, output_class, hide_md_code)
         """
 end
 
+function run_notebook!(notebook, session)
+    cells = [last(e) for e in notebook.cells_dict]
+    update_run!(session, notebook, cells)
+    return nothing
+end
+
 """
     notebook2html(
         notebook::Notebook;
@@ -177,23 +183,27 @@ end
         hide_md_code=true
     )
 
-Run the `notebook` and return the code and output as HTML.
+Return the code and output as HTML for `notebook`.
+Extra options can be passed via `session=Pluto.ServerSession(; options)`
 """
 function notebook2html(
         notebook::Notebook;
         session=ServerSession(),
         code_class="language-julia",
         output_class="code-output",
-        hide_md_code=true
+        hide_md_code=true,
+        run=true
     )
-    cells = [last(e) for e in notebook.cells_dict]
-    update_run!(session, notebook, cells)
+    if run
+        run_notebook!(notebook, session)
+    end
     order = notebook.cell_order
     outputs = map(order) do cell_uuid
         cell = notebook.cells_dict[cell_uuid]
         _cell2html(cell, code_class, output_class, hide_md_code)
     end
-    return join(outputs, '\n')
+    html = join(outputs, '\n')
+    return html
 end
 
 """
@@ -201,8 +211,10 @@ end
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
 """
-function notebook2html(path::AbstractString)
-    notebook = load_notebook_nobackup(path)
-    return notebook2html(notebook)
+function notebook2html(path::AbstractString; session=ServerSession())
+    # "open" in SessionActions means open `path` into `session`.
+    notebook = SessionActions.open(session, path; run_async=false)
+    html = notebook2html(notebook; run=false)
+    return html
 end
 

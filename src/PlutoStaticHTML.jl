@@ -6,6 +6,7 @@ using Pluto:
     CellOutput,
     Notebook,
     ServerSession,
+    SessionActions,
     generate_html,
     load_notebook_nobackup,
     update_run!,
@@ -13,6 +14,6 @@ using Pluto:
 
 include("html.jl")
 
-export notebook2html
+export notebook2html, run_notebook!
 
 end # module

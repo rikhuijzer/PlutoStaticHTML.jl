@@ -13,10 +13,24 @@ const IMAGEMIME = Union{
     MIME"image/gif"
 }
 
+"""
+    _escape_html(s::AbstractString)
+
+Escape HTML.
+Useful for showing HTML inside code blocks, see
+https://github.com/rikhuijzer/PlutoStaticHTML.jl/issues/9.
+"""
+function _escape_html(s::AbstractString)
+    s = replace(s, '<' => "&lt;")
+    s = replace(s, '>' => "&gt;")
+    return s
+end
+
 function code_block(code; class="language-julia")
     if code == ""
         return ""
     end
+    code = _escape_html(code)
     return """<pre><code class="$class">$code</code></pre>"""
 end
 

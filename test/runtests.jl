@@ -10,6 +10,10 @@ using Test:
 const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
 
 @testset "html" begin
+    html = "<b>foo</b>"
+    block = PlutoStaticHTML.code_block(html)
+    @test contains(block, "&lt;b&gt;foo&lt;/b&gt;")
+
     notebook = Notebook([
         Cell("x = 1 + 1"),
         Cell("using Images: load"),

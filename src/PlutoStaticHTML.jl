@@ -13,6 +13,6 @@ using Pluto:
 
 include("html.jl")
 
-export notebook2html
+export evaluate_notebook!, notebook2html
 
 end # module

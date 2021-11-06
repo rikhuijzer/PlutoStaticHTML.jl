@@ -1,14 +1,15 @@
 using PlutoStaticHTML
 using Pluto:
     Cell,
-    Notebook
+    Notebook,
+    ServerSession
 using Test:
     @testset,
     @test
 
 const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
 
-@testset "StaticHTML" begin
+@testset "html" begin
     notebook = Notebook([
         Cell("x = 1 + 1"),
         Cell("using Images: load"),
@@ -69,4 +70,13 @@ const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
     html = notebook2html(notebook; hide_md_code=false)
     lines = split(html, '\n')
     @test lines[1] != ""
+end
+
+@testset "with_session" begin
+    session = ServerSession()
+    notebook = Notebook([
+        Cell("x = 1 + 1")
+    ])
+    html = notebook2html(notebook; session)
+    @test contains(html, "2")
 end

@@ -168,7 +168,7 @@ function _cell2html(cell::Cell, code_class, output_class, hide_md_code)
         """
 end
 
-function evaluate_notebook!(notebook, session)
+function run_notebook!(notebook, session)
     cells = [last(e) for e in notebook.cells_dict]
     update_run!(session, notebook, cells)
     return nothing
@@ -192,10 +192,10 @@ function notebook2html(
         code_class="language-julia",
         output_class="code-output",
         hide_md_code=true,
-        evaluate_cells=true
+        run=true
     )
-    if evaluate_cells
-        evaluate_notebook!(notebook, session)
+    if run
+        run_notebook!(notebook, session)
     end
     order = notebook.cell_order
     outputs = map(order) do cell_uuid
@@ -212,10 +212,9 @@ end
 Run the Pluto notebook at `path` and return the code and output as HTML.
 """
 function notebook2html(path::AbstractString; session=ServerSession())
-    # "open" in the ServerSession means open `path` into `session`.
-    # this will also evaluate code blocks
+    # "open" in SessionActions means open `path` into `session`.
     notebook = SessionActions.open(session, path; run_async=false)
-    html = notebook2html(notebook; evaluate_cells=false)
+    html = notebook2html(notebook; run=false)
     return html
 end
 

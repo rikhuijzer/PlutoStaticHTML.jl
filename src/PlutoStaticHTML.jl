@@ -14,6 +14,6 @@ using Pluto:
 
 include("html.jl")
 
-export evaluate_notebook!, notebook2html
+export notebook2html, run_notebook!
 
 end # module

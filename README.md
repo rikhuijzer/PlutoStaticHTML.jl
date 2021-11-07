@@ -61,3 +61,27 @@ showall = false
 \pluto{analysis}
 ```
 
+## LaTeX equations
+
+With Franklin.jl, I've just updated `foot_katex.html` to include:
+
+```javascript
+<script>
+  const options = {
+    delimiters: [
+      {left: "$$", right: "$$", display: true},
+      {left: "$", right: "$", display: false},
+      {left: "\\begin{equation}", right: "\\end{equation}", display: true},
+      {left: "\\begin{align}", right: "\\end{align}", display: true},
+      {left: "\\begin{alignat}", right: "\\end{alignat}", display: true},
+      {left: "\\begin{gather}", right: "\\end{gather}", display: true},
+      {left: "\\(", right: "\\)", display: false},
+      {left: "\\[", right: "\\]", display: true}
+    ]
+  };
+  renderMathInElement(document.body, options);
+</script>
+```
+
+which basically ensures that inline math surrounded by single dollar symbols is also rendered.
+Note that Pluto.jl runs MathJax by default which might sometimes cause inconsistencies between the math in Pluto and inside your HTML.

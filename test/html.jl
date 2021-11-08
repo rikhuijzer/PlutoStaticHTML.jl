@@ -1,3 +1,9 @@
+function notebook2html!(notebook; kwargs...)
+    session = ServerSession()
+    run_notebook!(notebook, session)
+    return notebook2html(notebook; kwargs...)
+end
+
 @testset "html" begin
     html = "<b>foo</b>"
     block = PlutoStaticHTML.code_block(html)
@@ -10,7 +16,7 @@
         Cell("""im_file(ext) = joinpath(PKGDIR, "test", "im", "im.\$ext")"""),
         Cell("""load(im_file("png"))""")
     ])
-    html = notebook2html(notebook)
+    html = notebook2html!(notebook)
     lines = split(html, '\n')
 
     @test contains(lines[1], "1 + 1")
@@ -21,7 +27,7 @@
     notebook = Notebook([
         Cell("md\"This is **markdown**\"")
     ])
-    html = notebook2html(notebook)
+    html = notebook2html!(notebook)
     lines = split(html, '\n')
     @test contains(lines[2], "<strong>")
 
@@ -30,7 +36,7 @@
         Cell("""["pluto", "tree", "object"]"""),
         Cell("""[1, (2, (3, 4))]""")
     ])
-    html = notebook2html(notebook)
+    html = notebook2html!(notebook)
     lines = split(html, '\n')
     @test contains(lines[2], "(\"pluto\", \"tree\", \"object\")")
     @test contains(lines[2], "<pre")
@@ -49,29 +55,20 @@
             ),
         Cell("B(1, A())")
     ])
-    html = notebook2html(notebook)
+    html = notebook2html!(notebook)
     lines = split(html, '\n')
     @test contains(lines[end-1], "B(1, A())")
 
     notebook = Notebook([
         Cell("md\"my text\"")
     ])
-    html = notebook2html(notebook; hide_md_code=true)
+    html = notebook2html!(notebook; hide_md_code=true)
     lines = split(html, '\n')
     @test lines[1] == ""
 
-    html = notebook2html(notebook; hide_md_code=false)
+    html = notebook2html!(notebook; hide_md_code=false)
     lines = split(html, '\n')
     @test lines[1] != ""
-end
-
-@testset "with_session" begin
-    session = ServerSession()
-    notebook = Notebook([
-        Cell("x = 1 + 1")
-    ])
-    html = notebook2html(notebook; session)
-    @test contains(html, "2")
 end
 
 @testset "from_file" begin

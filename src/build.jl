@@ -1,18 +1,10 @@
-function _default_n_threads()
-    if "JULIA_NUM_THREADS" in keys(ENV)
-        return parse(Int, ENV["JULIA_NUM_THREADS"])
-    else
-        return nothing
-    end
-end
-
 """
-    parallel_build!(dir, files; n_threads=_default_n_threads())
+    parallel_build!(dir, files; print_log=true)
 
 Build HTML files in parallel and write output to files with a ".html" extension.
 This can be useful to speed up the build in CI.
 """
-function parallel_build!(dir, files; n_threads=_default_n_threads())
+function parallel_build!(dir, files; print_log=true)
     if isnothing(n_threads)
         error("Specify number of threads via JULIA_NUM_THREADS or `n_threads`")
     end
@@ -39,6 +31,9 @@ function parallel_build!(dir, files; n_threads=_default_n_threads())
                 cmd = `$(Base.julia_cmd()) --project -e $ex`
                 run(cmd)
             end
+        end
+        if print_log
+            print(read(log_path, String))
         end
     end
 end

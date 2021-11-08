@@ -8,7 +8,7 @@
             write(path, content)
             return file
         end
-        parallel_build!(dir, files)
+        parallel_build!(dir)
 
         html_file = joinpath(dir, "file1.html")
         @test contains(read(html_file, String), "3001")

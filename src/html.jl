@@ -182,35 +182,29 @@ function _cell2html(cell::Cell, code_class, output_class, hide_md_code)
         """
 end
 
-function run_notebook!(notebook, session)
+function run_notebook!(notebook, session; run_async=false)
     cells = [last(e) for e in notebook.cells_dict]
-    update_run!(session, notebook, cells)
+    update_save_run!(session, notebook, cells; run_async)
     return nothing
 end
 
 """
     notebook2html(
         notebook::Notebook;
-        session=ServerSession(),
         code_class="language-julia",
         output_class="code-output",
         hide_md_code=true
     )
 
 Return the code and output as HTML for `notebook`.
-Extra options can be passed via `session=Pluto.ServerSession(; options)`
+Assumes that the notebook has already been executed.
 """
 function notebook2html(
         notebook::Notebook;
-        session=ServerSession(),
         code_class="language-julia",
         output_class="code-output",
-        hide_md_code=true,
-        run=true
+        hide_md_code=true
     )
-    if run
-        run_notebook!(notebook, session)
-    end
     order = notebook.cell_order
     outputs = map(order) do cell_uuid
         cell = notebook.cells_dict[cell_uuid]
@@ -221,13 +215,21 @@ function notebook2html(
 end
 
 """
-    notebook2html(path::AbstractString; session=ServerSession())
+    notebook2html(
+        path::AbstractString;
+        code_class="language-julia",
+        output_class="code-output",
+        session=ServerSession()
+    )
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
 """
-function notebook2html(path::AbstractString; session=ServerSession())
-    # "open" in SessionActions means open `path` into `session`.
+function notebook2html(
+        path::AbstractString;
+        code_class="language-julia",
+        output_class="code-output",
+        session=ServerSession()
+    )
     notebook = SessionActions.open(session, path; run_async=false)
-    html = notebook2html(notebook; run=false)
-    return html
+    html = notebook2html(notebook)
 end

@@ -5,12 +5,15 @@ using Pluto:
     Cell,
     CellOutput,
     Notebook,
+    PlutoRunner,
     ServerSession,
     SessionActions,
+    WorkspaceManager,
     generate_html,
     load_notebook_nobackup,
+    update_dependency_cache!,
     update_run!,
-    notebook_to_js
+    update_save_run!
 
 include("html.jl")
 include("build.jl")

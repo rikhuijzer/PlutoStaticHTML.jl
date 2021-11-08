@@ -14,6 +14,7 @@ To see how to embed output from a Pluto notebook in Documenter.jl, checkout "mak
 
 ## Franklin.jl
 
+See the next section for a parallel version.
 In `utils.jl` define:
 
     """
@@ -50,6 +51,68 @@ In `utils.jl` define:
     end
 
 Next, the Pluto notebook at "/posts/notebooks/analysis.jl" can be included in a Franklin webpage.
+For example:
+
+```
++++
+title = "My analysis"
+showall = false
++++
+
+\pluto{analysis}
+```
+
+## Franklin.jl in parallel
+
+The approach above lets Franklin.jl handle the build.
+This doesn't work in parallel.
+To run the notebooks in parallel and speed up the build, this package defines `parallel_build!`.
+To use it, pass a `dir` and some `files` in that dir to write HTML files.
+
+```
+julia> dir = joinpath("posts", "notebooks");
+
+julia> files = ["notebook1.jl", "notebook2.jl"];
+
+julia> parallel_build!(dir, files);
+
+```
+
+Or, just call
+
+```
+julia> parallel_build!(dir)
+```
+
+to run all the ".jl" files in `dir`.
+
+In CI, be sure to call this before using Franklin `serve` or `optimize`.
+Next, read the HTML back into Franklin by defining in `utils.jl`:
+
+    """
+        lx_read_pluto_output(com, _)
+
+    Embed a Pluto notebook via:
+    https://github.com/rikhuijzer/PlutoStaticHTML.jl
+    """
+    function lx_read_pluto_output(com, _)
+        file = string(Franklin.content(com.braces[1]))::String
+        dir = joinpath("posts", "notebooks")
+        filename = "$(file).jl"
+
+        return """
+            ```julia:pluto
+            # hideall
+
+            filename = "$filename"
+            html = read(filename, String)
+            println("~~~\n\$html\n~~~\n")
+            ```
+            \\textoutput{pluto}
+            """
+    end
+
+and calling this from Franklin.
 For example:
 
 ```

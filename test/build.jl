@@ -20,7 +20,8 @@ end
         mktempdir() do dir
             content = pluto_notebook_content("x =")
             file = "file"
-            write(file, content)
+            path = joinpath(dir, file)
+            write(path, content)
             parallel_build!(dir, [file])
         end
         error("Test should have failed")

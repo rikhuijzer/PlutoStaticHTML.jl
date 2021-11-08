@@ -56,7 +56,6 @@ For example:
 ```
 +++
 title = "My analysis"
-showall = false
 +++
 
 \pluto{analysis}
@@ -88,12 +87,12 @@ In CI, be sure to call this before using Franklin `serve` or `optimize`.
 Next, read the HTML back into Franklin by defining in `utils.jl`:
 
     """
-        lx_read_pluto_output(com, _)
+        lx_readhtml(com, _)
 
     Embed a Pluto notebook via:
     https://github.com/rikhuijzer/PlutoStaticHTML.jl
     """
-    function lx_read_pluto_output(com, _)
+    function lx_readhtml(com, _)
         file = string(Franklin.content(com.braces[1]))::String
         dir = joinpath("posts", "notebooks")
         filename = "$(file).jl"
@@ -116,10 +115,10 @@ For example:
 ```
 +++
 title = "My analysis"
-showall = false
+reeval = true
 +++
 
-\pluto{analysis}
+\readhtml{analysis}
 ```
 
 ## LaTeX equations

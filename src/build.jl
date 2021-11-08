@@ -5,9 +5,6 @@ Build HTML files in parallel and write output to files with a ".html" extension.
 This can be useful to speed up the build in CI.
 """
 function parallel_build!(dir, files; print_log=true)
-    if isnothing(n_threads)
-        error("Specify number of threads via JULIA_NUM_THREADS or `n_threads`")
-    end
     # The static schedule creates one task per thread.
     Threads.@threads :static for in_file in files
         without_extension, _ = splitext(in_file)

@@ -18,14 +18,14 @@ end
 @testset "invalid_notebook" begin
     try
         mktempdir() do dir
-            content = pluto_notebook_content("x =")
-            file = "file"
+            content = pluto_notebook_content("@assert false")
+            file = "file.jl"
             path = joinpath(dir, file)
             write(path, content)
             parallel_build!(dir, [file])
         end
         error("Test should have failed")
-    catch
+    catch AssertionError
         @test true # Success.
     end
 end

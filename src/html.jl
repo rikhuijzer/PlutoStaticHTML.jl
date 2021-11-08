@@ -184,7 +184,7 @@ end
 
 function run_notebook!(notebook, session)
     cells = [last(e) for e in notebook.cells_dict]
-    update_run!(session, notebook, cells)
+    update_save_run!(session, notebook, cells; run_async=true)
     return nothing
 end
 
@@ -217,8 +217,13 @@ function notebook2html(
         _cell2html(cell, code_class, output_class, hide_md_code)
     end
     html = join(outputs, '\n')
-    return html
+    return notebook
 end
+
+# Probably need to use PlutoRunner.open with async=true and afterwards
+# read the output from the notebooks.
+# to avoid concurrency issues, Pluto.jl only starts a second thread when pkg
+# is done.
 
 """
     notebook2html(path::AbstractString; session=ServerSession())
@@ -226,8 +231,6 @@ end
 Run the Pluto notebook at `path` and return the code and output as HTML.
 """
 function notebook2html(path::AbstractString; session=ServerSession())
-    # "open" in SessionActions means open `path` into `session`.
-    notebook = SessionActions.open(session, path; run_async=false)
-    html = notebook2html(notebook; run=false)
-    return html
+    notebook = load_notebook_nobackup(path)
+    return notebook2html(notebook; session)
 end

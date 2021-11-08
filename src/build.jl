@@ -1,42 +1,31 @@
 """
-    parallel_build!(
-        dir,
-        files;
-        print_log=true,
-        session=ServerSession()
-    )
+    parallel_build!(dir, files; print_log=true)
 
 Build HTML files in parallel and write output to files with a ".html" extension.
-This can be useful to speed up the build locally or in CI.
+This can be useful to speed up the build in CI.
 """
-function parallel_build!(
-        dir,
-        files;
-        print_log=true,
-        session=ServerSession()
-    )
+function parallel_build!(dir, files; print_log=true)
+    session = ServerSession()
+    H = Vector{String}(undef, length(files))
 
-    # Start all the notebooks in parallel with async enabled.
-    # This way, Pluto handles concurrency.
-    notebooks = map(files) do in_file
+    # The static schedule creates one task per thread.
+    Threads.@threads :static for i in 1:length(files)
+        in_file = files[i]
         in_path = joinpath(dir, in_file)
-        @assert isfile(in_path) "Expected .jl file at $in_path"
+        @assert isfile(in_path) "Expected file at $in_path"
 
-        @info "Starting evaluation of Pluto notebook at $in_file"
-        notebook = SessionActions.open(session, in_path; run_async=true)
-        return notebook
+        @info "→ evaluating Pluto notebook at ($in_file)"
+        html = notebook2html(in_path; session)
+        H[i] = html
     end
 
-    for (in_file, notebook) in zip(files, notebooks)
-        # Block until execution is done.
-        take!(notebook.executetoken)
-
+    for i in 1:length(files)
+        in_file = files[i]
         without_extension, _ = splitext(in_file)
         out_file = "$(without_extension).html"
         out_path = joinpath(dir, out_file)
 
-        html = notebook2html(notebook)
-        SessionActions.shutdown(session, notebook)
+        html = H[i]
         write(out_path, html)
     end
 

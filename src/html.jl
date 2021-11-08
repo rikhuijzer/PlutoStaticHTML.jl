@@ -182,29 +182,35 @@ function _cell2html(cell::Cell, code_class, output_class, hide_md_code)
         """
 end
 
-function run_notebook!(notebook, session; run_async=false)
+function run_notebook!(notebook, session)
     cells = [last(e) for e in notebook.cells_dict]
-    update_save_run!(session, notebook, cells; run_async)
+    update_run!(session, notebook, cells)
     return nothing
 end
 
 """
     notebook2html(
         notebook::Notebook;
+        session=ServerSession(),
         code_class="language-julia",
         output_class="code-output",
         hide_md_code=true
     )
 
 Return the code and output as HTML for `notebook`.
-Assumes that the notebook has already been executed.
+Extra options can be passed via `session=Pluto.ServerSession(; options)`
 """
 function notebook2html(
         notebook::Notebook;
+        session=ServerSession(),
         code_class="language-julia",
         output_class="code-output",
-        hide_md_code=true
+        hide_md_code=true,
+        run=true
     )
+    if run
+        run_notebook!(notebook, session)
+    end
     order = notebook.cell_order
     outputs = map(order) do cell_uuid
         cell = notebook.cells_dict[cell_uuid]
@@ -215,21 +221,13 @@ function notebook2html(
 end
 
 """
-    notebook2html(
-        path::AbstractString;
-        code_class="language-julia",
-        output_class="code-output",
-        session=ServerSession()
-    )
+    notebook2html(path::AbstractString; session=ServerSession())
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
 """
-function notebook2html(
-        path::AbstractString;
-        code_class="language-julia",
-        output_class="code-output",
-        session=ServerSession()
-    )
+function notebook2html(path::AbstractString; session=ServerSession())
+    # "open" in SessionActions means open `path` into `session`.
     notebook = SessionActions.open(session, path; run_async=false)
-    html = notebook2html(notebook)
+    html = notebook2html(notebook; run=false)
+    return html
 end

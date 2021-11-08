@@ -67,22 +67,24 @@ showall = false
 The approach above lets Franklin.jl handle the build.
 This doesn't work in parallel.
 To run the notebooks in parallel and speed up the build, this package defines `parallel_build!`.
-To use it, pass a `dir` to write HTML files for all notebook files (recognized by ".jl" extension):
+To use it, pass a `dir` and some `files` in that dir to write HTML files.
 
 ```
 julia> dir = joinpath("posts", "notebooks");
+
+julia> files = ["notebook1.jl", "notebook2.jl"];
 
 julia> parallel_build!(dir, files);
 
 ```
 
-Or, to run only specific notebooks, use:
+Or, just call
 
 ```
-julia> files = ["notebook1.jl", "notebook2.jl"];
-
-julia> parallel_build!(dir, files)
+julia> parallel_build!(dir)
 ```
+
+to run all the ".jl" files in `dir`.
 
 In CI, be sure to call this before using Franklin `serve` or `optimize`.
 Next, read the HTML back into Franklin by defining in `utils.jl`:

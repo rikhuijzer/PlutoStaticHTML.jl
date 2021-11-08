@@ -13,7 +13,9 @@ using Pluto:
     notebook_to_js
 
 include("html.jl")
+include("build.jl")
 
 export notebook2html, run_notebook!
+export parallel_build!
 
 end # module

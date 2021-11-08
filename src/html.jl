@@ -221,7 +221,7 @@ function notebook2html(
 end
 
 """
-    notebook2html(path::AbstractString)
+    notebook2html(path::AbstractString; session=ServerSession())
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
 """
@@ -232,3 +232,14 @@ function notebook2html(path::AbstractString; session=ServerSession())
     return html
 end
 
+"""
+    notebook2html(in_path, out_path; session=ServerSession())
+
+Run the Pluto notebook at `in_path` and write the output to `out_path`.
+"""
+function notebook2html(in_path, out_path; session=ServerSession())
+    html = notebook2html(in_path; session)
+    @show html
+    write(out_path, html)
+    return nothing
+end

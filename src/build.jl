@@ -17,8 +17,7 @@ function parallel_build!(dir, files; n_threads=_default_n_threads())
         error("Specify number of threads via JULIA_NUM_THREADS or `n_threads`")
     end
     # The static schedule creates one task per thread.
-    # Threads.@threads :static for in_file in files
-    for in_file in files
+    Threads.@threads :static for in_file in files
         without_extension, _ = splitext(in_file)
         in_path = joinpath(dir, in_file)
         @assert isfile(in_path) "Expected file at $in_path"
@@ -30,7 +29,15 @@ function parallel_build!(dir, files; n_threads=_default_n_threads())
         @info "→ evaluating Pluto notebook at ($in_file)"
         open(log_path, "w") do io
             redirect_stdout(io) do
-                notebook2html(in_path, out_path)
+                # Can't run notebook2html in parallel without multithreading issues.
+                # Need to improve the function, but for now this should work.
+                # Also can't use IOCapture.jl because it hangs.
+                ex = """
+                    using PlutoStaticHTML;
+                    notebook2html("$in_path", "$out_path")
+                    """
+                cmd = `$(Base.julia_cmd()) --project -e $ex`
+                run(cmd)
             end
         end
     end

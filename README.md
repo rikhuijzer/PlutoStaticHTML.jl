@@ -78,6 +78,14 @@ julia> parallel_build!(dir, files);
 
 ```
 
+Or, just call
+
+```
+julia> parallel_build!(dir)
+```
+
+to run all the ".jl" files in `dir`.
+
 In CI, be sure to call this before using Franklin `serve` or `optimize`.
 Next, read the HTML back into Franklin by defining in `utils.jl`:
 

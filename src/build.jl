@@ -1,3 +1,22 @@
+function _is_cell_done(cell)
+    if cell.running_disabled
+        return true
+    else
+        return !cell.queued && !cell.running
+    end
+end
+
+"""
+    _is_notebook_done(notebook::Notebook)
+
+Return whether all cells in the `notebook` have executed.
+This method is more reliable than using `notebook.executetoken` because Pluto.jl drops that lock also after installing packages.
+"""
+function _notebook_done(notebook::Notebook)
+    cells = [last(elem) for elem in notebook.cells_dict]
+    return all(_is_cell_done, cells)
+end
+
 """
     parallel_build!(
         dir,
@@ -27,12 +46,10 @@ function parallel_build!(
         return notebook
     end
 
-    sleep(5)
-
     for (in_file, notebook) in zip(files, notebooks)
-        take!(notebook.executetoken)
-        cells = [last(e) for e in notebook.cells_dict]
-        @assert last(cells).queued == false "Last cell $in_file didn't run yet"
+        while !_notebook_done(notebook)
+            sleep(1)
+        end
 
         without_extension, _ = splitext(in_file)
         out_file = "$(without_extension).html"

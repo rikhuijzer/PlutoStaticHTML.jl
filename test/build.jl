@@ -3,7 +3,7 @@
         files = map(1:2) do i
             without_extension = "file$i"
             file = "$(without_extension).jl"
-            content = pluto_notebook_content("x = 3000 + $i")
+            content = pluto_notebook_content("x = begin sleep(3); x = 3000 + $i; end")
             path = joinpath(dir, file)
             write(path, content)
             return file
@@ -12,6 +12,9 @@
 
         html_file = joinpath(dir, "file1.html")
         @test contains(read(html_file, String), "3001")
+
+        html_file = joinpath(dir, "file2.html")
+        @test contains(read(html_file, String), "3002")
     end
 end
 

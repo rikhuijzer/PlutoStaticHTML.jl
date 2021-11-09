@@ -30,6 +30,8 @@ function parallel_build!(
     for (in_file, notebook) in zip(files, notebooks)
         # Block until execution is done.
         take!(notebook.executetoken)
+        cells = [last(e) for e in notebook.cells_dict]
+        @assert last(cells).queued == false
 
         without_extension, _ = splitext(in_file)
         out_file = "$(without_extension).html"

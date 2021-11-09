@@ -27,16 +27,11 @@ function parallel_build!(
         return notebook
     end
 
+    sleep(5)
+
     for (in_file, notebook) in zip(files, notebooks)
         take!(notebook.executetoken)
         cells = [last(e) for e in notebook.cells_dict]
-        if last(cells).queued
-            @debug "Last cell was still queued; sleeping for 10"
-            put!(notebook.executetoken)
-            # Give `run_reactive!` time to take over the lock after `sync_nbpkg`.
-            sleep(10)
-        end
-        take!(notebook.executetoken)
         @assert last(cells).queued == false "Last cell $in_file didn't run yet"
 
         without_extension, _ = splitext(in_file)

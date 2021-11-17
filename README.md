@@ -71,7 +71,7 @@ To use it, pass a `dir` to write HTML files for all notebook files (recognized b
 ```
 julia> dir = joinpath("posts", "notebooks");
 
-julia> parallel_build!(dir, files);
+julia> parallel_build!(dir);
 
 ```
 

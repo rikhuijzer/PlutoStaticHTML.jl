@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   # Regularily run the test since Pluto internals can change at any moment.
   schedule:
-    - cron: '00 04 * * 2, 5'
+    - cron: '00 04 * * 3,6'
 
 jobs:
   Test:

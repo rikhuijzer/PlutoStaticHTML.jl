@@ -220,25 +220,13 @@ function notebook2html(
 end
 
 """
-    notebook2html(
-        path::AbstractString;
-        code_class="language-julia",
-        output_class="code-output",
-        hide_md_code=true,
-        hide_code=false,
-        session=ServerSession()
-    )
+    notebook2html(path::AbstractString; session=ServerSession(), kwargs...)
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
+The `kwargs` are passed to `notebook2html(notebook::Notebook, kwargs...)`.
 """
-function notebook2html(
-        path::AbstractString;
-        code_class="language-julia",
-        output_class="code-output",
-        hide_md_code=true,
-        hide_code=false,
-        session=ServerSession()
-    )
+function notebook2html(path::AbstractString; session=ServerSession(), kwargs...)
     notebook = SessionActions.open(session, path; run_async=false)
-    html = notebook2html(notebook; code_class, output_class, hide_md_code, hide_code)
+    html = notebook2html(notebook; kwargs...)
+    return html
 end

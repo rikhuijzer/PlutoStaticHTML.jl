@@ -18,22 +18,14 @@ function _notebook_done(notebook::Notebook)
 end
 
 """
-    parallel_build!(
-        dir,
-        files;
-        print_log=true,
-        session=ServerSession()
-    )
+    parallel_build!(dir, files; session=ServerSession(), kwargs...)
 
 Build HTML files in parallel and write output to files with a ".html" extension.
-This can be useful to speed up the build locally or in CI.
+The `kwargs` are passed to `notebook2html`.
+
+This method can be useful to speed up the build locally or in CI.
 """
-function parallel_build!(
-        dir,
-        files;
-        print_log=true,
-        session=ServerSession()
-    )
+function parallel_build!(dir, files; session=ServerSession(), kwargs...)
 
     # Start all the notebooks in parallel with async enabled.
     # This way, Pluto handles concurrency.
@@ -55,7 +47,7 @@ function parallel_build!(
         out_file = "$(without_extension).html"
         out_path = joinpath(dir, out_file)
 
-        html = notebook2html(notebook)
+        html = notebook2html(notebook; kwargs...)
         SessionActions.shutdown(session, notebook)
         write(out_path, html)
     end
@@ -63,8 +55,13 @@ function parallel_build!(
     return nothing
 end
 
-function parallel_build!(dir; print_log=true)
+"""
+    parallel_build!(dir; kwargs...)
+
+Build all ".jl" files in `dir` in parallel.
+"""
+function parallel_build!(dir; kwargs...)
     files = filter(endswith(".jl"), readdir(dir))
-    parallel_build!(dir, files; print_log)
+    parallel_build!(dir, files; kwargs...)
     return nothing
 end

@@ -41,7 +41,10 @@ function output_block(s; class="code-output")
     return """<pre><code class="$class">$s</code></pre>"""
 end
 
-function _code2html(code::AbstractString, class, hide_md_code)
+function _code2html(code::AbstractString, class, hide_md_code, hide_code)
+    if hide_code
+        return ""
+    end
     if hide_md_code && startswith(code, "md\"")
         return ""
     end
@@ -173,8 +176,8 @@ _output2html(body, ::MIME"text/plain", class) = output_block(body)
 _output2html(body, ::MIME"text/html", class) = body
 _output2html(body, T::MIME, class) = error("Unknown type: $T")
 
-function _cell2html(cell::Cell, code_class, output_class, hide_md_code)
-    code = _code2html(cell.code, code_class, hide_md_code)
+function _cell2html(cell::Cell, code_class, output_class, hide_md_code, hide_code)
+    code = _code2html(cell.code, code_class, hide_md_code, hide_code)
     output = _output2html(cell.output.body, cell.output.mime, output_class)
     return """
         $code
@@ -193,6 +196,7 @@ end
         notebook::Notebook;
         code_class="language-julia",
         output_class="code-output",
+        hide_code=false,
         hide_md_code=true
     )
 
@@ -203,33 +207,26 @@ function notebook2html(
         notebook::Notebook;
         code_class="language-julia",
         output_class="code-output",
+        hide_code=false,
         hide_md_code=true
     )
     order = notebook.cell_order
     outputs = map(order) do cell_uuid
         cell = notebook.cells_dict[cell_uuid]
-        _cell2html(cell, code_class, output_class, hide_md_code)
+        _cell2html(cell, code_class, output_class, hide_md_code, hide_code)
     end
     html = join(outputs, '\n')
     return html
 end
 
 """
-    notebook2html(
-        path::AbstractString;
-        code_class="language-julia",
-        output_class="code-output",
-        session=ServerSession()
-    )
+    notebook2html(path::AbstractString; session=ServerSession(), kwargs...)
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
+The `kwargs` are passed to `notebook2html(notebook::Notebook, kwargs...)`.
 """
-function notebook2html(
-        path::AbstractString;
-        code_class="language-julia",
-        output_class="code-output",
-        session=ServerSession()
-    )
+function notebook2html(path::AbstractString; session=ServerSession(), kwargs...)
     notebook = SessionActions.open(session, path; run_async=false)
-    html = notebook2html(notebook)
+    html = notebook2html(notebook; kwargs...)
+    return html
 end

@@ -69,6 +69,10 @@ end
     html = notebook2html!(notebook; hide_md_code=false)
     lines = split(html, '\n')
     @test lines[1] != ""
+
+    html = notebook2html!(notebook; hide_md_code=false, hide_code=true)
+    lines = split(html, '\n')
+    @test lines[1] == ""
 end
 
 @testset "from_file" begin

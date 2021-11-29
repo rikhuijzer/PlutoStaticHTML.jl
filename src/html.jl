@@ -219,6 +219,13 @@ end
 
 Return the code and output as HTML for `notebook`.
 Assumes that the notebook has already been executed.
+
+Keyword arguments:
+
+- `code_class`: Code class used by CSS and/or the syntax highlighter.
+- `output_class`: Output class used by CSS and/or the syntax highlighter.
+- `hide_code`: Hide code. Can be useful when readers are not interested in code at all.
+- `hide_md_code`: Hide code for Markdown blocks. Enabled by default.
 """
 function notebook2html(
         notebook::Notebook;
@@ -237,10 +244,15 @@ function notebook2html(
 end
 
 """
-    notebook2html(path::AbstractString; session=ServerSession(), kwargs...)
+    notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
 The `kwargs` are passed to `notebook2html(notebook::Notebook, kwargs...)`.
+
+Keyword arguments:
+
+- `append_cells`: Specify one or more `Pluto.Cell`s to be appended at the end of the notebook.
+    To append package versions, specify `append_cells=PlutoStaticHTML.PACKAGE_VERSIONS`.
 """
 function notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)
     notebook = load_notebook_nobackup(path)

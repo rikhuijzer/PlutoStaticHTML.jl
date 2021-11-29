@@ -4,3 +4,4 @@
 /build
 /docs/build/
 **/*.html
+/docs/src/notebook.*

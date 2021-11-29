@@ -255,13 +255,13 @@ Keyword arguments:
     To append package versions, specify `append_cells=PlutoStaticHTML.PACKAGE_VERSIONS`.
 """
 function notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)
-    tempname() do tmp_path
-        # Avoid Pluto making changes to the original notebook.
-        cp(path, tmp_path)
-        notebook = load_notebook_nobackup(tmp_path)
-        PlutoStaticHTML._append_cell!(notebook, append_cells)
-        run_notebook!(notebook, session; run_async=false)
-        html = notebook2html(notebook; kwargs...)
-        return html
-    end
+    tmp_path = tempname()
+    # Avoid Pluto making changes to the original notebook.
+    cp(path, tmp_path)
+    notebook = load_notebook_nobackup(tmp_path)
+    PlutoStaticHTML._append_cell!(notebook, append_cells)
+    run_notebook!(notebook, session; run_async=false)
+    html = notebook2html(notebook; kwargs...)
+    rm(tmp_path)
+    return html
 end

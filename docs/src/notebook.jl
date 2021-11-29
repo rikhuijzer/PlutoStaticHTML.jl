@@ -1,13 +1,13 @@
 ### A Pluto.jl notebook ###
-# v0.17.1
+# v0.17.2
 
 using Markdown
 using InteractiveUtils
 
 # ╔═╡ 3dd303b0-373e-11ec-18e4-69bfc20b5e29
 begin
-	using CairoMakie: lines
-	using DataFrames: DataFrame
+    using CairoMakie: lines
+    using DataFrames: DataFrame
 end
 
 # ╔═╡ 751853f6-626f-4040-86b2-088339ef9a3c
@@ -21,7 +21,7 @@ path = "/path/to/notebook.jl"
 html = notebook2html(path)
 ```
 
-Actually, the web page that you're looking is a Pluto notebook, see 
+Actually, the web page that you're looking is a Pluto notebook, see
 [notebook.jl](https://rikhuijzer.github.io/PlutoStaticHTML.jl/dev/notebook.jl).
 
 Note that, compared to the default Javascript Pluto output, raw HTML is easier to embed in Documenter.jl (as this web site demonstrates) or Franklin.jl.
@@ -529,9 +529,9 @@ uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
 [[Libffi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "761a393aeccd6aa92ec3515e428c26bf99575b3b"
+git-tree-sha1 = "0b4a5d71f3e5200a7dff793393e09dfc2d874290"
 uuid = "e9f186c6-92d2-5b65-8a66-fee21dc1b490"
-version = "3.2.2+0"
+version = "3.2.2+1"
 
 [[Libgcrypt_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgpg_error_jll", "Pkg"]

@@ -15,9 +15,11 @@ using Pluto:
     update_run!,
     update_save_run!
 
+include("cells.jl")
 include("html.jl")
 include("build.jl")
 
+export PACKAGE_VERSIONS
 export notebook2html, run_notebook!
 export parallel_build!
 

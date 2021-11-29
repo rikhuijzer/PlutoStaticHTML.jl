@@ -2,5 +2,6 @@
 *.so
 .vscode/
 /build
-/docs/build/
 **/*.html
+/docs/build/
+/docs/src/notebook.md

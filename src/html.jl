@@ -185,6 +185,23 @@ function _cell2html(cell::Cell, code_class, output_class, hide_md_code, hide_cod
         """
 end
 
+"""
+    _append_cell!(notebook::Notebook, cell::Cell)
+
+Add one `cell` to the end of the `notebook`.
+This is based on `add_remote_cell` in Pluto's `Editor.js`.
+"""
+function _append_cell!(notebook::Notebook, cell::Cell)
+    push!(notebook.cell_order, cell.cell_id)
+    notebook.cells_dict[cell.cell_id] = cell
+    return notebook
+end
+
+function _append_cell!(notebook::Notebook, cells::AbstractVector{Cell})
+    foreach(c -> _append_cell!(notebook, c), cells)
+    return notebook
+end
+
 function run_notebook!(notebook, session; run_async=false)
     cells = [last(e) for e in notebook.cells_dict]
     update_save_run!(session, notebook, cells; run_async)
@@ -202,6 +219,13 @@ end
 
 Return the code and output as HTML for `notebook`.
 Assumes that the notebook has already been executed.
+
+Keyword arguments:
+
+- `code_class`: Code class used by CSS and/or the syntax highlighter.
+- `output_class`: Output class used by CSS and/or the syntax highlighter.
+- `hide_code`: Hide code. Can be useful when readers are not interested in code at all.
+- `hide_md_code`: Hide code for Markdown blocks. Enabled by default.
 """
 function notebook2html(
         notebook::Notebook;
@@ -220,13 +244,24 @@ function notebook2html(
 end
 
 """
-    notebook2html(path::AbstractString; session=ServerSession(), kwargs...)
+    notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
 The `kwargs` are passed to `notebook2html(notebook::Notebook, kwargs...)`.
+
+Keyword arguments:
+
+- `append_cells`: Specify one or more `Pluto.Cell`s to be appended at the end of the notebook.
+    To append package versions, specify `append_cells=PlutoStaticHTML.PACKAGE_VERSIONS`.
 """
-function notebook2html(path::AbstractString; session=ServerSession(), kwargs...)
-    notebook = SessionActions.open(session, path; run_async=false)
+function notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)
+    tmp_path = tempname()
+    # Avoid Pluto making changes to the original notebook.
+    cp(path, tmp_path)
+    notebook = load_notebook_nobackup(tmp_path)
+    PlutoStaticHTML._append_cell!(notebook, append_cells)
+    run_notebook!(notebook, session; run_async=false)
     html = notebook2html(notebook; kwargs...)
+    rm(tmp_path)
     return html
 end

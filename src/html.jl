@@ -197,6 +197,11 @@ function _append_cell!(notebook::Notebook, cell::Cell)
     return notebook
 end
 
+function _append_cell!(notebook::Notebook, cells::AbstractVector{Cell})
+    foreach(c -> _append_cell!(notebook, c), cells)
+    return notebook
+end
+
 function run_notebook!(notebook, session; run_async=false)
     cells = [last(e) for e in notebook.cells_dict]
     update_save_run!(session, notebook, cells; run_async)
@@ -237,8 +242,10 @@ end
 Run the Pluto notebook at `path` and return the code and output as HTML.
 The `kwargs` are passed to `notebook2html(notebook::Notebook, kwargs...)`.
 """
-function notebook2html(path::AbstractString; session=ServerSession(), kwargs...)
-    notebook = SessionActions.open(session, path; run_async=false)
+function notebook2html(path::AbstractString; session=ServerSession(), append_cells=[], kwargs...)
+    notebook = load_notebook_nobackup(path)
+    PlutoStaticHTML._append_cell!(notebook, append_cells)
+    run_notebook!(notebook, session; run_async=false)
     html = notebook2html(notebook; kwargs...)
     return html
 end

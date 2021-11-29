@@ -81,11 +81,14 @@ end
 
 @testset "append_cell" begin
     notebook = Notebook([
-        Cell("x = 600 + 1"),
+        Cell("a = 600 + 1"),
     ])
-    new_cell = Cell("y = 600 + 2")
-    PlutoStaticHTML._append_cell!(notebook, new_cell)
-    html = notebook2html!(notebook)
-    @test contains(html, "601")
-    @test contains(html, "602")
+    c1 = Cell("b = 600 + 2")
+    c2 = Cell("c = 600 + 3")
+    PlutoStaticHTML._append_cell!(notebook, [c1, c2])
+    c3 = Cell("d = 600 + 4")
+    html = notebook2html!(notebook; append_cells=[c3])
+    for i in 1:4
+        @test contains(html, "60$i")
+    end
 end

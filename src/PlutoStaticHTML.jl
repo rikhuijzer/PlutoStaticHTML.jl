@@ -10,7 +10,7 @@ using Pluto:
     SessionActions,
     WorkspaceManager,
     generate_html,
-    load_notebook,
+    load_notebook_nobackup,
     update_dependency_cache!,
     update_run!,
     update_save_run!

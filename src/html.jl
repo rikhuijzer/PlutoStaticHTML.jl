@@ -185,6 +185,18 @@ function _cell2html(cell::Cell, code_class, output_class, hide_md_code, hide_cod
         """
 end
 
+"""
+    _append_cell!(notebook::Notebook, cell::Cell)
+
+Add one `cell` to the end of the `notebook`.
+This is based on `add_remote_cell` in Pluto's `Editor.js`.
+"""
+function _append_cell!(notebook::Notebook, cell::Cell)
+    push!(notebook.cell_order, cell.cell_id)
+    notebook.cells_dict[cell.cell_id] = cell
+    return notebook
+end
+
 function run_notebook!(notebook, session; run_async=false)
     cells = [last(e) for e in notebook.cells_dict]
     update_save_run!(session, notebook, cells; run_async)

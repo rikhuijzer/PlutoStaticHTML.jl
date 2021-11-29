@@ -25,5 +25,11 @@ function pluto_notebook_content(code)
         """
 end
 
+function notebook2html!(notebook; kwargs...)
+    session = ServerSession()
+    run_notebook!(notebook, session)
+    return notebook2html(notebook; kwargs...)
+end
+
 include("html.jl")
 include("build.jl")

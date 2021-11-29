@@ -1,9 +1,3 @@
-function notebook2html!(notebook; kwargs...)
-    session = ServerSession()
-    run_notebook!(notebook, session)
-    return notebook2html(notebook; kwargs...)
-end
-
 @testset "html" begin
     html = "<b>foo</b>"
     block = PlutoStaticHTML.code_block(html)
@@ -83,4 +77,15 @@ end
         html = notebook2html(file)
         @test contains(html, "3")
     end
+end
+
+@testset "append_cell" begin
+    notebook = Notebook([
+        Cell("x = 600 + 1"),
+    ])
+    new_cell = Cell("y = 600 + 2")
+    PlutoStaticHTML._append_cell!(notebook, new_cell)
+    html = notebook2html!(notebook)
+    @test contains(html, "601")
+    @test contains(html, "602")
 end

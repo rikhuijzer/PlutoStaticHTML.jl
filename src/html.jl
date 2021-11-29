@@ -242,7 +242,7 @@ end
 Run the Pluto notebook at `path` and return the code and output as HTML.
 The `kwargs` are passed to `notebook2html(notebook::Notebook, kwargs...)`.
 """
-function notebook2html(path::AbstractString; session=ServerSession(), append_cells=[], kwargs...)
+function notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)
     notebook = load_notebook_nobackup(path)
     PlutoStaticHTML._append_cell!(notebook, append_cells)
     run_notebook!(notebook, session; run_async=false)

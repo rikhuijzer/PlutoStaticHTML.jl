@@ -14,12 +14,8 @@ The most important methods are `notebook2html` or `parallel_build!` ([Docstrings
 In general, what works best is to
 
 1. Determine a list of paths to your notebooks.
-1. Pass the paths to `notebook2html` or `parallel_build!` and write the HTML output to files.
+1. Pass the paths to  `parallel_build!` and write the HTML output to files.
 1. Read the output from the HTML files and show it inside a static website.
-
-!!! warn
-    It is typically not a good idea to call the conversion from inside `Documenter.jl` or `Franklin.jl`.
-    For some reason, that is likely to freeze or hang; probably due to stdout being flooded with information or something.
 
 More specific instructions for
 
@@ -34,18 +30,22 @@ are listed below.
 
 To see how to embed output from a Pluto notebook in Documenter.jl, checkout "make.jl" in this repository.
 
+!!! warn
+    It is typically not a good idea to call the conversion from inside `Documenter.jl`.
+    For some reason, that is likely to freeze or hang; probably due to stdout being flooded with information or something.
+
 ## Franklin.jl
 
 See the next section for a parallel version.
 In `utils.jl` define:
 
     """
-        lx_readhtml(com, _)
+        lx_pluto(com, _)
 
     Embed a Pluto notebook via:
     https://github.com/rikhuijzer/PlutoStaticHTML.jl
     """
-    function lx_readhtml(com, _)
+    function lx_pluto(com, _)
         file = string(Franklin.content(com.braces[1]))::String
         notebook_path = joinpath("posts", "notebooks", "$file.jl")
         log_path = joinpath("posts", "notebooks", "$file.log")
@@ -80,7 +80,7 @@ For example:
 title = "My analysis"
 +++
 
-\readhtml{analysis}
+\pluto{analysis}
 ```
 
 ## Parallel build
@@ -102,6 +102,7 @@ julia> parallel_build!(dir; append_cells);
 ```
 
 Here, `PACKAGE_VERSIONS` adds package dependencies version information to the end of each notebook.
+
 To run only specific notebooks, use:
 
 ```julia

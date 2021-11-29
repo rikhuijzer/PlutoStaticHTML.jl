@@ -16,7 +16,8 @@ function write_notebook()
     dir = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
     notebook_path = joinpath(dir, "notebook.jl")
     @info "Running notebook at $notebook_path"
-    html = notebook2html(notebook_path)
+    append_cells = PACKAGE_VERSIONS
+    html = notebook2html(notebook_path; append_cells)
     md_path = joinpath(dir, "notebook.md")
     md = """
         ```@eval

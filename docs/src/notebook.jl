@@ -6,9 +6,14 @@ using InteractiveUtils
 
 # ╔═╡ 3dd303b0-373e-11ec-18e4-69bfc20b5e29
 begin
-	using CairoMakie: lines
-	using DataFrames: DataFrame
+    using CairoMakie: lines
+    using DataFrames: DataFrame
 end
+
+# ╔═╡ ca87748a-5122-11ec-2329-09e55ad17f83
+# hideall
+using Pkg: dependencies
+
 
 # ╔═╡ 751853f6-626f-4040-86b2-088339ef9a3c
 md"""
@@ -21,7 +26,7 @@ path = "/path/to/notebook.jl"
 html = notebook2html(path)
 ```
 
-Actually, the web page that you're looking is a Pluto notebook, see 
+Actually, the web page that you're looking is a Pluto notebook, see
 [notebook.jl](https://rikhuijzer.github.io/PlutoStaticHTML.jl/dev/notebook.jl).
 
 Note that, compared to the default Javascript Pluto output, raw HTML is easier to embed in Documenter.jl (as this web site demonstrates) or Franklin.jl.
@@ -34,11 +39,31 @@ lines(1:10, 1:10)
 # ╔═╡ 4ca09326-c8d8-44fb-8582-8dcc071bc76a
 DataFrame(A = [1, 2], B = [3, 4], C = ["some", "text"])
 
+# ╔═╡ ca876b68-5122-11ec-2b69-eb301ecc0413
+md"## Version
+
+Built with Julia $VERSION and"
+
+# ╔═╡ ca877a68-5122-11ec-239a-9f713fccc3fb
+# hideall
+let
+    deps = [pair.second for pair in dependencies()]
+    filter!(p -> p.is_direct_dep, deps)
+    filter!(p -> !isnothing(p.version), deps)
+    list = ["$(p.name) $(p.version)" for p in deps]
+    sort!(list)
+    joined = join(list, '
+')
+    Base.Text(joined)
+end
+
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [compat]
 CairoMakie = "~0.6.6"
@@ -529,9 +554,9 @@ uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
 [[Libffi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "761a393aeccd6aa92ec3515e428c26bf99575b3b"
+git-tree-sha1 = "0b4a5d71f3e5200a7dff793393e09dfc2d874290"
 uuid = "e9f186c6-92d2-5b65-8a66-fee21dc1b490"
-version = "3.2.2+0"
+version = "3.2.2+1"
 
 [[Libgcrypt_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgpg_error_jll", "Pkg"]
@@ -1140,5 +1165,8 @@ version = "3.5.0+0"
 # ╠═3dd303b0-373e-11ec-18e4-69bfc20b5e29
 # ╠═7ca85dab-6066-4b2a-b61c-9d9607b8756c
 # ╠═4ca09326-c8d8-44fb-8582-8dcc071bc76a
+# ╠═ca876b68-5122-11ec-2b69-eb301ecc0413
+# ╠═ca87748a-5122-11ec-2329-09e55ad17f83
+# ╠═ca877a68-5122-11ec-239a-9f713fccc3fb
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

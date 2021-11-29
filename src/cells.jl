@@ -1,5 +1,5 @@
 const PACKAGE_VERSIONS_HEADER = let
-    code = "md\"## Version\n\nBuilt with Julia \$VERSION and\""
+    code = "md\"## Version\n\nBuilt with Julia $VERSION and\""
     Cell(code)
 end
 

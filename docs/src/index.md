@@ -91,13 +91,18 @@ To run the notebooks in parallel and speed up the build, this package defines `p
 To use it, pass a `dir` to write HTML files for all notebook files (recognized by ".jl" extension):
 
 ```julia
+julia> using PlutoStaticHTML: PACKAGE_VERSIONS, parallel_build!
+
 julia> dir = joinpath("posts", "notebooks");
 
-julia> parallel_build!(dir);
+julia> append_cells = PACKAGE_VERSIONS;
+
+julia> parallel_build!(dir; append_cells);
 
 ```
 
-Or, to run only specific notebooks, use:
+Here, `PACKAGE_VERSIONS` adds package dependencies version information to the end of each notebook.
+To run only specific notebooks, use:
 
 ```julia
 julia> files = ["notebook1.jl", "notebook2.jl"];

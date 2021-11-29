@@ -10,7 +10,7 @@ begin
     using DataFrames: DataFrame
 end
 
-# ╔═╡ ca87748a-5122-11ec-2329-09e55ad17f83
+# ╔═╡ b12dcd9e-512f-11ec-3419-919e6c091cf3
 # hideall
 using Pkg: dependencies
 
@@ -39,12 +39,12 @@ lines(1:10, 1:10)
 # ╔═╡ 4ca09326-c8d8-44fb-8582-8dcc071bc76a
 DataFrame(A = [1, 2], B = [3, 4], C = ["some", "text"])
 
-# ╔═╡ ca876b68-5122-11ec-2b69-eb301ecc0413
+# ╔═╡ b12dc48e-512f-11ec-207e-bf60dc62e2a4
 md"## Version
 
-Built with Julia $VERSION and"
+Built with Julia 1.6.3 and"
 
-# ╔═╡ ca877a68-5122-11ec-239a-9f713fccc3fb
+# ╔═╡ b12dd370-512f-11ec-0e34-dddb04666456
 # hideall
 let
     deps = [pair.second for pair in dependencies()]
@@ -63,7 +63,6 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [compat]
 CairoMakie = "~0.6.6"
@@ -1165,8 +1164,8 @@ version = "3.5.0+0"
 # ╠═3dd303b0-373e-11ec-18e4-69bfc20b5e29
 # ╠═7ca85dab-6066-4b2a-b61c-9d9607b8756c
 # ╠═4ca09326-c8d8-44fb-8582-8dcc071bc76a
-# ╠═ca876b68-5122-11ec-2b69-eb301ecc0413
-# ╠═ca87748a-5122-11ec-2329-09e55ad17f83
-# ╠═ca877a68-5122-11ec-239a-9f713fccc3fb
+# ╠═b12dc48e-512f-11ec-207e-bf60dc62e2a4
+# ╠═b12dcd9e-512f-11ec-3419-919e6c091cf3
+# ╠═b12dd370-512f-11ec-0e34-dddb04666456
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

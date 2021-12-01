@@ -14,12 +14,13 @@ jobs:
   Test:
     name: Test
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         version:
-          - "1.6"
+          - '1.6'
+          - '1.7'
         os:
           - ubuntu-latest
 

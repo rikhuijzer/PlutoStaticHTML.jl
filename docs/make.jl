@@ -6,7 +6,7 @@ using Documenter:
     makedocs
 using PlutoStaticHTML
 
-const NOTEBOOK_DIR = joinpath(pkgdir(PlutoStaticHTML), "docs", src")
+const NOTEBOOK_DIR = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
 const NOTEBOOK_PATH = joinpath(NOTEBOOK_DIR, "notebook.jl")
 
 """

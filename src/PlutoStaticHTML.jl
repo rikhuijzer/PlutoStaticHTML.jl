@@ -3,6 +3,7 @@ module PlutoStaticHTML
 using Base64: base64encode
 using Pkg:
     Types.Context,
+    Types.UUID,
     Operations
 using Pluto:
     Cell,

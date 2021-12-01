@@ -15,6 +15,7 @@ using Pluto:
     update_run!,
     update_save_run!
 
+include("module_doc.jl")
 include("cells.jl")
 include("html.jl")
 include("build.jl")

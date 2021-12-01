@@ -214,7 +214,8 @@ end
         code_class="language-julia",
         output_class="code-output",
         hide_code=false,
-        hide_md_code=true
+        hide_md_code=true,
+        append_build_context=false
     )
 
 Return the code and output as HTML for `notebook`.
@@ -226,13 +227,17 @@ Keyword arguments:
 - `output_class`: Output class used by CSS and/or the syntax highlighter.
 - `hide_code`: Hide code. Can be useful when readers are not interested in code at all.
 - `hide_md_code`: Hide code for Markdown blocks. Enabled by default.
+- `append_build_context`: Append build context to the end of each output.
+    This is not executed via Pluto.jl's evaluation to avoid having to add extra dependencies to existing notebooks.
+    Instead, this reads the manifest from the notebook file.
 """
 function notebook2html(
         notebook::Notebook;
         code_class="language-julia",
         output_class="code-output",
         hide_code=false,
-        hide_md_code=true
+        hide_md_code=true,
+        append_build_context=false
     )
     order = notebook.cell_order
     outputs = map(order) do cell_uuid
@@ -240,7 +245,18 @@ function notebook2html(
         _cell2html(cell, code_class, output_class, hide_md_code, hide_code)
     end
     html = join(outputs, '\n')
+    if append_build_context
+        html = html * _context(notebook)
+    end
     return html
+end
+
+function _load_notebook(path::AbstractString)
+    tmp_path = tempname()
+    # Avoid Pluto making changes to the original notebook.
+    cp(path, tmp_path)
+    notebook = load_notebook_nobackup(tmp_path)
+    return notebook
 end
 
 """
@@ -252,16 +268,12 @@ The `kwargs` are passed to `notebook2html(notebook::Notebook, kwargs...)`.
 Keyword arguments:
 
 - `append_cells`: Specify one or more `Pluto.Cell`s to be appended at the end of the notebook.
-    To append package versions, specify `append_cells=PlutoStaticHTML.PACKAGE_VERSIONS`.
+    Be careful when adding new packages via this method because it may disable Pluto.jl's built-in package management.
 """
 function notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)
-    tmp_path = tempname()
-    # Avoid Pluto making changes to the original notebook.
-    cp(path, tmp_path)
-    notebook = load_notebook_nobackup(tmp_path)
+    notebook = _load_notebook(path)
     PlutoStaticHTML._append_cell!(notebook, append_cells)
     run_notebook!(notebook, session; run_async=false)
     html = notebook2html(notebook; kwargs...)
-    rm(tmp_path)
     return html
 end

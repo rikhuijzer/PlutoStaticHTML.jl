@@ -1,6 +1,7 @@
 using Documenter:
     DocMeta,
     HTML,
+    MathJax3,
     deploydocs,
     makedocs
 using PlutoStaticHTML
@@ -16,8 +17,8 @@ function write_notebook()
     dir = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
     notebook_path = joinpath(dir, "notebook.jl")
     @info "Running notebook at $notebook_path"
-    append_cells = PACKAGE_VERSIONS
-    html = notebook2html(notebook_path; append_cells)
+    append_build_context = true
+    html = notebook2html(notebook_path; append_build_context)
     md_path = joinpath(dir, "notebook.md")
     md = """
         ```@eval
@@ -26,16 +27,9 @@ function write_notebook()
 
         # Example notebook
 
+        The Julia version and package information below is added after running the notebook by setting `append_build_context=true`.
+
         ```@raw html
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonsp/Pluto.jl@0.16.4/frontend/treeview.css" type="text/css" />
-
-        <style>
-        div.markdown {
-            padding-top: 1rem;
-            padding-bottom: 2rem;
-        }
-        </style>
-
         $html
         ```
         """
@@ -50,7 +44,11 @@ pages = [
     "PlutoStaticHTML" => "index.md",
     "Example notebook" => "notebook.md"
 ]
-format = HTML(; prettyurls = get(ENV, "CI", nothing) == "true")
+
+# Using MathJax3 since Pluto uses that engine too.
+mathengine = MathJax3()
+prettyurls = get(ENV, "CI", nothing) == "true"
+format = HTML(; mathengine, prettyurls)
 modules = [PlutoStaticHTML]
 strict = true
 checkdocs = :none

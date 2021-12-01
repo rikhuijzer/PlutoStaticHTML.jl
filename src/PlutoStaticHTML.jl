@@ -1,10 +1,12 @@
 module PlutoStaticHTML
 
 using Base64: base64encode
+using Pkg: dependencies
 using Pluto:
     Cell,
     CellOutput,
     Notebook,
+    PkgCompat,
     PlutoRunner,
     ServerSession,
     SessionActions,
@@ -16,11 +18,10 @@ using Pluto:
     update_save_run!
 
 include("module_doc.jl")
-include("cells.jl")
+include("context.jl")
 include("html.jl")
 include("build.jl")
 
-export PACKAGE_VERSIONS
 export notebook2html, run_notebook!
 export parallel_build!
 

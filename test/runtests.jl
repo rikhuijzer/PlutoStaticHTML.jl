@@ -32,5 +32,6 @@ function notebook2html!(notebook; append_cells=Cell[], kwargs...)
     return notebook2html(notebook; kwargs...)
 end
 
+include("context.jl")
 include("html.jl")
 include("build.jl")

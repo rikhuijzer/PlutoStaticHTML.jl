@@ -24,6 +24,18 @@ lines(1:10, 1:10)
 # ╔═╡ 4ca09326-c8d8-44fb-8582-8dcc071bc76a
 DataFrame(A = [1, 2], B = [3, 4], C = ["some", "text"])
 
+# ╔═╡ d06ba72d-a89f-4bc8-98e1-fae8962e70aa
+md"""
+## Math
+
+Inline and display math should work too.
+For example, $x = 3\pi$ and
+
+```math
+y = \frac{a \cdot b}{c^2}
+```
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -368,9 +380,9 @@ version = "1.0.2"
 
 [[HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
-git-tree-sha1 = "8a954fed8ac097d5be04921d595f741115c1b2ad"
+git-tree-sha1 = "129acf094d168394e80ee1dc4bc06ec835e510a3"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
-version = "2.8.1+0"
+version = "2.8.1+1"
 
 [[IfElse]]
 git-tree-sha1 = "28e837ff3e7a6c3cdb252ce49fb412c8eb3caeef"
@@ -1130,5 +1142,6 @@ version = "3.5.0+0"
 # ╠═3dd303b0-373e-11ec-18e4-69bfc20b5e29
 # ╠═7ca85dab-6066-4b2a-b61c-9d9607b8756c
 # ╠═4ca09326-c8d8-44fb-8582-8dcc071bc76a
+# ╠═d06ba72d-a89f-4bc8-98e1-fae8962e70aa
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

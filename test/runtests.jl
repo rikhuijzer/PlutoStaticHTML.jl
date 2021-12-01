@@ -8,6 +8,8 @@ using Test:
     @test
 
 const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
+const NOTEBOOK_DIR = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
+const NOTEBOOK_PATH = joinpath(NOTEBOOK_DIR, "notebook.jl")
 
 function pluto_notebook_content(code)
     return """
@@ -25,12 +27,13 @@ function pluto_notebook_content(code)
         """
 end
 
-function notebook2html!(notebook; append_cells=Cell[], kwargs...)
+function notebook2html!(notebook::Notebook; append_cells=Cell[], kwargs...)
     session = ServerSession()
     PlutoStaticHTML._append_cell!(notebook, append_cells)
     run_notebook!(notebook, session)
     return notebook2html(notebook; kwargs...)
 end
 
+include("context.jl")
 include("html.jl")
 include("build.jl")

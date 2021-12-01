@@ -91,11 +91,4 @@ end
     for i in 1:4
         @test contains(html, "60$i")
     end
-
-    notebook = Notebook([
-        Cell("using PlutoStaticHTML")
-    ])
-    append_cells = PACKAGE_VERSIONS
-    html = notebook2html!(notebook; append_cells)
-    @test contains(html, """class="code-output">PlutoStaticHTML""")
 end

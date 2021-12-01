@@ -6,6 +6,9 @@ using Documenter:
     makedocs
 using PlutoStaticHTML
 
+const NOTEBOOK_DIR = joinpath(pkgdir(PlutoStaticHTML), "docs", src")
+const NOTEBOOK_PATH = joinpath(NOTEBOOK_DIR, "notebook.jl")
+
 """
     write_notebook()
 
@@ -14,12 +17,10 @@ This avoidings running via the Documenter.jl evaluation, which appears to just h
 Probably similar cause as https://github.com/JuliaDocs/Documenter.jl/issues/1514.
 """
 function write_notebook()
-    dir = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
-    notebook_path = joinpath(dir, "notebook.jl")
-    @info "Running notebook at $notebook_path"
+    @info "Running notebook at $NOTEBOOK_PATH"
     append_build_context = true
     html = notebook2html(notebook_path; append_build_context)
-    md_path = joinpath(dir, "notebook.md")
+    md_path = joinpath(NOTEBOOK_DIR, "notebook.md")
     md = """
         ```@eval
         # Auto generated file. Do not modify.

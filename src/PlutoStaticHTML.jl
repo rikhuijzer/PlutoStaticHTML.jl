@@ -1,7 +1,9 @@
 module PlutoStaticHTML
 
 using Base64: base64encode
-using Pkg: dependencies
+using Pkg:
+    Types.Context,
+    Operations
 using Pluto:
     Cell,
     CellOutput,

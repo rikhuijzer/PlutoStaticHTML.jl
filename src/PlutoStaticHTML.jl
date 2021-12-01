@@ -9,7 +9,7 @@ using Pluto:
     Cell,
     CellOutput,
     Notebook,
-    PkgCompat,
+    PkgCompat.dependencies,
     PlutoRunner,
     ServerSession,
     SessionActions,

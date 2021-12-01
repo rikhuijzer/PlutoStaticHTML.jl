@@ -1,21 +1,10 @@
 """
-    _dependencies(ctx::Context)
-
-`dependencies` method for a `Context` based on the implementation in Pkg.jl at Julia 1.6.
-This method has been removed in Julia 1.7.
-"""
-function _dependencies(ctx::Context)
-    pkgs = Operations.load_all_deps(ctx)
-    return Dict(pkg.uuid::UUID => Operations.package_info(ctx, pkg) for pkg in pkgs)
-end
-
-"""
     _direct_dependencies(notebook::Notebook) -> String
 
 Return the direct dependencies for a `notebook`.
 """
 function _direct_dependencies(notebook::Notebook)::String
-    deps = [last(pair) for pair in _dependencies(notebook.nbpkg_ctx)]
+    deps = [last(pair) for pair in dependencies(notebook.nbpkg_ctx)]
     filter!(p -> p.is_direct_dep, deps)
     # Ignore stdlib modules.
     filter!(p -> !isnothing(p.version), deps)

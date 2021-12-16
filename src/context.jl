@@ -28,7 +28,6 @@ function _context(notebook::Notebook)::String
         <h2>Version</h2>
 
         Built with Julia $VERSION and<br>
-        <br>
         <pre>
         $deps
         </pre>

@@ -8,6 +8,8 @@
 
 A [Julia package](https://julialang.org/) to convert [Pluto notebooks](https://github.com/fonsp/Pluto.jl) to static HTML. Unlike [PlutoSliderServer](https://github.com/JuliaPluto/PlutoSliderServer.jl), the HTML files generated using PlutoStaticHTML are very minimal, and do not require JavaScript on the user side to render. This also makes it easier to style the output using CSS.
 
+Another difference with Pluto.jl is that this package provides an easy interface to parallel evaluation of notebooks.
+
 See the [documentation](https://rikhuijzer.github.io/PlutoStaticHTML.jl/dev/) for more information.
 
 [ci-url]: https://github.com/JuliaData/DataFrames.jl/actions?query=workflow%3ACI+branch%3Amain

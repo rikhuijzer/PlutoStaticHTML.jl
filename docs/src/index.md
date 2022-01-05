@@ -16,6 +16,16 @@ The most important methods are `notebook2html` or `parallel_build!` ([Docstrings
     `notebook2html` and `parallel_build!` do **not** change the original notebook file.
     The latter function contains a bang because it may create new HTML files or alter existing HTML files.
 
+For example, to process one notebook:
+
+```julia
+julia> using PlutoStaticHTML
+
+julia> notebook2html("Exciting analysis.jl") |> print
+<div class="markdown"><p>This is an example notebook.</p>
+[...]
+```
+
 In general, what works best is to
 
 1. Determine a list of paths to your notebooks.

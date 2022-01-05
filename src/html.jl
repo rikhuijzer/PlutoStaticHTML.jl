@@ -216,7 +216,7 @@ end
         hide_code=false,
         hide_md_code=true,
         append_build_context=false
-    )
+    ) -> String
 
 Return the code and output as HTML for `notebook`.
 This method does **not** alter the notebook at `path`; it makes a copy.
@@ -239,7 +239,7 @@ function notebook2html(
         hide_code=false,
         hide_md_code=true,
         append_build_context=false
-    )
+    )::String
     order = notebook.cell_order
     outputs = map(order) do cell_uuid
         cell = notebook.cells_dict[cell_uuid]
@@ -249,7 +249,7 @@ function notebook2html(
     if append_build_context
         html = html * _context(notebook)
     end
-    return html
+    return string(html)::String
 end
 
 function _load_notebook(path::AbstractString)
@@ -261,7 +261,7 @@ function _load_notebook(path::AbstractString)
 end
 
 """
-    notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)
+    notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...) -> String
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
 This makes a copy of the notebook at `path` and runs it.
@@ -272,7 +272,7 @@ Keyword arguments:
 - `append_cells`: Specify one or more `Pluto.Cell`s to be appended at the end of the notebook.
     Be careful when adding new packages via this method because it may disable Pluto.jl's built-in package management.
 """
-function notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)
+function notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)::String
     notebook = _load_notebook(path)
     PlutoStaticHTML._append_cell!(notebook, append_cells)
     run_notebook!(notebook, session; run_async=false)

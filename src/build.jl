@@ -21,6 +21,7 @@ end
     parallel_build!(dir, files; session=ServerSession(), kwargs...)
 
 Build HTML files in parallel and write output to files with a ".html" extension.
+The shebang is added because this function may create new HTML files or alter existing HTML files.
 The `kwargs` are passed to `notebook2html`.
 
 This method can be useful to speed up the build locally or in CI.
@@ -59,9 +60,11 @@ end
     parallel_build!(dir; kwargs...)
 
 Build all ".jl" files in `dir` in parallel.
+The shebang is added because this function may create new HTML files or alter existing HTML files.
 """
 function parallel_build!(dir; kwargs...)
     files = filter(endswith(".jl"), readdir(dir))
     parallel_build!(dir, files; kwargs...)
     return nothing
 end
+

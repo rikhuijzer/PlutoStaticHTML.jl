@@ -219,6 +219,7 @@ end
     )
 
 Return the code and output as HTML for `notebook`.
+This method does **not** alter the notebook at `path`; it makes a copy.
 Assumes that the notebook has already been executed.
 
 Keyword arguments:
@@ -263,6 +264,7 @@ end
     notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
+This makes a copy of the notebook at `path` and runs it.
 The `kwargs` are passed to `notebook2html(notebook::Notebook, kwargs...)`.
 
 Keyword arguments:

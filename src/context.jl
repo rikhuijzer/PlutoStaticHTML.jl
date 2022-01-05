@@ -27,7 +27,8 @@ function _context(notebook::Notebook)::String
     return """
         <h2>Version</h2>
 
-        Built with Julia $VERSION and<br>
+        Built with Julia $VERSION and
+        <br>
         <pre>
         $deps
         </pre>

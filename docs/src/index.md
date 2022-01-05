@@ -11,6 +11,11 @@ See the [Example notebook](@ref) for how the output of PlutoStaticHTML looks.
 ### notebook2html
 
 The most important methods are `notebook2html` or `parallel_build!` ([Docstrings](@ref)).
+
+!!! note
+    `notebook2html` and `parallel_build!` do **not** change the original notebook file.
+    The latter function contains a bang because it may create new HTML files or alter existing HTML files.
+
 In general, what works best is to
 
 1. Determine a list of paths to your notebooks.
@@ -147,7 +152,7 @@ reeval = true
 
 ## LaTeX equations
 
-With Franklin.jl, I've just updated `foot_katex.html` to include:
+With Franklin.jl, update `foot_katex.html` to include:
 
 ```javascript
 <script>

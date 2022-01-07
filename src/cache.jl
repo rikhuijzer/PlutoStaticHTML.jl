@@ -6,7 +6,8 @@ struct State
     julia_version::String
 end
 
-State(html::AbstractString) = State(sha(html), VERSION)
+"Create a new State from a HTML file."
+State(html::AbstractString) = State(sha(html), string(VERSION))
 
 function string(state::State)::String
     return """
@@ -19,3 +20,13 @@ function string(state::State)::String
         """
 end
 
+"Extract State from a HTML file which contains a State as string somewhere."
+function extract_state(html::AbstractString)::State
+    sep = '\n'
+    lines = split(html, sep)
+    start = findfirst(contains("[PlutoStaticHTML.State]"), lines)
+    stop = start + 2
+    info = join(lines[start:stop], sep)
+    entries = parsetoml(info)["PlutoStaticHTML"]["State"]
+    return State(entries["input_sha"], entries["julia_version"])
+end

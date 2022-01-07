@@ -22,6 +22,7 @@ using Pluto:
     update_run!,
     update_save_run!
 using SHA: sha256
+using TOML: parse as parsetoml
 
 include("module_doc.jl")
 include("context.jl")

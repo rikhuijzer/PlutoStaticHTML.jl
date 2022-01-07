@@ -1,5 +1,7 @@
 module PlutoStaticHTML
 
+import Base: string
+
 using Base64: base64encode
 using Pkg:
     Types.Context,
@@ -19,9 +21,11 @@ using Pluto:
     update_dependency_cache!,
     update_run!,
     update_save_run!
+using SHA: sha256
 
 include("module_doc.jl")
 include("context.jl")
+include("cache.jl")
 include("html.jl")
 include("build.jl")
 

@@ -1,3 +1,10 @@
+function drop_cache_info(html::AbstractString)
+    n = PlutoStaticHTML.n_cache_lines()
+    sep = '\n'
+    lines = split(html, sep)
+    return lines[1:end-n]
+end
+
 @testset "html" begin
     html = "<b>foo</b>"
     block = PlutoStaticHTML.code_block(html)
@@ -10,7 +17,7 @@
         Cell("""im_file(ext) = joinpath(PKGDIR, "test", "im", "im.\$ext")"""),
         Cell("""load(im_file("png"))""")
     ])
-    html = notebook2html!(notebook)
+    html = drop_cache_info(notebook2html!(notebook))
     lines = split(html, '\n')
 
     @test contains(lines[1], "1 + 1")

@@ -245,7 +245,8 @@ function notebook2html(
         cell = notebook.cells_dict[cell_uuid]
         _cell2html(cell, code_class, output_class, hide_md_code, hide_code)
     end
-    html = string(State(html)) * join(outputs, '\n')
+    html = join(outputs, '\n')
+    html = string(State(html)) * html
     if append_build_context
         html = html * _context(notebook)
     end

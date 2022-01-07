@@ -1,3 +1,4 @@
 [deps]
 Pluto = "c3e4b0f8-55cb-11ea-2926-15256bba5781"
+PlutoStaticHTML = "359b1769-a58e-495b-9770-312e911026ad"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

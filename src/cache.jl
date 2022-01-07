@@ -9,6 +9,12 @@ end
 "Create a new State from a HTML file."
 State(html::AbstractString) = State(sha(html), string(VERSION))
 
+function n_cache_lines()
+    state = State("a", "b")
+    lines = split(string(state), '\n')
+    return length(lines)
+end
+
 function string(state::State)::String
     return """
         <!--

@@ -25,7 +25,8 @@ end
         session=ServerSession()
     )
 
-Build HTML files in parallel and write output to files with a ".html" extension.
+Build Pluto notebooks in `dir` to HTML files in parallel and write output to `dir`.
+Output ffiles have a ".html" extension.
 The shebang (`!`) is added because this function may create new HTML files or alter existing HTML files.
 
 This method can be useful to speed up the build locally or in CI.

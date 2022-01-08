@@ -6,8 +6,6 @@ Small discussion with Fons van der Plas at <https://github.com/fonsp/Pluto.jl/di
 I'm using this package for my own blog, for example: <https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/>.
 A link to the notebook is at the bottom of the page.
 
-See the [Example notebook](@ref) for how the output of PlutoStaticHTML looks.
-
 ### notebook2html
 
 The most important methods are `notebook2html` or `parallel_build!` ([API](@ref)).

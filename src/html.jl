@@ -26,6 +26,10 @@ const IMAGEMIME = Union{
     Whether to omit all code blocks.
     Can be useful when readers are not interested in code at all.
 - `hide_md_code::Bool=true`: Whether to omit all Markdown code blocks.
+- `add_state::Bool=true`:
+    Whether to add a comment in HTML with the state of the input notebook.
+    This state can be used for caching.
+    Specifically, this state stores a checksum of the input notebook and the Julia version.
 - `append_build_context=false`: Whether to append build context.
     When set to `true`, this adds information about the dependencies and Julia version.
     This is not executed via Pluto.jl's evaluation to avoid having to add extra dependencies to existing notebooks.
@@ -36,6 +40,7 @@ struct HTMLOptions
     output_class::String
     hide_code::Bool
     hide_md_code::Bool
+    add_state::Bool
     append_build_context::Bool
 
     function HTMLOptions(;
@@ -43,6 +48,7 @@ struct HTMLOptions
         output_class="code-output",
         hide_code=false,
         hide_md_code=true,
+        add_state=true,
         append_build_context=false
     )
         return new(
@@ -50,6 +56,7 @@ struct HTMLOptions
             output_class,
             hide_code,
             hide_md_code,
+            add_state,
             append_build_context
         )
     end
@@ -264,7 +271,9 @@ function notebook2html(notebook::Notebook, opts::HTMLOptions=HTMLOptions())::Str
         _cell2html(cell, opts)
     end
     html = join(outputs, '\n')
-    html = string(State(html)) * html
+    if opts.add_state
+        html = string(State(html)) * html
+    end
     if opts.append_build_context
         html = html * _context(notebook)
     end

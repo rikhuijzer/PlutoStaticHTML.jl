@@ -10,7 +10,7 @@ A [Julia package](https://julialang.org/) to convert [Pluto notebooks](https://g
 
 ## Automated builds
 
-Next to outputting pure HTML, this package is also aimed at building multiple Pluto.jl notebooks as reliably and quickly as possible in CI.
+Next to outputting static HTML, this package is also aimed at building multiple Pluto.jl notebooks as reliably and quickly as possible in CI.
 Therefore, this package implements:
 
 1. Parallel evaluation of notebooks 🚀.

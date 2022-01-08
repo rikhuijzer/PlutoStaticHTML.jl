@@ -18,8 +18,8 @@ Probably similar cause as https://github.com/JuliaDocs/Documenter.jl/issues/1514
 """
 function write_notebook()
     @info "Running notebook at $NOTEBOOK_PATH"
-    append_build_context = true
-    html = notebook2html(NOTEBOOK_PATH; append_build_context)
+    opts = HTMLOptions(; append_build_context=true)
+    html = notebook2html(NOTEBOOK_PATH, opts)
     md_path = joinpath(NOTEBOOK_DIR, "notebook.md")
     md = """
         ```@eval

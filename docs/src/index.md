@@ -6,11 +6,9 @@ Small discussion with Fons van der Plas at <https://github.com/fonsp/Pluto.jl/di
 I'm using this package for my own blog, for example: <https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/>.
 A link to the notebook is at the bottom of the page.
 
-See the [Example notebook](@ref) for how the output of PlutoStaticHTML looks.
-
 ### notebook2html
 
-The most important methods are `notebook2html` or `parallel_build!` ([Docstrings](@ref)).
+The most important methods are `notebook2html` or `parallel_build!` ([API](@ref)).
 
 !!! note
     `notebook2html` and `parallel_build!` do **not** change the original notebook file.
@@ -37,7 +35,7 @@ More specific instructions for
 - [Documenter.jl](@ref)
 - [Franklin.jl](@ref)
 - [Parallel build](@ref)
-- [Docstrings](@ref)
+- [API](@ref)
 
 are listed below.
 
@@ -185,11 +183,10 @@ With Franklin.jl, update `foot_katex.html` to include:
 which basically ensures that inline math surrounded by single dollar symbols is also rendered.
 Note that Pluto.jl runs MathJax by default which might sometimes cause inconsistencies between the math in Pluto and inside your HTML.
 
-## Docstrings
-
-`kwargs` for `notebook2html(path; ...)` and `parallel_build!` are passed to `notebook2html`:
+## API
 
 ```@docs
+HTMLOptions
 parallel_build!
 notebook2html
 ```

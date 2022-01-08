@@ -14,6 +14,55 @@ const IMAGEMIME = Union{
 }
 
 """
+    struct HTMLOptions
+
+- `code_class::String="language-julia"`:
+    HTML class for code.
+    This is used by CSS and/or the syntax highlighter.
+- `output_class::String="code-output"`:
+    HTML class for output.
+    This is used by CSS and/or the syntax highlighter.
+- `hide_code::Bool=false`:
+    Whether to omit all code blocks.
+    Can be useful when readers are not interested in code at all.
+- `hide_md_code::Bool=true`: Whether to omit all Markdown code blocks.
+- `add_state::Bool=true`:
+    Whether to add a comment in HTML with the state of the input notebook.
+    This state can be used for caching.
+    Specifically, this state stores a checksum of the input notebook and the Julia version.
+- `append_build_context=false`: Whether to append build context.
+    When set to `true`, this adds information about the dependencies and Julia version.
+    This is not executed via Pluto.jl's evaluation to avoid having to add extra dependencies to existing notebooks.
+    Instead, this reads the manifest from the notebook file.
+"""
+struct HTMLOptions
+    code_class::String
+    output_class::String
+    hide_code::Bool
+    hide_md_code::Bool
+    add_state::Bool
+    append_build_context::Bool
+
+    function HTMLOptions(;
+        code_class="language-julia",
+        output_class="code-output",
+        hide_code=false,
+        hide_md_code=true,
+        add_state=true,
+        append_build_context=false
+    )
+        return new(
+            code_class,
+            output_class,
+            hide_code,
+            hide_md_code,
+            add_state,
+            append_build_context
+        )
+    end
+end
+
+"""
     _escape_html(s::AbstractString)
 
 Escape HTML.
@@ -26,12 +75,12 @@ function _escape_html(s::AbstractString)
     return s
 end
 
-function code_block(code; class="language-julia")
+function code_block(code; code_class="language-julia")
     if code == ""
         return ""
     end
     code = _escape_html(code)
-    return """<pre><code class="$class">$code</code></pre>"""
+    return """<pre><code class="$code_class">$code</code></pre>"""
 end
 
 function output_block(s; class="code-output")
@@ -41,11 +90,11 @@ function output_block(s; class="code-output")
     return """<pre><code class="$class">$s</code></pre>"""
 end
 
-function _code2html(code::AbstractString, class, hide_md_code, hide_code)
-    if hide_code
+function _code2html(code::AbstractString, opts::HTMLOptions)
+    if opts.hide_code
         return ""
     end
-    if hide_md_code && startswith(code, "md\"")
+    if opts.hide_md_code && startswith(code, "md\"")
         return ""
     end
     if contains(code, "# hideall")
@@ -55,7 +104,7 @@ function _code2html(code::AbstractString, class, hide_md_code, hide_code)
     lines = split(code, sep)
     filter!(!endswith("# hide"), lines)
     code = join(lines, sep)
-    return code_block(code; class)
+    return code_block(code; opts.code_class)
 end
 
 function _output2html(body, T::IMAGEMIME, class)
@@ -176,9 +225,9 @@ _output2html(body, ::MIME"text/plain", class) = output_block(body)
 _output2html(body, ::MIME"text/html", class) = body
 _output2html(body, T::MIME, class) = error("Unknown type: $T")
 
-function _cell2html(cell::Cell, code_class, output_class, hide_md_code, hide_code)
-    code = _code2html(cell.code, code_class, hide_md_code, hide_code)
-    output = _output2html(cell.output.body, cell.output.mime, output_class)
+function _cell2html(cell::Cell, opts::HTMLOptions)
+    code = _code2html(cell.code, opts)
+    output = _output2html(cell.output.body, cell.output.mime, opts.output_class)
     return """
         $code
         $output
@@ -209,44 +258,23 @@ function run_notebook!(notebook, session; run_async=false)
 end
 
 """
-    notebook2html(
-        notebook::Notebook;
-        code_class="language-julia",
-        output_class="code-output",
-        hide_code=false,
-        hide_md_code=true,
-        append_build_context=false
-    ) -> String
+    notebook2html(notebook::Notebook, opts::HTMLOptions=HTMLOptions()) -> String
 
 Return the code and output as HTML for `notebook`.
 This method does **not** alter the notebook at `path`; it makes a copy.
 Assumes that the notebook has already been executed.
-
-Keyword arguments:
-
-- `code_class`: Code class used by CSS and/or the syntax highlighter.
-- `output_class`: Output class used by CSS and/or the syntax highlighter.
-- `hide_code`: Hide code. Can be useful when readers are not interested in code at all.
-- `hide_md_code`: Hide code for Markdown blocks. Enabled by default.
-- `append_build_context`: Append build context to the end of each output.
-    This is not executed via Pluto.jl's evaluation to avoid having to add extra dependencies to existing notebooks.
-    Instead, this reads the manifest from the notebook file.
 """
-function notebook2html(
-        notebook::Notebook;
-        code_class="language-julia",
-        output_class="code-output",
-        hide_code=false,
-        hide_md_code=true,
-        append_build_context=false
-    )::String
+function notebook2html(notebook::Notebook, opts::HTMLOptions=HTMLOptions())::String
     order = notebook.cell_order
     outputs = map(order) do cell_uuid
         cell = notebook.cells_dict[cell_uuid]
-        _cell2html(cell, code_class, output_class, hide_md_code, hide_code)
+        _cell2html(cell, opts)
     end
     html = join(outputs, '\n')
-    if append_build_context
+    if opts.add_state
+        html = string(State(html)) * html
+    end
+    if opts.append_build_context
         html = html * _context(notebook)
     end
     return string(html)::String
@@ -261,21 +289,30 @@ function _load_notebook(path::AbstractString)
 end
 
 """
-    notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...) -> String
+    notebook2html(
+        path::AbstractString,
+        opts::HTMLOptions=HTMLOptions();
+        session=ServerSession(),
+        append_cells=Cell[],
+    ) -> String
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
 This makes a copy of the notebook at `path` and runs it.
-The `kwargs` are passed to `notebook2html(notebook::Notebook, kwargs...)`.
 
 Keyword arguments:
 
 - `append_cells`: Specify one or more `Pluto.Cell`s to be appended at the end of the notebook.
     Be careful when adding new packages via this method because it may disable Pluto.jl's built-in package management.
 """
-function notebook2html(path::AbstractString; session=ServerSession(), append_cells=Cell[], kwargs...)::String
+function notebook2html(
+        path::AbstractString,
+        opts::HTMLOptions=HTMLOptions();
+        session=ServerSession(),
+        append_cells=Cell[],
+    )::String
     notebook = _load_notebook(path)
     PlutoStaticHTML._append_cell!(notebook, append_cells)
     run_notebook!(notebook, session; run_async=false)
-    html = notebook2html(notebook; kwargs...)
+    html = notebook2html(notebook, opts)
     return html
 end

@@ -30,6 +30,13 @@ const IMAGEMIME = Union{
     Whether to add a comment in HTML with the state of the input notebook.
     This state can be used for caching.
     Specifically, this state stores a checksum of the input notebook and the Julia version.
+- `previous_html_function::Union{Nothing,Function}=Nothing`:
+    A function which returns the HTML of the previous run.
+    Specifically, a function which takes a vector of `files::Vector{String}` and returns a vector of HTML `Strings`.
+    If there was no previous run, return the empty string `""` for that file.
+    Furthermore, note that it is possible to return a full web page with embedded PlutoStaticHTML output.
+    This package will extract the HTML output from the previous run.
+    By default, caching is disabled since `previous_html_function=Nothing`.
 - `append_build_context=false`: Whether to append build context.
     When set to `true`, this adds information about the dependencies and Julia version.
     This is not executed via Pluto.jl's evaluation to avoid having to add extra dependencies to existing notebooks.
@@ -41,6 +48,7 @@ struct HTMLOptions
     hide_code::Bool
     hide_md_code::Bool
     add_state::Bool
+    previous_html_function::Union{Nothing,Function}
     append_build_context::Bool
 
     function HTMLOptions(;
@@ -49,6 +57,7 @@ struct HTMLOptions
         hide_code=false,
         hide_md_code=true,
         add_state=true,
+        previous_html_function=nothing,
         append_build_context=false
     )
         return new(
@@ -57,6 +66,7 @@ struct HTMLOptions
             hide_code,
             hide_md_code,
             add_state,
+            previous_html_function,
             append_build_context
         )
     end
@@ -257,6 +267,9 @@ function run_notebook!(notebook, session; run_async=false)
     return nothing
 end
 
+const BEGIN_IDENTIFIER = "<!-- PlutoStaticHTML.Begin -->"
+const END_IDENTIFIER = "<!-- PlutoStaticHTML.End -->"
+
 """
     notebook2html(notebook::Notebook, opts::HTMLOptions=HTMLOptions()) -> String
 
@@ -277,7 +290,8 @@ function notebook2html(notebook::Notebook, opts::HTMLOptions=HTMLOptions())::Str
     if opts.append_build_context
         html = html * _context(notebook)
     end
-    return string(html)::String
+    html = string(BEGIN_IDENTIFIER, '\n', html, '\n', END_IDENTIFIER)::String
+    return html
 end
 
 function _load_notebook(path::AbstractString)

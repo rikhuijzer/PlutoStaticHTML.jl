@@ -32,3 +32,21 @@ end
         @test true # Success.
     end
 end
+
+@testset "extract_previous_output" begin
+    # function extract_previous_output(html::AbstractString)::String
+    html = """
+        lorem
+        $(PlutoStaticHTML.BEGIN_IDENTIFIER)
+        ipsum
+        $(PlutoStaticHTML.END_IDENTIFIER)
+        dolar
+        """
+    actual = PlutoStaticHTML.extract_previous_output(html)
+    expected = """
+        $(PlutoStaticHTML.BEGIN_IDENTIFIER)
+        ipsum
+        $(PlutoStaticHTML.END_IDENTIFIER)
+        """
+    @test strip(actual) == strip(expected)
+end

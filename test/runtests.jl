@@ -34,11 +34,15 @@ function drop_cache_info(html::AbstractString)
     return join(lines[n:end], sep)
 end
 
-function notebook2html!(notebook::Notebook; append_cells=Cell[], kwargs...)
+function notebook2html_helper(
+        notebook::Notebook,
+        opts=HTMLOptions();
+        append_cells=Cell[]
+    )
     session = ServerSession()
     PlutoStaticHTML._append_cell!(notebook, append_cells)
     run_notebook!(notebook, session)
-    html = notebook2html(notebook; kwargs...)
+    html = notebook2html(notebook, opts)
     has_cache = contains(html, PlutoStaticHTML.CACHE_IDENTIFIER)
     return has_cache ? drop_cache_info(html) : html
 end

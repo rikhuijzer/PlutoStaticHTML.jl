@@ -66,7 +66,8 @@ end
         dir,
         files,
         opts::HTMLOptions=HTMLOptions();
-        session=ServerSession()
+        session=ServerSession(),
+        write_files=true
     ) -> Vector{String}
 
 Build all ".jl" files in `dir` in parallel.
@@ -75,7 +76,8 @@ function parallel_build(
         dir,
         files,
         opts::HTMLOptions=HTMLOptions();
-        session=ServerSession()
+        session=ServerSession(),
+        write_files=true
     )::Vector{String}
 
     htmls::Vector{String} = if !isnothing(opts.previous_html_function)
@@ -113,8 +115,10 @@ function parallel_build(
             out_file = "$(without_extension).html"
             out_path = joinpath(dir, out_file)
 
-            html = notebook2html(X, opts)
-            SessionActions.shutdown(session, X)
+            html = notebook2html(x, opts)
+            SessionActions.shutdown(session, x)
+
+            write(out_path, html)
             return string(html)::String
         end
     end
@@ -123,11 +127,19 @@ function parallel_build(
 end
 
 """
-    parallel_build(dir, opts::HTMLOptions=HTMLOptions()) -> Vector{String}
+    parallel_build(
+        dir,
+        opts::HTMLOptions=HTMLOptions();
+        write_files=true
+    ) -> Vector{String}
 
 Build all ".jl" files in `dir` in parallel.
 """
-function parallel_build(dir, opts::HTMLOptions=HTMLOptions())::Vector{String}
+function parallel_build(
+        dir,
+        opts::HTMLOptions=HTMLOptions();
+        write_files=true
+    )::Vector{String}
     files = filter(endswith(".jl"), readdir(dir))
     return parallel_build(dir, files, opts)
 end

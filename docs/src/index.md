@@ -8,11 +8,10 @@ A link to the notebook is at the bottom of the page.
 
 ### notebook2html
 
-The most important methods are `notebook2html` or `parallel_build!` ([API](@ref)).
+The most important methods are `notebook2html` or `parallel_build` ([API](@ref)).
 
 !!! note
-    `notebook2html` and `parallel_build!` do **not** change the original notebook file.
-    The latter function contains a bang because it may create new HTML files or alter existing HTML files.
+    `notebook2html` and `parallel_build` do **not** change the original notebook file.
 
 For example, to process one notebook:
 
@@ -27,7 +26,7 @@ julia> notebook2html("Exciting analysis.jl") |> print
 In general, what works best is to
 
 1. Determine a list of paths to your notebooks.
-1. Pass the paths to  `parallel_build!` and write the HTML output to files.
+1. Pass the paths to  `parallel_build` and write the HTML output to files.
 1. Read the output from the HTML files and show it inside a static website.
 
 More specific instructions for
@@ -100,15 +99,15 @@ title = "My analysis"
 
 The approach above lets Franklin.jl handle the build.
 This doesn't work in parallel.
-To run the notebooks in parallel and speed up the build, this package defines `parallel_build!`.
+To run the notebooks in parallel and speed up the build, this package defines `parallel_build`.
 To use it, pass a `dir` to write HTML files for all notebook files (recognized by ".jl" extension):
 
 ```julia
-julia> using PlutoStaticHTML: parallel_build!
+julia> using PlutoStaticHTML: parallel_build
 
 julia> dir = joinpath("posts", "notebooks");
 
-julia> parallel_build!(dir);
+julia> parallel_build(dir);
 
 ```
 
@@ -117,7 +116,7 @@ To run only specific notebooks, use:
 ```julia
 julia> files = ["notebook1.jl", "notebook2.jl"];
 
-julia> parallel_build!(dir, files)
+julia> parallel_build(dir, files)
 ```
 
 In CI, be sure to call this before using Franklin `serve` or `optimize`.
@@ -187,6 +186,6 @@ Note that Pluto.jl runs MathJax by default which might sometimes cause inconsist
 
 ```@docs
 HTMLOptions
-parallel_build!
+parallel_build
 notebook2html
 ```

@@ -18,7 +18,7 @@ function _notebook_done(notebook::Notebook)
 end
 
 """
-    parallel_build!(
+    parallel_build(
         dir,
         files;
         opts::HTMLOptions=HTMLOptions(),
@@ -27,11 +27,10 @@ end
 
 Build Pluto notebooks in `dir` to HTML files in parallel and write output to `dir`.
 Output ffiles have a ".html" extension.
-The shebang (`!`) is added because this function may create new HTML files or alter existing HTML files.
 
 This method can be useful to speed up the build locally or in CI.
 """
-function parallel_build!(
+function parallel_build(
         dir,
         files;
         opts::HTMLOptions=HTMLOptions(),
@@ -67,14 +66,13 @@ function parallel_build!(
 end
 
 """
-    parallel_build!(dir; kwargs...)
+    parallel_build(dir; kwargs...)
 
 Build all ".jl" files in `dir` in parallel.
-The shebang is added because this function may create new HTML files or alter existing HTML files.
 """
-function parallel_build!(dir; kwargs...)
+function parallel_build(dir; kwargs...)
     files = filter(endswith(".jl"), readdir(dir))
-    parallel_build!(dir, files; kwargs...)
+    parallel_build(dir, files; kwargs...)
     return nothing
 end
 

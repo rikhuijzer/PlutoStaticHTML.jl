@@ -7,6 +7,30 @@
     @test state.julia_version == string(VERSION)
 end
 
+function try_read(file)::String
+    for i in 1:100
+        try
+            return read(file, String)
+            sleep(0.2)
+        catch
+        end
+    end
+    # Throw original error if still no success.
+    read(file, String)
+end
+
+function try_rm(file)
+    for i in 1:100
+        try
+            return rm(file)
+            sleep(0.2)
+        catch
+        end
+    end
+    # Throw original error if still no success.
+    rm(file)
+end
+
 @testset "caching" begin
     dir = mktempdir()
 
@@ -27,17 +51,15 @@ end
         bo = BuildOptions(dir)
         parallel_build(bo)
 
-        # Without this, Pluto in another process may still have a lock on a txt file.
-        sleep(2)
-
-        @test read("a.txt", String) == "a"
+        # Without try_read, Pluto in another process may still have a lock on a txt file.
+        @test try_read("a.txt") == "a"
         @test isfile("a.html")
-        @test read("b.txt", String) == "b"
+        @test try_read("b.txt") == "b"
         @test isfile("b.html")
 
-        rm("a.html")
-        rm("a.txt")
-        rm("b.txt")
+        try_rm("a.html")
+        try_rm("a.txt")
+        try_rm("b.txt")
 
         previous_dir = dir
         dir = mktempdir()
@@ -52,11 +74,9 @@ end
             bo = BuildOptions(dir; previous_dir)
             parallel_build(bo)
 
-            sleep(2)
-
             # a was evaluated because "a.html" was removed.
             # note that pluto always writes txt files to the first dir.
-            @test read(joinpath(previous_dir, "a.txt"), String) == "a"
+            @test tryread(joinpath(previous_dir, "a.txt")) == "a"
             @test isfile("a.html")
 
             # b was not evaluated because "b.html" was used from the cache.

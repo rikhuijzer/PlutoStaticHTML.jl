@@ -11,8 +11,9 @@ function try_read(file)::String
     for i in 1:100
         try
             return read(file, String)
-            sleep(0.2)
         catch
+            @show "try_read"
+            sleep(0.2)
         end
     end
     # Throw original error if still no success.
@@ -23,8 +24,9 @@ function try_rm(file)
     for i in 1:100
         try
             return rm(file)
-            sleep(0.2)
         catch
+            @show "try_rm"
+            sleep(0.2)
         end
     end
     # Throw original error if still no success.
@@ -53,9 +55,9 @@ end
 
         # Without try_read, Pluto in another process may still have a lock on a txt file.
         @test try_read("a.txt") == "a"
-        @test isfile("a.html")
+        try_read("a.html")
         @test try_read("b.txt") == "b"
-        @test isfile("b.html")
+        try_read("b.html")
 
         try_rm("a.html")
         try_rm("a.txt")
@@ -76,12 +78,12 @@ end
 
             # a was evaluated because "a.html" was removed.
             # note that pluto always writes txt files to the first dir.
-            @test tryread(joinpath(previous_dir, "a.txt")) == "a"
-            @test isfile("a.html")
+            @test try_read(joinpath(previous_dir, "a.txt")) == "a"
+            try_read("a.html")
 
             # b was not evaluated because "b.html" was used from the cache.
             @test !isfile(joinpath(previous_dir, "b.txt"))
-            @test isfile("b.html")
+            try_read("b.html")
         end
     end
 end

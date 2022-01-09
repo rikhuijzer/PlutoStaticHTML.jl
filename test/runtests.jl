@@ -14,7 +14,7 @@ const NOTEBOOK_PATH = joinpath(NOTEBOOK_DIR, "notebook.jl")
 function pluto_notebook_content(code)
     return """
         ### A Pluto.jl notebook ###
-        # v0.17.1
+        # v0.17.4
 
         using Markdown
         using InteractiveUtils

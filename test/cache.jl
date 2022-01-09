@@ -34,6 +34,8 @@ end
         @test isfile("b.html")
 
         rm("a.html")
+        rm("a.txt")
+        rm("b.txt")
 
         previous_dir = dir
         dir = mktempdir()
@@ -49,11 +51,12 @@ end
             parallel_build(bo)
 
             # a was evaluated because "a.html" was removed.
-            @test read("a.txt", String) == "a"
+            # note that pluto always writes txt files to the first dir.
+            @test read(joinpath(previous_dir, "a.txt"), String) == "a"
             @test isfile("a.html")
 
             # b was not evaluated because "b.html" was used from the cache.
-            @test !isfile("b.txt")
+            @test !isfile(joinpath(previous_dir, "b.txt"))
             @test isfile("b.html")
         end
     end

@@ -272,13 +272,13 @@ const BEGIN_IDENTIFIER = "<!-- PlutoStaticHTML.Begin -->"
 const END_IDENTIFIER = "<!-- PlutoStaticHTML.End -->"
 
 """
-    notebook2html(notebook::Notebook, opts::HTMLOptions=HTMLOptions()) -> String
+    notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()) -> String
 
 Return the code and output as HTML for `notebook`.
 This method does **not** alter the notebook at `path`; it makes a copy.
 Assumes that the notebook has already been executed.
 """
-function notebook2html(notebook::Notebook, opts::HTMLOptions=HTMLOptions())::String
+function notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions())::String
     order = notebook.cell_order
     outputs = map(order) do cell_uuid
         cell = notebook.cells_dict[cell_uuid]
@@ -286,7 +286,7 @@ function notebook2html(notebook::Notebook, opts::HTMLOptions=HTMLOptions())::Str
     end
     html = join(outputs, '\n')
     if opts.add_state
-        html = string(State(html)) * html
+        html = string(path2state(path)) * html
     end
     if opts.append_build_context
         html = html * _context(notebook)
@@ -327,7 +327,7 @@ function notebook2html(
     )::String
     notebook = _load_notebook(path)
     PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook(notebook, session; run_async=false)
-    html = notebook2html(notebook, opts)
+    run_notebook(notebook, path, session; run_async=false)
+    html = notebook2html(notebook, path, opts)
     return html
 end

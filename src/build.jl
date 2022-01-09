@@ -114,10 +114,10 @@ end
 function reuse_previous_html(previous::Previous, dir, in_file)::Bool
     in_path = joinpath(dir, in_file)
     curr = path2state(in_path)
-    @show curr
 
     prev = previous.state
     @show prev
+    @show curr
     isnothing(prev) && return false
 
     sha_match = prev.input_sha == curr.input_sha
@@ -178,7 +178,8 @@ function parallel_build(
             out_file = "$(without_extension).html"
             out_path = joinpath(dir, out_file)
 
-            html = notebook2html(x, hopts)
+            path = joinpath(dir, in_file)
+            html = notebook2html(x, path, hopts)
             SessionActions.shutdown(session, x)
 
             if bopts.write_files

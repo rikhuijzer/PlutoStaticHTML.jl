@@ -12,7 +12,6 @@ function try_read(file)::String
         try
             return read(file, String)
         catch
-            @show "try_read"
             sleep(0.2)
         end
     end
@@ -25,7 +24,6 @@ function try_rm(file)
         try
             return rm(file)
         catch
-            @show "try_rm"
             sleep(0.2)
         end
     end

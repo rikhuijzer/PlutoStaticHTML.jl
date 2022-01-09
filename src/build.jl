@@ -166,25 +166,31 @@ function parallel_build(
         end
     end
 
+    function write_html(in_file, html)
+        if bopts.write_files
+            without_extension, _ = splitext(in_file)
+            out_file = "$(without_extension).html"
+            out_path = joinpath(dir, out_file)
+            write(out_path, html)
+        end
+        return nothing
+    end
+
     H = map(zip(files, X)) do (in_file, x)
         if x isa Previous
-            return x.html
+            html = x.html
+            write_html(in_file, html)
+            return html
         else
             while !_notebook_done(x)
                 sleep(0.1)
             end
 
-            without_extension, _ = splitext(in_file)
-            out_file = "$(without_extension).html"
-            out_path = joinpath(dir, out_file)
-
             path = joinpath(dir, in_file)
             html = notebook2html(x, path, hopts)
             SessionActions.shutdown(session, x)
 
-            if bopts.write_files
-                write(out_path, html)
-            end
+            write_html(in_file, html)
             return string(html)::String
         end
     end

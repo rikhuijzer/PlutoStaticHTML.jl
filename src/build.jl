@@ -7,11 +7,7 @@ function _is_cell_done(cell)
 end
 
 function nothingstring(x::Union{Nothing,AbstractString})::Union{Nothing,String}
-    if x isa Nothing
-        return x
-    else
-        return string(x)::String
-    end
+    return x isa Nothing ? x : string(x)::String
 end
 
 """
@@ -133,7 +129,7 @@ end
         write_files=true
     ) -> Vector{String}
 
-Build all ".jl" files in `dir` in parallel.
+Build all `files` in `dir` in parallel.
 """
 function parallel_build(
         bopts::BuildOptions,

@@ -161,7 +161,7 @@ function parallel_build(
         else
             @info "Starting evaluation of Pluto notebook at $in_file"
             notebook = _load_notebook(in_file)
-            run_notebook!(notebook, session; run_async=true)
+            run_notebook(notebook, session; run_async=true)
             return notebook
         end
     end

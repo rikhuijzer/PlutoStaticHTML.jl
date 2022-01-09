@@ -262,7 +262,7 @@ function _append_cell!(notebook::Notebook, cells::AbstractVector{Cell})
     return notebook
 end
 
-function run_notebook!(notebook, session; run_async=false)
+function run_notebook(notebook, session; run_async=false)
     cells = [last(e) for e in notebook.cells_dict]
     update_save_run!(session, notebook, cells; run_async)
     return nothing
@@ -327,7 +327,7 @@ function notebook2html(
     )::String
     notebook = _load_notebook(path)
     PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook!(notebook, session; run_async=false)
+    run_notebook(notebook, session; run_async=false)
     html = notebook2html(notebook, opts)
     return html
 end

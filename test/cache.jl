@@ -21,15 +21,14 @@ end
             """)
         write("a.jl", code)
 
-        read("a.jl", String) |> print
-
         code = pluto_notebook_content("""write("$(path('b'))", "b")""")
         write("b.jl", code)
 
         bo = BuildOptions(dir)
         parallel_build(bo)
 
-        read("a.jl", String) |> print
+        # Without this, Pluto in another process may still have a lock on a txt file.
+        sleep(2)
 
         @test read("a.txt", String) == "a"
         @test isfile("a.html")
@@ -47,11 +46,13 @@ end
             cp(joinpath(previous_dir, "a.jl"), joinpath(dir, "a.jl"))
             cp(joinpath(previous_dir, "b.jl"), joinpath(dir, "b.jl"))
 
-            # @show readdir(previous_dir)
-            # @show readdir(dir)
+            @show readdir(previous_dir)
+            @show readdir(dir)
 
             bo = BuildOptions(dir; previous_dir)
             parallel_build(bo)
+
+            sleep(2)
 
             # a was evaluated because "a.html" was removed.
             # note that pluto always writes txt files to the first dir.

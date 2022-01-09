@@ -107,7 +107,7 @@ julia> using PlutoStaticHTML: parallel_build
 
 julia> dir = joinpath("posts", "notebooks");
 
-julia> parallel_build(dir);
+julia> parallel_build(BuildOptions(dir));
 
 ```
 
@@ -116,7 +116,7 @@ To run only specific notebooks, use:
 ```julia
 julia> files = ["notebook1.jl", "notebook2.jl"];
 
-julia> parallel_build(dir, files)
+julia> parallel_build(BuildOptions(dir), files)
 ```
 
 In CI, be sure to call this before using Franklin `serve` or `optimize`.

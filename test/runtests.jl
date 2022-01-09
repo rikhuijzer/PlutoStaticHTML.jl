@@ -47,8 +47,9 @@ function notebook2html_helper(
     )
     session = ServerSession()
     PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook!(notebook, session)
-    html = notebook2html(notebook, opts)
+    run_notebook(notebook, session)
+    path = nothing
+    html = notebook2html(notebook, path, opts)
 
     has_cache = contains(html, PlutoStaticHTML.STATE_IDENTIFIER)
     without_cache = has_cache ? drop_cache_info(html) : html

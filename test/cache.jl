@@ -68,9 +68,6 @@ end
             cp(joinpath(previous_dir, "a.jl"), joinpath(dir, "a.jl"))
             cp(joinpath(previous_dir, "b.jl"), joinpath(dir, "b.jl"))
 
-            @show readdir(previous_dir)
-            @show readdir(dir)
-
             bo = BuildOptions(dir; previous_dir)
             parallel_build(bo)
 

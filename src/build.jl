@@ -67,7 +67,7 @@ end
 function extract_previous_output(html::AbstractString)::String
     start_range = findfirst(BEGIN_IDENTIFIER, html)
     @assert !isnothing(start_range)
-    start = last(start_range) + 1
+    start = first(start_range)
 
     stop_range = findfirst(END_IDENTIFIER, html)
     @assert !isnothing(stop_range)
@@ -116,14 +116,11 @@ function reuse_previous_html(previous::Previous, dir, in_file)::Bool
     curr = path2state(in_path)
 
     prev = previous.state
-    @show prev
-    @show curr
     isnothing(prev) && return false
 
     sha_match = prev.input_sha == curr.input_sha
     julia_match = prev.julia_version == curr.julia_version
     reuse = sha_match && julia_match
-    @show reuse
     return reuse
 end
 
@@ -159,9 +156,9 @@ function parallel_build(
             @info "Using cache for Pluto notebook at $in_file"
             return previous
         else
-            @info "Starting evaluation of Pluto notebook at $in_file"
-            notebook = _load_notebook(in_file)
-            run_notebook(notebook, session; run_async=true)
+            @info "Starting evaluation of Pluto notebook $in_file"
+            tmp_path = _tmp_copy(in_path)
+            notebook = SessionActions.open(session, tmp_path; run_async=true)
             return notebook
         end
     end

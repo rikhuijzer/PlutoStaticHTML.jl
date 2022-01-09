@@ -285,7 +285,7 @@ function notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()
         _cell2html(cell, opts)
     end
     html = join(outputs, '\n')
-    if opts.add_state
+    if opts.add_state && !isnothing(path)
         html = string(path2state(path)) * html
     end
     if opts.append_build_context
@@ -295,10 +295,15 @@ function notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()
     return html
 end
 
-function _load_notebook(path::AbstractString)
+function _tmp_copy(path::AbstractString)
     tmp_path = tempname()
     # Avoid Pluto making changes to the original notebook.
     cp(path, tmp_path)
+    return tmp_path
+end
+
+function _load_notebook(path::AbstractString)
+    tmp_path = _tmp_copy(path)
     notebook = load_notebook_nobackup(tmp_path)
     return notebook
 end
@@ -327,7 +332,7 @@ function notebook2html(
     )::String
     notebook = _load_notebook(path)
     PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook(notebook, path, session; run_async=false)
+    run_notebook(notebook, session; run_async=false)
     html = notebook2html(notebook, path, opts)
     return html
 end

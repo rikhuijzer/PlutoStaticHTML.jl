@@ -51,3 +51,10 @@ function extract_state(html::AbstractString)::State
     entries = parsetoml(info)["PlutoStaticHTML"]["State"]
     return State(entries["input_sha"], entries["julia_version"])
 end
+
+"Convert a notebook at `path` to a State."
+function path2state(path::AbstractString)::State
+    @assert endswith(path, ".jl")
+    code = read(path, String)
+    State(code)
+end

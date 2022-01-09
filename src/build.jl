@@ -73,7 +73,7 @@ function extract_previous_output(html::AbstractString)::String
     @assert !isnothing(stop_range)
     stop = last(stop_range)
 
-    return html[start, stop]
+    return html[start:stop]
 end
 
 """
@@ -102,7 +102,8 @@ function Previous(bopts::BuildOptions, in_file)
     if isnothing(prev_dir)
         return Previous(nothing, "")
     end
-    prev_path = joinpath(prev_dir, "$in_file.html")
+    name, _ = splitext(in_file)
+    prev_path = joinpath(prev_dir, "$name.html")
     if !isfile(prev_path)
         return Previous(nothing, "")
     end
@@ -112,13 +113,18 @@ end
 
 function reuse_previous_html(previous::Previous, dir, in_file)::Bool
     in_path = joinpath(dir, in_file)
-    text = read(in_path, String)
+    curr = path2state(in_path)
+    @show curr
+
     prev = previous.state
-    curr = State(text)
+    @show prev
     isnothing(prev) && return false
+
     sha_match = prev.input_sha == curr.input_sha
     julia_match = prev.julia_version == curr.julia_version
-    return sha_match && julia_match
+    reuse = sha_match && julia_match
+    @show reuse
+    return reuse
 end
 
 """
@@ -149,7 +155,7 @@ function parallel_build(
         @assert isfile(in_path) "Expected .jl file at $in_path"
 
         previous = Previous(bopts, in_file)
-        if reuse_previous_html(previous, dir, in_file)
+        if reuse_previous_html(previous, bopts.dir, in_file)
             @info "Using cache for Pluto notebook at $in_file"
             return previous
         else

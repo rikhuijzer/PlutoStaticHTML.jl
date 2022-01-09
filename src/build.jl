@@ -21,19 +21,23 @@ end
         previous_dir::Union{Nothing,AbstractString}=nothing
     )
 
+Options for `parallel_build`:
+
 - `dir`:
     Directory in which the Pluto notebooks are stored.
 - `write_files::Bool=true`:
-    Write files to 
+    Write files to `joinpath(dir, "\$file.html")`.
 - `previous_dir::Union{Nothing,AbstractString}=Nothing`:
     Use the output from the previous run as a cache to speed up running time.
     To use the cache, specify a directory `previous_dir::AbstractString` which contains HTML files from a previous run.
+    Specifically, files are expected to be at `joinpath(previous_dir, "\$file.html")`.
     The output from the previous run may be embedded in a larger HTML web page.
     This package will extract the original output from the full HTML web page.
-    By default, caching is disabled since `previous_dir=Nothing`.
+    By default, caching is disabled.
 """
 struct BuildOptions
     dir::String
+    write_files::Bool
     previous_dir::Union{Nothing,String}
 
     function BuildOptions(
@@ -73,10 +77,10 @@ function extract_previous_output(html::AbstractString)::String
 end
 
 """
-    struct Previous
+    Previous(state::State, html::String)
 
-- `state::State`: Previous state.
-- `html::String`: HTML starting with "$BEGIN_IDENTIFIER" and ending with "$END_IDENTIFIER".
+- `state`: Previous state.
+- `html`: HTML starting with "$BEGIN_IDENTIFIER" and ending with "$END_IDENTIFIER".
 """
 struct Previous
     state::Union{State,Nothing}
@@ -93,11 +97,20 @@ function Previous(html::String)
     return Previous(state, html)
 end
 
-function previous_html(btops::BuildOptions, in_file)
-    
+function Previous(bopts::BuildOptions, in_file)
+    prev_dir = bopts.previous_dir
+    if isnothing(prev_dir)
+        return Previous(nothing, "")
+    end
+    prev_path = joinpath(prev_dir, "$in_file.html")
+    if !isfile(prev_path)
+        return Previous(nothing, "")
+    end
+    html = read(prev_path, String)
+    return Previous(html)
 end
 
-function reuse_previous_html(previous, dir, in_file)::Bool
+function reuse_previous_html(previous::Previous, dir, in_file)::Bool
     in_path = joinpath(dir, in_file)
     text = read(in_path, String)
     prev = previous.state
@@ -127,11 +140,7 @@ function parallel_build(
         write_files=true
     )::Vector{String}
 
-    htmls::Vector{String} = if !isnothing(hopts.previous_html_function)
-        previous_html(bopts, files)
-    else
-        repeat([""], length(files))
-    end
+    dir = bopts.dir
 
     # Start all the notebooks in parallel with async enabled.
     # This way, Pluto handles concurrency.
@@ -139,7 +148,7 @@ function parallel_build(
         in_path = joinpath(dir, in_file)
         @assert isfile(in_path) "Expected .jl file at $in_path"
 
-        previous = Previous(previous_html(btops, in_file))
+        previous = Previous(bopts, in_file)
         if reuse_previous_html(previous, dir, in_file)
             @info "Using cache for Pluto notebook at $in_file"
             return previous
@@ -165,7 +174,7 @@ function parallel_build(
             html = notebook2html(x, hopts)
             SessionActions.shutdown(session, x)
 
-            if write_files
+            if bopts.write_files
                 write(out_path, html)
             end
             return string(html)::String
@@ -189,7 +198,7 @@ function parallel_build(
         hopts::HTMLOptions=HTMLOptions();
         write_files=true
     )::Vector{String}
-    files = filter(endswith(".jl"), readdir(dir))
+    files = filter(endswith(".jl"), readdir(bopts.dir))
     return parallel_build(bopts, files, hopts)
 end
 

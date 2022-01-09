@@ -23,6 +23,8 @@ const IMAGEMIME = Union{
         append_build_context::Bool=false
     )
 
+Options for `notebook2html`:
+
 - `code_class`:
     HTML class for code.
     This is used by CSS and/or the syntax highlighter.
@@ -66,7 +68,6 @@ struct HTMLOptions
             hide_code,
             hide_md_code,
             add_state,
-            previous_html_function,
             append_build_context
         )
     end

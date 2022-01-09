@@ -14,30 +14,32 @@ const IMAGEMIME = Union{
 }
 
 """
-    struct HTMLOptions
+    HTMLOptions(;
+        code_class::AbstractString="language-julia",
+        output_class::AbstractString="code-output",
+        hide_code::Bool=false,
+        hide_md_code::Bool=true,
+        add_state::Bool=true,
+        append_build_context::Bool=false
+    )
 
-- `code_class::String="language-julia"`:
+- `code_class`:
     HTML class for code.
     This is used by CSS and/or the syntax highlighter.
-- `output_class::String="code-output"`:
+- `output_class`:
     HTML class for output.
     This is used by CSS and/or the syntax highlighter.
-- `hide_code::Bool=false`:
+- `hide_code`:
     Whether to omit all code blocks.
     Can be useful when readers are not interested in code at all.
-- `hide_md_code::Bool=true`: Whether to omit all Markdown code blocks.
-- `add_state::Bool=true`:
+- `hide_md_code`:
+    Whether to omit all Markdown code blocks.
+- `add_state`:
     Whether to add a comment in HTML with the state of the input notebook.
     This state can be used for caching.
     Specifically, this state stores a checksum of the input notebook and the Julia version.
-- `previous_html_function::Union{Nothing,Function}=Nothing`:
-    A function which returns the HTML of the previous run.
-    Specifically, a function which takes a vector of `files::Vector{String}` and returns a vector of HTML `Strings`.
-    If there was no previous run, return the empty string `""` for that file.
-    Furthermore, note that it is possible to return a full web page with embedded PlutoStaticHTML output.
-    This package will extract the HTML output from the previous run.
-    By default, caching is disabled since `previous_html_function=Nothing`.
-- `append_build_context=false`: Whether to append build context.
+- `append_build_context`:
+    Whether to append build context.
     When set to `true`, this adds information about the dependencies and Julia version.
     This is not executed via Pluto.jl's evaluation to avoid having to add extra dependencies to existing notebooks.
     Instead, this reads the manifest from the notebook file.
@@ -48,21 +50,19 @@ struct HTMLOptions
     hide_code::Bool
     hide_md_code::Bool
     add_state::Bool
-    previous_html_function::Union{Nothing,Function}
     append_build_context::Bool
 
     function HTMLOptions(;
-        code_class="language-julia",
-        output_class="code-output",
-        hide_code=false,
-        hide_md_code=true,
-        add_state=true,
-        previous_html_function=nothing,
-        append_build_context=false
+        code_class::AbstractString="language-julia",
+        output_class::AbstractString="code-output",
+        hide_code::Bool=false,
+        hide_md_code::Bool=true,
+        add_state::Bool=true,
+        append_build_context::Bool=false
     )
         return new(
-            code_class,
-            output_class,
+            string(code_class)::String,
+            string(output_class)::String,
             hide_code,
             hide_md_code,
             add_state,

@@ -186,6 +186,7 @@ Note that Pluto.jl runs MathJax by default which might sometimes cause inconsist
 
 ```@docs
 HTMLOptions
+BuildOptions
 parallel_build
 notebook2html
 ```

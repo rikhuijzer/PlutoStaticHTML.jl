@@ -6,6 +6,49 @@ function _is_cell_done(cell)
     end
 end
 
+function nothingstring(x::Union{Nothing,AbstractString})::Union{Nothing,String}
+    if x isa Nothing
+        return x
+    else
+        return string(x)::String
+    end
+end
+
+"""
+    BuildOptions(
+        dir::AbstractString;
+        write_files::Bool=true,
+        previous_dir::Union{Nothing,AbstractString}=nothing
+    )
+
+- `dir`:
+    Directory in which the Pluto notebooks are stored.
+- `write_files::Bool=true`:
+    Write files to 
+- `previous_dir::Union{Nothing,AbstractString}=Nothing`:
+    Use the output from the previous run as a cache to speed up running time.
+    To use the cache, specify a directory `previous_dir::AbstractString` which contains HTML files from a previous run.
+    The output from the previous run may be embedded in a larger HTML web page.
+    This package will extract the original output from the full HTML web page.
+    By default, caching is disabled since `previous_dir=Nothing`.
+"""
+struct BuildOptions
+    dir::String
+    previous_dir::Union{Nothing,String}
+
+    function BuildOptions(
+        dir::AbstractString;
+        write_files::Bool=true,
+        previous_dir::Union{Nothing,AbstractString}=nothing
+    )
+        return new(
+            string(dir)::String,
+            write_files,
+            nothingstring(previous_dir)
+        )
+    end
+end
+
 """
     _is_notebook_done(notebook::Notebook)
 
@@ -50,6 +93,10 @@ function Previous(html::String)
     return Previous(state, html)
 end
 
+function previous_html(btops::BuildOptions, in_file)
+    
+end
+
 function reuse_previous_html(previous, dir, in_file)::Bool
     in_path = joinpath(dir, in_file)
     text = read(in_path, String)
@@ -63,9 +110,9 @@ end
 
 """
     parallel_build(
-        dir,
+        bopts::BuildOptions,
         files,
-        opts::HTMLOptions=HTMLOptions();
+        hopts::HTMLOptions=HTMLOptions();
         session=ServerSession(),
         write_files=true
     ) -> Vector{String}
@@ -73,26 +120,26 @@ end
 Build all ".jl" files in `dir` in parallel.
 """
 function parallel_build(
-        dir,
+        bopts::BuildOptions,
         files,
-        opts::HTMLOptions=HTMLOptions();
+        hopts::HTMLOptions=HTMLOptions();
         session=ServerSession(),
         write_files=true
     )::Vector{String}
 
-    htmls::Vector{String} = if !isnothing(opts.previous_html_function)
-        previous_html_function(files)
+    htmls::Vector{String} = if !isnothing(hopts.previous_html_function)
+        previous_html(bopts, files)
     else
         repeat([""], length(files))
     end
 
     # Start all the notebooks in parallel with async enabled.
     # This way, Pluto handles concurrency.
-    X = map(zip(files, htmls)) do (in_file, html)
+    X = map(files) do in_file
         in_path = joinpath(dir, in_file)
         @assert isfile(in_path) "Expected .jl file at $in_path"
 
-        previous = Previous(html)
+        previous = Previous(previous_html(btops, in_file))
         if reuse_previous_html(previous, dir, in_file)
             @info "Using cache for Pluto notebook at $in_file"
             return previous
@@ -115,10 +162,12 @@ function parallel_build(
             out_file = "$(without_extension).html"
             out_path = joinpath(dir, out_file)
 
-            html = notebook2html(x, opts)
+            html = notebook2html(x, hopts)
             SessionActions.shutdown(session, x)
 
-            write(out_path, html)
+            if write_files
+                write(out_path, html)
+            end
             return string(html)::String
         end
     end
@@ -128,19 +177,19 @@ end
 
 """
     parallel_build(
-        dir,
-        opts::HTMLOptions=HTMLOptions();
+        bopts::BuildOptions,
+        hopts::HTMLOptions=HTMLOptions();
         write_files=true
     ) -> Vector{String}
 
 Build all ".jl" files in `dir` in parallel.
 """
 function parallel_build(
-        dir,
-        opts::HTMLOptions=HTMLOptions();
+        bopts::BuildOptions,
+        hopts::HTMLOptions=HTMLOptions();
         write_files=true
     )::Vector{String}
     files = filter(endswith(".jl"), readdir(dir))
-    return parallel_build(dir, files, opts)
+    return parallel_build(bopts, files, hopts)
 end
 

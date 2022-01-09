@@ -30,7 +30,7 @@ include("cache.jl")
 include("html.jl")
 include("build.jl")
 
-export HTMLOptions, notebook2html, run_notebook!
-export parallel_build!
+export HTMLOptions, notebook2html, run_notebook
+export BuildOptions, parallel_build
 
 end # module

@@ -14,23 +14,34 @@ const IMAGEMIME = Union{
 }
 
 """
-    struct HTMLOptions
+    HTMLOptions(;
+        code_class::AbstractString="language-julia",
+        output_class::AbstractString="code-output",
+        hide_code::Bool=false,
+        hide_md_code::Bool=true,
+        add_state::Bool=true,
+        append_build_context::Bool=false
+    )
 
-- `code_class::String="language-julia"`:
+Options for `notebook2html`:
+
+- `code_class`:
     HTML class for code.
     This is used by CSS and/or the syntax highlighter.
-- `output_class::String="code-output"`:
+- `output_class`:
     HTML class for output.
     This is used by CSS and/or the syntax highlighter.
-- `hide_code::Bool=false`:
+- `hide_code`:
     Whether to omit all code blocks.
     Can be useful when readers are not interested in code at all.
-- `hide_md_code::Bool=true`: Whether to omit all Markdown code blocks.
-- `add_state::Bool=true`:
+- `hide_md_code`:
+    Whether to omit all Markdown code blocks.
+- `add_state`:
     Whether to add a comment in HTML with the state of the input notebook.
     This state can be used for caching.
     Specifically, this state stores a checksum of the input notebook and the Julia version.
-- `append_build_context=false`: Whether to append build context.
+- `append_build_context`:
+    Whether to append build context.
     When set to `true`, this adds information about the dependencies and Julia version.
     This is not executed via Pluto.jl's evaluation to avoid having to add extra dependencies to existing notebooks.
     Instead, this reads the manifest from the notebook file.
@@ -44,16 +55,16 @@ struct HTMLOptions
     append_build_context::Bool
 
     function HTMLOptions(;
-        code_class="language-julia",
-        output_class="code-output",
-        hide_code=false,
-        hide_md_code=true,
-        add_state=true,
-        append_build_context=false
+        code_class::AbstractString="language-julia",
+        output_class::AbstractString="code-output",
+        hide_code::Bool=false,
+        hide_md_code::Bool=true,
+        add_state::Bool=true,
+        append_build_context::Bool=false
     )
         return new(
-            code_class,
-            output_class,
+            string(code_class)::String,
+            string(output_class)::String,
             hide_code,
             hide_md_code,
             add_state,
@@ -251,39 +262,48 @@ function _append_cell!(notebook::Notebook, cells::AbstractVector{Cell})
     return notebook
 end
 
-function run_notebook!(notebook, session; run_async=false)
+function run_notebook(notebook, session; run_async=false)
     cells = [last(e) for e in notebook.cells_dict]
     update_save_run!(session, notebook, cells; run_async)
     return nothing
 end
 
+const BEGIN_IDENTIFIER = "<!-- PlutoStaticHTML.Begin -->"
+const END_IDENTIFIER = "<!-- PlutoStaticHTML.End -->"
+
 """
-    notebook2html(notebook::Notebook, opts::HTMLOptions=HTMLOptions()) -> String
+    notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()) -> String
 
 Return the code and output as HTML for `notebook`.
 This method does **not** alter the notebook at `path`; it makes a copy.
 Assumes that the notebook has already been executed.
 """
-function notebook2html(notebook::Notebook, opts::HTMLOptions=HTMLOptions())::String
+function notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions())::String
     order = notebook.cell_order
     outputs = map(order) do cell_uuid
         cell = notebook.cells_dict[cell_uuid]
         _cell2html(cell, opts)
     end
     html = join(outputs, '\n')
-    if opts.add_state
-        html = string(State(html)) * html
+    if opts.add_state && !isnothing(path)
+        html = string(path2state(path)) * html
     end
     if opts.append_build_context
         html = html * _context(notebook)
     end
-    return string(html)::String
+    html = string(BEGIN_IDENTIFIER, '\n', html, '\n', END_IDENTIFIER)::String
+    return html
 end
 
-function _load_notebook(path::AbstractString)
+function _tmp_copy(path::AbstractString)
     tmp_path = tempname()
     # Avoid Pluto making changes to the original notebook.
     cp(path, tmp_path)
+    return tmp_path
+end
+
+function _load_notebook(path::AbstractString)
+    tmp_path = _tmp_copy(path)
     notebook = load_notebook_nobackup(tmp_path)
     return notebook
 end
@@ -312,7 +332,7 @@ function notebook2html(
     )::String
     notebook = _load_notebook(path)
     PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook!(notebook, session; run_async=false)
-    html = notebook2html(notebook, opts)
+    run_notebook(notebook, session; run_async=false)
+    html = notebook2html(notebook, path, opts)
     return html
 end

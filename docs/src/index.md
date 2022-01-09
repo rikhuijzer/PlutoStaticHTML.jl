@@ -6,15 +6,18 @@ Small discussion with Fons van der Plas at <https://github.com/fonsp/Pluto.jl/di
 I'm using this package for my own blog, for example: <https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/>.
 A link to the notebook is at the bottom of the page.
 
-### notebook2html
-
-The most important methods are `notebook2html` or `parallel_build!` ([API](@ref)).
+The most important methods are `notebook2html` or `parallel_build` ([API](@ref)).
 
 !!! note
-    `notebook2html` and `parallel_build!` do **not** change the original notebook file.
-    The latter function contains a bang because it may create new HTML files or alter existing HTML files.
+    `notebook2html` and `parallel_build` evaluate notebooks **after** copying your notebooks.
+    This ensures that the original notebook will not be changed.
 
-For example, to process one notebook:
+### notebook2html
+
+To process one notebook.
+To make use of caching or parallel building, use [`parallel_build`](@ref).
+
+Example usage for `notebook2html`:
 
 ```julia
 julia> using PlutoStaticHTML
@@ -24,10 +27,10 @@ julia> notebook2html("Exciting analysis.jl") |> print
 [...]
 ```
 
-In general, what works best is to
+Note that, in general, what works best is to
 
 1. Determine a list of paths to your notebooks.
-1. Pass the paths to  `parallel_build!` and write the HTML output to files.
+1. Pass the paths to  [`parallel_build`](@ref) which writes the HTML outputs to files by default.
 1. Read the output from the HTML files and show it inside a static website.
 
 More specific instructions for
@@ -35,7 +38,6 @@ More specific instructions for
 - [Documenter.jl](@ref)
 - [Franklin.jl](@ref)
 - [Parallel build](@ref)
-- [API](@ref)
 
 are listed below.
 
@@ -100,15 +102,18 @@ title = "My analysis"
 
 The approach above lets Franklin.jl handle the build.
 This doesn't work in parallel.
-To run the notebooks in parallel and speed up the build, this package defines `parallel_build!`.
-To use it, pass a `dir` to write HTML files for all notebook files (recognized by ".jl" extension):
+To speed up the build, this package defines `parallel_build`.
+`parallel_build` evaluates the notebooks in parallel by default.
+Also, it can use [Caching](@ref) to speed up the build even more.
+
+To use [`parallel_build`](@ref), pass a `dir` to write HTML files for all notebook files (recognized by ".jl" extension):
 
 ```julia
-julia> using PlutoStaticHTML: parallel_build!
+julia> using PlutoStaticHTML: parallel_build
 
 julia> dir = joinpath("posts", "notebooks");
 
-julia> parallel_build!(dir);
+julia> parallel_build(BuildOptions(dir));
 
 ```
 
@@ -117,7 +122,7 @@ To run only specific notebooks, use:
 ```julia
 julia> files = ["notebook1.jl", "notebook2.jl"];
 
-julia> parallel_build!(dir, files)
+julia> parallel_build(BuildOptions(dir), files)
 ```
 
 In CI, be sure to call this before using Franklin `serve` or `optimize`.
@@ -158,6 +163,27 @@ reeval = true
 \readhtml{analysis}
 ```
 
+### Caching
+
+Using caching can greatly speed up running times by avoiding to re-evaluate notebooks.
+Caching can be enabled by passing `previous_dir` via [`BuildOptions`](@ref).
+This `previous_dir` should point to a location where HTML files are from the previous build.
+Then, `parallel_build` will, for each input file `file.jl`, check:
+
+1. Whether `joinpath(previous_dir, "file.html")` exists
+2. Whether the SHA checksum of the current `$file.jl` matches the checksum of the previous `$file.jl`.
+    When assuming that Pluto's built-in package manager is used to manage packages, this check ensures that the packages of the previous run match the packages of the current run.
+3. Whether the Julia version of the previous run matches the Julia version of the current run.
+
+!!! note
+    Caching can only be used if the notebooks are deterministic, that is, the notebook will always produce the same output from the same input.
+
+!!! note
+    The `previous_dir` provides a lot of flexibility.
+    For example, it is possible to point towards a Git directory with the HTML output files from last time.
+    Alternatively, it is possible to download the web pages where the notebooks are shown and put these web pages in a directory.
+    This works because this package extracts the state from the previous run automatically.
+
 ## LaTeX equations
 
 With Franklin.jl, update `foot_katex.html` to include:
@@ -187,6 +213,7 @@ Note that Pluto.jl runs MathJax by default which might sometimes cause inconsist
 
 ```@docs
 HTMLOptions
-parallel_build!
+BuildOptions
+parallel_build
 notebook2html
 ```

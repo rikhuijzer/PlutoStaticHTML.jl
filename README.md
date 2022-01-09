@@ -10,12 +10,12 @@ A [Julia package](https://julialang.org/) to convert [Pluto notebooks](https://g
 
 ## Automated builds
 
-Next to outputting static HTML, this package is also aimed at building multiple Pluto.jl notebooks as reliably and quickly as possible in CI.
+Next to outputting static HTML, this package is also aimed at building multiple Pluto.jl notebooks as reliably and quickly as possible in unsupervised settings such as CI.
 Therefore, this package implements:
 
 1. Parallel evaluation of notebooks 🚀.
-2. Caching of notebooks to avoid re-running code if nothing changed 🚀.
-3. Throwing an error if something goes wrong.
+1. Caching of notebooks to avoid re-running code if nothing changed 🚀.
+1. Throwing an error if something goes wrong.
     This avoids publishing broken notebooks 🎯.
 
 See the [documentation](https://rikhuijzer.github.io/PlutoStaticHTML.jl/dev/) for more information.

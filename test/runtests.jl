@@ -14,7 +14,7 @@ const NOTEBOOK_PATH = joinpath(NOTEBOOK_DIR, "notebook.jl")
 function pluto_notebook_content(code)
     return """
         ### A Pluto.jl notebook ###
-        # v0.17.1
+        # v0.17.4
 
         using Markdown
         using InteractiveUtils
@@ -34,6 +34,12 @@ function drop_cache_info(html::AbstractString)
     return join(lines[n:end], sep)
 end
 
+function drop_begin_end(html::AbstractString)
+    sep = '\n'
+    lines = split(html, sep)
+    return join(lines[2:end-1], sep)
+end
+
 function notebook2html_helper(
         notebook::Notebook,
         opts=HTMLOptions();
@@ -41,10 +47,17 @@ function notebook2html_helper(
     )
     session = ServerSession()
     PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook!(notebook, session)
-    html = notebook2html(notebook, opts)
-    has_cache = contains(html, PlutoStaticHTML.CACHE_IDENTIFIER)
-    return has_cache ? drop_cache_info(html) : html
+    run_notebook(notebook, session)
+    path = nothing
+    html = notebook2html(notebook, path, opts)
+
+    has_cache = contains(html, PlutoStaticHTML.STATE_IDENTIFIER)
+    without_cache = has_cache ? drop_cache_info(html) : html
+
+    has_begin_end = contains(html, PlutoStaticHTML.BEGIN_IDENTIFIER)
+    without_begin_end = has_begin_end ? drop_begin_end(html) : html
+
+    return without_begin_end
 end
 
 include("context.jl")

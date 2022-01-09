@@ -160,7 +160,8 @@ function parallel_build(
             return previous
         else
             @info "Starting evaluation of Pluto notebook at $in_file"
-            notebook = SessionActions.open(session, in_path; run_async=true)
+            notebook = _load_notebook(in_file)
+            run_notebook!(notebook, session; run_async=true)
             return notebook
         end
     end

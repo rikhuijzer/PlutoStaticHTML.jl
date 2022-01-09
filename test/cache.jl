@@ -21,11 +21,15 @@ end
             """)
         write("a.jl", code)
 
+        read("a.jl", String) |> print
+
         code = pluto_notebook_content("""write("$(path('b'))", "b")""")
         write("b.jl", code)
 
         bo = BuildOptions(dir)
         parallel_build(bo)
+
+        read("a.jl", String) |> print
 
         @test read("a.txt", String) == "a"
         @test isfile("a.html")

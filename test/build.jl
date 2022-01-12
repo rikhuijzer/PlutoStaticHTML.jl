@@ -15,9 +15,7 @@
         end
         parallel_build(BuildOptions(dir))
 
-        @show readdir(dir)
         html_file = joinpath(dir, "file1.html")
-        @show read(html_file, String) |> print
         @test contains(read(html_file, String), "3001")
 
         html_file = joinpath(dir, "file2.html")

@@ -321,6 +321,7 @@ end
     ) -> Notebook
 
 Return the notebook at `path` while ensuring that the file at `path` will not be modified.
+This method only loads the notebook; it doesn't evaluate cells.
 """
 function _load_notebook(
         path::AbstractString;

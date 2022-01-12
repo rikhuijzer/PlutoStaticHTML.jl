@@ -10,6 +10,7 @@ using Pkg:
 using Pluto:
     Cell,
     CellOutput,
+    Configuration.CompilerOptions,
     Notebook,
     PkgCompat.dependencies,
     PlutoRunner,

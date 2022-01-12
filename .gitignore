@@ -5,3 +5,4 @@
 **/*.html
 /docs/build/
 /docs/src/notebook.md
+**/_tmp_*

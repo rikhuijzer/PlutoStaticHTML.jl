@@ -207,7 +207,9 @@ function parallel_build(
         hopts::HTMLOptions=HTMLOptions();
         write_files=true
     )::Vector{String}
-    files = filter(endswith(".jl"), readdir(bopts.dir))
+    files = filter(readdir(bopts.dir)) do file
+        endswith(file, ".jl") && !startswith(file, TMP_COPY_PREFIX)
+    end
     return parallel_build(bopts, files, hopts)
 end
 

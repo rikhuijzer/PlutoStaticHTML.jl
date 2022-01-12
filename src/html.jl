@@ -302,6 +302,7 @@ function notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()
     return html
 end
 
+const TMP_COPY_PREFIX = "_tmp_"
 """
     _tmp_copy(path::AbstractString)
 
@@ -311,7 +312,7 @@ This avoids Pluto making changes to the original notebook.
 function _tmp_copy(path::AbstractString)::String
     dir = dirname(path)
     file = basename(path)
-    tmp_path = joinpath(dir, "_tmp_$file")
+    tmp_path = joinpath(dir, TMP_COPY_PREFIX * file)
     cp(path, tmp_path; force=true)
     return tmp_path
 end

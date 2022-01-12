@@ -1,3 +1,18 @@
+@testset "tmp_copy" begin
+    dir = mktempdir()
+    cd(dir) do
+        path = joinpath(dir, "notebook.jl")
+        touch(path)
+        @test isfile(path)
+        cp_path = PlutoStaticHTML._tmp_copy(path)
+        @test isfile(cp_path)
+        # Ensure that `@__DIR__` can be used.
+        # https://github.com/rikhuijzer/PlutoStaticHTML.jl/issues/31
+        @test dirname(cp_path) == dir
+        @test basename(cp_path) == "_tmp_notebook.jl"
+    end
+end
+
 @testset "html" begin
     html = "<b>foo</b>"
     block = PlutoStaticHTML.code_block(html)

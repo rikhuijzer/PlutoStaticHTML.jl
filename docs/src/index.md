@@ -11,6 +11,8 @@ The most important methods are `notebook2html` or `parallel_build` ([API](@ref))
 !!! note
     `notebook2html` and `parallel_build` evaluate notebooks **after** copying your notebooks.
     This ensures that the original notebook will not be changed.
+    The copied notebook will be placed in the same folder so that `@__DIR__` can be used to locate files relative to the notebook path.
+    Add `**/_tmp_*` to your `.gitignore` to ignore the temporary copies.
 
 ### notebook2html
 
@@ -47,7 +49,7 @@ To see how to embed output from a Pluto notebook in Documenter.jl, checkout "mak
 
 !!! warn
     It is typically not a good idea to call the conversion from inside `Documenter.jl`.
-    For some reason, that is likely to freeze or hang; probably due to stdout being flooded with information or something.
+    For some reason, that is likely to freeze or hang; probably due to `stdout` being flooded with information or something.
 
 ## Franklin.jl
 

@@ -309,8 +309,10 @@ Return the path of a temp copy of the file at `path`.
 This avoids Pluto making changes to the original notebook.
 """
 function _tmp_copy(path::AbstractString)::String
-    tmp_path = tempname()
-    cp(path, tmp_path)
+    dir = dirname(path)
+    file = basename(path)
+    tmp_path = joinpath(dir, "_tmp_$file")
+    cp(path, tmp_path; force=true)
     return tmp_path
 end
 

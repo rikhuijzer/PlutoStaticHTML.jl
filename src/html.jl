@@ -20,7 +20,8 @@ const IMAGEMIME = Union{
         hide_code::Bool=false,
         hide_md_code::Bool=true,
         add_state::Bool=true,
-        append_build_context::Bool=false
+        append_build_context::Bool=false,
+        compiler_options::Union{Nothing,CompilerOptions}=nothing
     )
 
 Options for `notebook2html`:
@@ -45,6 +46,9 @@ Options for `notebook2html`:
     When set to `true`, this adds information about the dependencies and Julia version.
     This is not executed via Pluto.jl's evaluation to avoid having to add extra dependencies to existing notebooks.
     Instead, this reads the manifest from the notebook file.
+- `compiler_options`:
+    `Pluto.Configuration.CompilerOptions` to be passed to Pluto.
+    This can, for example, be useful to pass custom system images from `PackageCompiler.jl`.
 """
 struct HTMLOptions
     code_class::String
@@ -53,6 +57,7 @@ struct HTMLOptions
     hide_md_code::Bool
     add_state::Bool
     append_build_context::Bool
+    compiler_options::Union{Nothing,CompilerOptions}
 
     function HTMLOptions(;
         code_class::AbstractString="language-julia",
@@ -60,7 +65,8 @@ struct HTMLOptions
         hide_code::Bool=false,
         hide_md_code::Bool=true,
         add_state::Bool=true,
-        append_build_context::Bool=false
+        append_build_context::Bool=false,
+        compiler_options::Union{Nothing,CompilerOptions}=nothing
     )
         return new(
             string(code_class)::String,
@@ -68,7 +74,8 @@ struct HTMLOptions
             hide_code,
             hide_md_code,
             add_state,
-            append_build_context
+            append_build_context,
+            compiler_options
         )
     end
 end
@@ -295,16 +302,33 @@ function notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()
     return html
 end
 
-function _tmp_copy(path::AbstractString)
+"""
+    _tmp_copy(path::AbstractString)
+
+Return the path of a temp copy of the file at `path`.
+This avoids Pluto making changes to the original notebook.
+"""
+function _tmp_copy(path::AbstractString)::String
     tmp_path = tempname()
-    # Avoid Pluto making changes to the original notebook.
     cp(path, tmp_path)
     return tmp_path
 end
 
-function _load_notebook(path::AbstractString)
+"""
+    _load_notebook(
+        path::AbstractString,
+        compiler_options::Union{Nothing,CompilerOptions}=nothing
+    ) -> Notebook
+
+Return the notebook at `path` while ensuring that the file at `path` will not be modified.
+"""
+function _load_notebook(
+        path::AbstractString;
+        compiler_options::Union{Nothing,CompilerOptions}=nothing
+    )::Notebook
     tmp_path = _tmp_copy(path)
     notebook = load_notebook_nobackup(tmp_path)
+    notebook.compiler_options = compiler_options
     return notebook
 end
 

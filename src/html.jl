@@ -269,9 +269,29 @@ function _append_cell!(notebook::Notebook, cells::AbstractVector{Cell})
     return notebook
 end
 
-function run_notebook!(notebook, session; run_async=false)
-    cells = [last(e) for e in notebook.cells_dict]
-    update_save_run!(session, notebook, cells; run_async)
+"""
+    run_notebook!(nb::Notebook, session)
+
+Run all cells in `nb`.
+Throws an error as soon as a cell fails.
+"""
+function run_notebook!(nb::Notebook, session)
+    cells = [nb.cells_dict[cell_uuid] for cell_uuid in nb.cell_order]
+    for cell in cells
+        update_save_run!(session, nb, cell; run_async=false, save=false)
+        if cell.errored
+            body = cell.output.body
+            msg = body[:msg]
+            stacktrace = body[:stacktrace]
+            msg = """
+                $msg
+
+                Details:
+                $stacktrace
+                """
+            error(msg)
+        end
+    end
     return nothing
 end
 
@@ -282,7 +302,6 @@ const END_IDENTIFIER = "<!-- PlutoStaticHTML.End -->"
     notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()) -> String
 
 Return the code and output as HTML for `notebook`.
-This method does **not** alter the notebook at `path`; it makes a copy.
 Assumes that the notebook has already been executed.
 """
 function notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions())::String
@@ -361,7 +380,7 @@ function notebook2html(
     )::String
     notebook = _load_notebook(path)
     PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook!(notebook, session; run_async=false)
+    run_notebook!(notebook, session)
     html = notebook2html(notebook, path, opts)
     return html
 end

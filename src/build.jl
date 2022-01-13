@@ -48,7 +48,7 @@ struct BuildOptions
         dir::AbstractString;
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
-        use_distributed::Bool=false
+        use_distributed::Bool=true
     )
         return new(
             string(dir)::String,
@@ -151,8 +151,7 @@ function parallel_build(
 
     dir = bopts.dir
 
-    # Start all the notebooks in parallel with async enabled.
-    # This way, Pluto handles concurrency.
+    # Start all the notebooks in parallel with async enabled if `use_distributed`.
     X = map(files) do in_file
         in_path = joinpath(dir, in_file)
         @assert isfile(in_path) "Expected .jl file at $in_path"
@@ -165,16 +164,16 @@ function parallel_build(
             @info "Starting evaluation of Pluto notebook $in_file"
             compiler_options = hopts.compiler_options
             if bopts.use_distributed
-                run_async = true
                 tmp_path = _tmp_copy(in_path)
-                notebook = SessionActions.open(session, tmp_path; compiler_options, run_async)
-                return notebook
+                nb = SessionActions.open(session, tmp_path; compiler_options, run_async=true)
+                return nb
             else
-                notebook = _load_notebook(in_path; compiler_options)
+                nb = _load_notebook(in_path; compiler_options)
                 options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
                 session.options = options
-                run_notebook!(notebook, session; run_async=false)
-                return notebook
+                run_notebook!(nb, session)
+                SessionActions.shutdown(session, nb)
+                return nb
             end
         end
     end

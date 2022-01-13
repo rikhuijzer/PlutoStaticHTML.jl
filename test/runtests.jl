@@ -3,9 +3,7 @@ using Pluto:
     Cell,
     Notebook,
     ServerSession
-using Test:
-    @testset,
-    @test
+using Test
 
 const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
 const NOTEBOOK_DIR = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")

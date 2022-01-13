@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>PlutoStaticHTML · PlutoStaticHTML.jl</title><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href>PlutoStaticHTML.jl</a></span></div><form class="docs-search" action="search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>PlutoStaticHTML</a><ul class="internal"><li><a class="tocitem" href="#Documenter.jl"><span>Documenter.jl</span></a></li><li><a class="tocitem" href="#Franklin.jl"><span>Franklin.jl</span></a></li><li><a class="tocitem" href="#Parallel-build"><span>Parallel build</span></a></li><li><a class="tocitem" href="#LaTeX-equations"><span>LaTeX equations</span></a></li><li><a class="tocitem" href="#API"><span>API</span></a></li></ul></li><li><a class="tocitem" href="notebook/">Example notebook</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>PlutoStaticHTML</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>PlutoStaticHTML</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/rikhuijzer/PlutoStaticHTML.jl/blob/master/docs/src/index.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="PlutoStaticHTML"><a class="docs-heading-anchor" href="#PlutoStaticHTML">PlutoStaticHTML</a><a id="PlutoStaticHTML-1"></a><a class="docs-heading-anchor-permalink" href="#PlutoStaticHTML" title="Permalink"></a></h1><p>Convert Pluto notebooks to pure HTML (without Javascript). Small discussion with Fons van der Plas at <a href="https://github.com/fonsp/Pluto.jl/discussions/1607">https://github.com/fonsp/Pluto.jl/discussions/1607</a>.</p><p>I&#39;m using this package for my own blog, for example: <a href="https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/">https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/</a>. A link to the notebook is at the bottom of the page.</p><p>The most important methods are <code>notebook2html</code> or <code>parallel_build</code> (<a href="#API">API</a>).</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p><code>notebook2html</code> and <code>parallel_build</code> evaluate notebooks <strong>after</strong> copying your notebooks. This ensures that the original notebook will not be changed. The copied notebook will be placed in the same folder so that <code>@__DIR__</code> can be used to locate files relative to the notebook path. Add <code>**/_tmp_*</code> to your <code>.gitignore</code> to ignore the temporary copies.</p></div></div><h3 id="notebook2html"><a class="docs-heading-anchor" href="#notebook2html">notebook2html</a><a id="notebook2html-1"></a><a class="docs-heading-anchor-permalink" href="#notebook2html" title="Permalink"></a></h3><p>To process one notebook. To make use of caching or parallel building, use <a href="#PlutoStaticHTML.parallel_build"><code>parallel_build</code></a>.</p><p>Example usage for <code>notebook2html</code>:</p><pre><code class="language-julia hljs">julia&gt; using PlutoStaticHTML
+
+julia&gt; notebook2html(&quot;Exciting analysis.jl&quot;) |&gt; print
+&lt;div class=&quot;markdown&quot;&gt;&lt;p&gt;This is an example notebook.&lt;/p&gt;
+[...]</code></pre><p>Note that, in general, what works best is to</p><ol><li>Determine a list of paths to your notebooks.</li><li>Pass the paths to  <a href="#PlutoStaticHTML.parallel_build"><code>parallel_build</code></a> which writes the HTML outputs to files by default.</li><li>Read the output from the HTML files and show it inside a static website.</li></ol><p>More specific instructions for</p><ul><li><a href="#Documenter.jl">Documenter.jl</a></li><li><a href="#Franklin.jl">Franklin.jl</a></li><li><a href="#Parallel-build">Parallel build</a></li></ul><p>are listed below.</p><h2 id="Documenter.jl"><a class="docs-heading-anchor" href="#Documenter.jl">Documenter.jl</a><a id="Documenter.jl-1"></a><a class="docs-heading-anchor-permalink" href="#Documenter.jl" title="Permalink"></a></h2><p>To see how to embed output from a Pluto notebook in Documenter.jl, checkout &quot;make.jl&quot; in this repository.</p><div class="admonition is-category-warn"><header class="admonition-header">Warn</header><div class="admonition-body"><p>It is typically not a good idea to call the conversion from inside <code>Documenter.jl</code>. For some reason, that is likely to freeze or hang; probably due to <code>stdout</code> being flooded with information or something.</p></div></div><h2 id="Franklin.jl"><a class="docs-heading-anchor" href="#Franklin.jl">Franklin.jl</a><a id="Franklin.jl-1"></a><a class="docs-heading-anchor-permalink" href="#Franklin.jl" title="Permalink"></a></h2><p>See the next section for a parallel version. In <code>utils.jl</code> define:</p><pre><code class="nohighlight hljs">&quot;&quot;&quot;
+    lx_pluto(com, _)
+
+Embed a Pluto notebook via:
+https://github.com/rikhuijzer/PlutoStaticHTML.jl
+&quot;&quot;&quot;
+function lx_pluto(com, _)
+    file = string(Franklin.content(com.braces[1]))::String
+    notebook_path = joinpath(&quot;posts&quot;, &quot;notebooks&quot;, &quot;$file.jl&quot;)
+    log_path = joinpath(&quot;posts&quot;, &quot;notebooks&quot;, &quot;$file.log&quot;)
+
+    return &quot;&quot;&quot;
+        ```julia:pluto
+        # hideall
+
+        using PlutoStaticHTML: notebook2html
+
+        path = &quot;$notebook_path&quot;
+        log_path = &quot;$log_path&quot;
+        @assert isfile(path)
+        @info &quot;→ evaluating Pluto notebook at (\$path)&quot;
+        html = open(log_path, &quot;w&quot;) do io
+            redirect_stdout(io) do
+                html = notebook2html(path)
+                return html
+            end
+        end
+        println(&quot;~~~\n\$html\n~~~\n&quot;)
+        ```
+        \\textoutput{pluto}
+        &quot;&quot;&quot;
+end</code></pre><p>Next, the Pluto notebook at &quot;/posts/notebooks/analysis.jl&quot; can be included in a Franklin webpage. For example:</p><pre><code class="language-markdown hljs">+++
+title = &quot;My analysis&quot;
++++
+
+\pluto{analysis}</code></pre><h2 id="Parallel-build"><a class="docs-heading-anchor" href="#Parallel-build">Parallel build</a><a id="Parallel-build-1"></a><a class="docs-heading-anchor-permalink" href="#Parallel-build" title="Permalink"></a></h2><p>The approach above lets Franklin.jl handle the build. This doesn&#39;t work in parallel. To speed up the build, this package defines <code>parallel_build</code>. <code>parallel_build</code> evaluates the notebooks in parallel by default. Also, it can use <a href="#Caching">Caching</a> to speed up the build even more.</p><p>To use <a href="#PlutoStaticHTML.parallel_build"><code>parallel_build</code></a>, pass a <code>dir</code> to write HTML files for all notebook files (recognized by &quot;.jl&quot; extension):</p><pre><code class="language-julia hljs">julia&gt; using PlutoStaticHTML: parallel_build
+
+julia&gt; dir = joinpath(&quot;posts&quot;, &quot;notebooks&quot;);
+
+julia&gt; parallel_build(BuildOptions(dir));
+</code></pre><p>To run only specific notebooks, use:</p><pre><code class="language-julia hljs">julia&gt; files = [&quot;notebook1.jl&quot;, &quot;notebook2.jl&quot;];
+
+julia&gt; parallel_build(BuildOptions(dir), files)</code></pre><p>In CI, be sure to call this before using Franklin <code>serve</code> or <code>optimize</code>. Next, read the HTML back into Franklin by defining in <code>utils.jl</code>:</p><pre><code class="nohighlight hljs">&quot;&quot;&quot;
+    lx_readhtml(com, _)
+
+Embed a Pluto notebook via:
+https://github.com/rikhuijzer/PlutoStaticHTML.jl
+&quot;&quot;&quot;
+function lx_readhtml(com, _)
+    file = string(Franklin.content(com.braces[1]))::String
+    dir = joinpath(&quot;posts&quot;, &quot;notebooks&quot;)
+    filename = &quot;$(file).jl&quot;
+
+    return &quot;&quot;&quot;
+        ```julia:pluto
+        # hideall
+
+        filename = &quot;$filename&quot;
+        html = read(filename, String)
+        println(&quot;~~~\n\$html\n~~~\n&quot;)
+        ```
+        \\textoutput{pluto}
+        &quot;&quot;&quot;
+end</code></pre><p>and calling this from Franklin. For example:</p><pre><code class="nohighlight hljs">+++
+title = &quot;My analysis&quot;
+reeval = true
++++
+
+\readhtml{analysis}</code></pre><h3 id="Caching"><a class="docs-heading-anchor" href="#Caching">Caching</a><a id="Caching-1"></a><a class="docs-heading-anchor-permalink" href="#Caching" title="Permalink"></a></h3><p>Using caching can greatly speed up running times by avoiding to re-evaluate notebooks. Caching can be enabled by passing <code>previous_dir</code> via <a href="#PlutoStaticHTML.BuildOptions"><code>BuildOptions</code></a>. This <code>previous_dir</code> should point to a location where HTML files are from the previous build. Then, <code>parallel_build</code> will, for each input file <code>file.jl</code>, check:</p><ol><li>Whether <code>joinpath(previous_dir, &quot;file.html&quot;)</code> exists</li><li>Whether the SHA checksum of the current <code>$file.jl</code> matches the checksum of the previous <code>$file.jl</code>.  When assuming that Pluto&#39;s built-in package manager is used to manage packages, this check ensures that the packages of the previous run match the packages of the current run.</li><li>Whether the Julia version of the previous run matches the Julia version of the current run.</li></ol><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Caching can only be used if the notebooks are deterministic, that is, the notebook will always produce the same output from the same input.</p></div></div><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>The <code>previous_dir</code> provides a lot of flexibility. For example, it is possible to point towards a Git directory with the HTML output files from last time. Alternatively, it is possible to download the web pages where the notebooks are shown and put these web pages in a directory. This works because this package extracts the state from the previous run automatically.</p></div></div><h2 id="LaTeX-equations"><a class="docs-heading-anchor" href="#LaTeX-equations">LaTeX equations</a><a id="LaTeX-equations-1"></a><a class="docs-heading-anchor-permalink" href="#LaTeX-equations" title="Permalink"></a></h2><p>With Franklin.jl, update <code>foot_katex.html</code> to include:</p><pre><code class="language-javascript hljs">&lt;script&gt;
+  const options = {
+    delimiters: [
+      {left: &quot;$$&quot;, right: &quot;$$&quot;, display: true},
+      {left: &quot;$&quot;, right: &quot;$&quot;, display: false},
+      {left: &quot;\\begin{equation}&quot;, right: &quot;\\end{equation}&quot;, display: true},
+      {left: &quot;\\begin{align}&quot;, right: &quot;\\end{align}&quot;, display: true},
+      {left: &quot;\\begin{alignat}&quot;, right: &quot;\\end{alignat}&quot;, display: true},
+      {left: &quot;\\begin{gather}&quot;, right: &quot;\\end{gather}&quot;, display: true},
+      {left: &quot;\\(&quot;, right: &quot;\\)&quot;, display: false},
+      {left: &quot;\\[&quot;, right: &quot;\\]&quot;, display: true}
+    ]
+  };
+  renderMathInElement(document.body, options);
+&lt;/script&gt;</code></pre><p>which basically ensures that inline math surrounded by single dollar symbols is also rendered. Note that Pluto.jl runs MathJax by default which might sometimes cause inconsistencies between the math in Pluto and inside your HTML.</p><h2 id="API"><a class="docs-heading-anchor" href="#API">API</a><a id="API-1"></a><a class="docs-heading-anchor-permalink" href="#API" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-binding" id="PlutoStaticHTML.HTMLOptions" href="#PlutoStaticHTML.HTMLOptions"><code>PlutoStaticHTML.HTMLOptions</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia hljs">HTMLOptions(;
+    code_class::AbstractString=&quot;language-julia&quot;,
+    output_class::AbstractString=&quot;code-output&quot;,
+    hide_code::Bool=false,
+    hide_md_code::Bool=true,
+    add_state::Bool=true,
+    append_build_context::Bool=false,
+    compiler_options::Union{Nothing,CompilerOptions}=nothing
+)</code></pre><p>Options for <code>notebook2html</code>:</p><ul><li><code>code_class</code>:   HTML class for code.   This is used by CSS and/or the syntax highlighter.</li><li><code>output_class</code>:   HTML class for output.   This is used by CSS and/or the syntax highlighter.</li><li><code>hide_code</code>:   Whether to omit all code blocks.   Can be useful when readers are not interested in code at all.</li><li><code>hide_md_code</code>:   Whether to omit all Markdown code blocks.</li><li><code>add_state</code>:   Whether to add a comment in HTML with the state of the input notebook.   This state can be used for caching.   Specifically, this state stores a checksum of the input notebook and the Julia version.</li><li><code>append_build_context</code>:   Whether to append build context.   When set to <code>true</code>, this adds information about the dependencies and Julia version.   This is not executed via Pluto.jl&#39;s evaluation to avoid having to add extra dependencies to existing notebooks.   Instead, this reads the manifest from the notebook file.</li><li><code>compiler_options</code>:   <code>Pluto.Configuration.CompilerOptions</code> to be passed to Pluto.   This can, for example, be useful to pass custom system images from <code>PackageCompiler.jl</code>.</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/rikhuijzer/PlutoStaticHTML.jl/blob/9e04d7ccb18af1ec543872ca2ab3d7c14c226a37/src/html.jl#L16-L52">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="PlutoStaticHTML.BuildOptions" href="#PlutoStaticHTML.BuildOptions"><code>PlutoStaticHTML.BuildOptions</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia hljs">BuildOptions(
+    dir::AbstractString;
+    write_files::Bool=true,
+    previous_dir::Union{Nothing,AbstractString}=nothing
+)</code></pre><p>Options for <code>parallel_build</code>:</p><ul><li><code>dir</code>:   Directory in which the Pluto notebooks are stored.</li><li><code>write_files::Bool=true</code>:   Write files to <code>joinpath(dir, &quot;$file.html&quot;)</code>.</li><li><code>previous_dir::Union{Nothing,AbstractString}=Nothing</code>:   Use the output from the previous run as a cache to speed up running time.   To use the cache, specify a directory <code>previous_dir::AbstractString</code> which contains HTML files from a previous run.   Specifically, files are expected to be at <code>joinpath(previous_dir, &quot;$file.html&quot;)</code>.   The output from the previous run may be embedded in a larger HTML web page.   This package will extract the original output from the full HTML web page.   By default, caching is disabled.</li><li><code>use_distributed::Bool=true</code>:   Whether to build the notebooks in different processes.   By default, this is enabled just like in Pluto and the notebooks are build in parallel.   The benefit of different processes is that things are more independent of each other.   Unfortunately, the drawback is that compilation has to happen for each process.   By setting this option to <code>false</code>, all notebooks are built sequentially in the same process which avoids recompilation.   This is likely quicker in situations where there are few threads available such as GitHub Runners depending on the notebook contents.</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/rikhuijzer/PlutoStaticHTML.jl/blob/9e04d7ccb18af1ec543872ca2ab3d7c14c226a37/src/build.jl#L13-L40">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="PlutoStaticHTML.parallel_build" href="#PlutoStaticHTML.parallel_build"><code>PlutoStaticHTML.parallel_build</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">parallel_build(
+    bopts::BuildOptions,
+    files,
+    hopts::HTMLOptions=HTMLOptions();
+    session=ServerSession(),
+    write_files=true
+) -&gt; Vector{String}</code></pre><p>Build all <code>files</code> in <code>dir</code> in parallel.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/rikhuijzer/PlutoStaticHTML.jl/blob/9e04d7ccb18af1ec543872ca2ab3d7c14c226a37/src/build.jl#L133-L143">source</a></section><section><div><pre><code class="nohighlight hljs">parallel_build(
+    bopts::BuildOptions,
+    hopts::HTMLOptions=HTMLOptions();
+    write_files=true
+) -&gt; Vector{String}</code></pre><p>Build all &quot;.jl&quot; files in <code>dir</code> in parallel.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/rikhuijzer/PlutoStaticHTML.jl/blob/9e04d7ccb18af1ec543872ca2ab3d7c14c226a37/src/build.jl#L213-L221">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="PlutoStaticHTML.notebook2html" href="#PlutoStaticHTML.notebook2html"><code>PlutoStaticHTML.notebook2html</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()) -&gt; String</code></pre><p>Return the code and output as HTML for <code>notebook</code>. Assumes that the notebook has already been executed.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/rikhuijzer/PlutoStaticHTML.jl/blob/9e04d7ccb18af1ec543872ca2ab3d7c14c226a37/src/html.jl#L301-L306">source</a></section><section><div><pre><code class="nohighlight hljs">notebook2html(
+    path::AbstractString,
+    opts::HTMLOptions=HTMLOptions();
+    session=ServerSession(),
+    append_cells=Cell[],
+) -&gt; String</code></pre><p>Run the Pluto notebook at <code>path</code> and return the code and output as HTML. This makes a copy of the notebook at <code>path</code> and runs it.</p><p>Keyword arguments:</p><ul><li><code>append_cells</code>: Specify one or more <code>Pluto.Cell</code>s to be appended at the end of the notebook.   Be careful when adding new packages via this method because it may disable Pluto.jl&#39;s built-in package management.</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/rikhuijzer/PlutoStaticHTML.jl/blob/9e04d7ccb18af1ec543872ca2ab3d7c14c226a37/src/html.jl#L359-L374">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="notebook/">Example notebook »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.10 on <span class="colophon-date" title="Thursday 13 January 2022 21:54">Thursday 13 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

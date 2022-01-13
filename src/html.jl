@@ -282,6 +282,10 @@ Run all cells in `nb`.
 Throws an error as soon as a cell fails.
 """
 function run_notebook!(nb::Notebook, session)
+    cells = [last(e) for e in notebook.cells_dict]
+    update_save_run!(session, notebook, cells; run_async)
+    return nothing
+
     cells = [nb.cells_dict[cell_uuid] for cell_uuid in nb.cell_order]
     update_save_run!(session, nb, cells; run_async=false, save=false)
     for cell in cells

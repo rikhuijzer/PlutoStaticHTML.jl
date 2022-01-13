@@ -13,6 +13,7 @@ using Pluto:
     Configuration.CompilerOptions,
     Notebook,
     PkgCompat.dependencies,
+    Pluto,
     PlutoRunner,
     ServerSession,
     SessionActions,
@@ -31,7 +32,7 @@ include("cache.jl")
 include("html.jl")
 include("build.jl")
 
-export HTMLOptions, notebook2html, run_notebook
+export HTMLOptions, notebook2html, run_notebook!
 export BuildOptions, parallel_build
 
 end # module

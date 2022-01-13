@@ -108,3 +108,14 @@ end
         @test contains(html, "60$i")
     end
 end
+
+@testset "run_notebook!_errors" begin
+    session = ServerSession()
+
+    nb = Notebook([Cell("@assert true")])
+    run_notebook!(nb, session)
+
+    nb = Notebook([Cell("@assert false")])
+    @test_throws Exception run_notebook!(nb, session)
+end
+

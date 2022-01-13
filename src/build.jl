@@ -163,14 +163,14 @@ function parallel_build(
             return previous
         else
             @info "Starting evaluation of Pluto notebook $in_file"
-            tmp_path = _tmp_copy(in_path)
             compiler_options = hopts.compiler_options
             if bopts.use_distributed
                 run_async = true
+                tmp_path = _tmp_copy(in_path)
                 notebook = SessionActions.open(session, tmp_path; compiler_options, run_async)
                 return notebook
             else
-                notebook = _load_notebook(tmp_path; compiler_options)
+                notebook = _load_notebook(in_path; compiler_options)
                 options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
                 session.options = options
                 run_notebook!(notebook, session; run_async=false)

@@ -276,7 +276,7 @@ Run all cells in `nb`.
 Throws an error as soon as a cell fails.
 """
 function run_notebook!(nb::Notebook, session; run_async=false)
-    cells = [nb.cells_dict[cell_id] for cell_id in nb.cell_order]
+    cells = [nb.cells_dict[cell_uuid] for cell_uuid in nb.cell_order]
     for cell in cells
         update_save_run!(session, nb, cell; run_async)
         if cell.errored

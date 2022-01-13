@@ -269,6 +269,12 @@ function _append_cell!(notebook::Notebook, cells::AbstractVector{Cell})
     return notebook
 end
 
+function _run_single!(session, nb::Notebook, cell)
+    reactive_node = nb.topology.nodes[cell]
+    expr_cache = nb.topology.codes[cell]
+    Pluto.run_single!((session, nb), cell, reactive_node, expr_cache)
+end
+
 """
     run_notebook!(nb::Notebook, session; run_async=false)
 
@@ -278,7 +284,8 @@ Throws an error as soon as a cell fails.
 function run_notebook!(nb::Notebook, session; run_async=false)
     cells = [nb.cells_dict[cell_uuid] for cell_uuid in nb.cell_order]
     for cell in cells
-        update_save_run!(session, nb, cell; run_async)
+        update_save_run!(session, nb, cell; run_async, save=false)
+        # run = _run_single!(session, nb, cell)
         if cell.errored
             body = cell.output.body
             msg = body[:msg]

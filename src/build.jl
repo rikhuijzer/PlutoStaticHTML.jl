@@ -30,21 +30,31 @@ Options for `parallel_build`:
     The output from the previous run may be embedded in a larger HTML web page.
     This package will extract the original output from the full HTML web page.
     By default, caching is disabled.
+- `use_distributed::Bool=true`:
+    Whether to build the notebooks in different processes.
+    By default, this is enabled just like in Pluto and the notebooks are build in parallel.
+    The benefit of different processes is that things are more independent of each other.
+    Unfortunately, the drawback is that compilation has to happen for each process.
+    By setting this option to `false`, all notebooks are built sequentially in the same process which avoids recompilation.
+    This is likely more quick in situations where there are few threads available.
 """
 struct BuildOptions
     dir::String
     write_files::Bool
     previous_dir::Union{Nothing,String}
+    use_distributed::Bool
 
     function BuildOptions(
         dir::AbstractString;
         write_files::Bool=true,
-        previous_dir::Union{Nothing,AbstractString}=nothing
+        previous_dir::Union{Nothing,AbstractString}=nothing,
+        use_distributed::Bool=false
     )
         return new(
             string(dir)::String,
             write_files,
-            nothingstring(previous_dir)
+            nothingstring(previous_dir),
+            use_distributed
         )
     end
 end
@@ -155,13 +165,17 @@ function parallel_build(
             @info "Starting evaluation of Pluto notebook $in_file"
             tmp_path = _tmp_copy(in_path)
             compiler_options = hopts.compiler_options
-            run_async = false
-            notebook = _load_notebook(tmp_path; compiler_options)
-            options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
-            session.options = options
-            @time run_notebook!(notebook, session)
-            @info "for $in_file"
-            return notebook
+            if bopts.use_distributed
+                notebook = _load_notebook(tmp_path; compiler_options)
+                options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
+                session.options = options
+                run_notebook!(notebook, session; run_async=false)
+                return notebook
+            else
+                run_async = true
+                notebook = SessionActions.open(session, tmp_path; compiler_options, run_async)
+                return notebook
+            end
         end
     end
 

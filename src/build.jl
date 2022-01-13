@@ -155,8 +155,12 @@ function parallel_build(
             @info "Starting evaluation of Pluto notebook $in_file"
             tmp_path = _tmp_copy(in_path)
             compiler_options = hopts.compiler_options
-            run_async = true
-            notebook = SessionActions.open(session, tmp_path; compiler_options, run_async)
+            run_async = false
+            notebook = _load_notebook(tmp_path; compiler_options)
+            options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
+            session.options = options
+            @time run_notebook!(notebook, session)
+            @info "for $in_file"
             return notebook
         end
     end

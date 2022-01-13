@@ -47,7 +47,7 @@ function notebook2html_helper(
     )
     session = ServerSession()
     PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook(notebook, session)
+    run_notebook!(notebook, session)
     path = nothing
     html = notebook2html(notebook, path, opts)
 

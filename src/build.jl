@@ -48,7 +48,7 @@ struct BuildOptions
         dir::AbstractString;
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
-        use_distributed::Bool=false
+        use_distributed::Bool=true
     )
         return new(
             string(dir)::String,

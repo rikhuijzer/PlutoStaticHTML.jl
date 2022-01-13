@@ -276,15 +276,16 @@ function _run_single!(session, nb::Notebook, cell)
 end
 
 """
-    run_notebook!(nb::Notebook, session; run_async=false)
+    run_notebook!(nb::Notebook, session)
 
 Run all cells in `nb`.
 Throws an error as soon as a cell fails.
 """
-function run_notebook!(nb::Notebook, session; run_async=false)
+function run_notebook!(nb::Notebook, session)
     cells = [nb.cells_dict[cell_uuid] for cell_uuid in nb.cell_order]
     for cell in cells
-        update_save_run!(session, nb, cell; run_async, save=false)
+        @show cell
+        update_save_run!(session, nb, cell; run_async=false, save=false)
         # run = _run_single!(session, nb, cell)
         if cell.errored
             body = cell.output.body
@@ -387,7 +388,7 @@ function notebook2html(
     )::String
     notebook = _load_notebook(path)
     PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook!(notebook, session; run_async=false)
+    run_notebook!(notebook, session)
     html = notebook2html(notebook, path, opts)
     return html
 end

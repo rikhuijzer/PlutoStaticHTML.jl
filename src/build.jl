@@ -171,7 +171,7 @@ function parallel_build(
                 nb = _load_notebook(in_path; compiler_options)
                 options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
                 session.options = options
-                run_notebook!(nb, session; run_async=false)
+                run_notebook!(nb, session)
                 SessionActions.shutdown(session, nb)
                 return nb
             end

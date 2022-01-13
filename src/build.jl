@@ -36,7 +36,7 @@ Options for `parallel_build`:
     The benefit of different processes is that things are more independent of each other.
     Unfortunately, the drawback is that compilation has to happen for each process.
     By setting this option to `false`, all notebooks are built sequentially in the same process which avoids recompilation.
-    This is likely more quick in situations where there are few threads available.
+    This is likely quicker in situations where there are few threads available such as GitHub Runners depending on the notebook contents.
 """
 struct BuildOptions
     dir::String
@@ -166,14 +166,14 @@ function parallel_build(
             tmp_path = _tmp_copy(in_path)
             compiler_options = hopts.compiler_options
             if bopts.use_distributed
+                run_async = true
+                notebook = SessionActions.open(session, tmp_path; compiler_options, run_async)
+                return notebook
+            else
                 notebook = _load_notebook(tmp_path; compiler_options)
                 options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
                 session.options = options
                 run_notebook!(notebook, session; run_async=false)
-                return notebook
-            else
-                run_async = true
-                notebook = SessionActions.open(session, tmp_path; compiler_options, run_async)
                 return notebook
             end
         end

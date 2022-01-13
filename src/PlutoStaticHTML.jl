@@ -11,7 +11,6 @@ using Pluto:
     Cell,
     CellOutput,
     Configuration.CompilerOptions,
-    Configuration.EvaluationOptions,
     Notebook,
     PkgCompat.dependencies,
     Pluto,

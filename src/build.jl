@@ -14,7 +14,8 @@ end
     BuildOptions(
         dir::AbstractString;
         write_files::Bool=true,
-        previous_dir::Union{Nothing,AbstractString}=nothing
+        previous_dir::Union{Nothing,AbstractString}=nothing,
+        use_distributed::Bool::true,
     )
 
 Options for `parallel_build`:

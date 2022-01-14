@@ -31,8 +31,12 @@ include("context.jl")
 include("cache.jl")
 include("html.jl")
 include("build.jl")
+include("dynamic.jl")
 
 export HTMLOptions, notebook2html, run_notebook!
 export BuildOptions, parallel_build
+
+# tmp
+export __build
 
 end # module

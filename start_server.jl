@@ -19,6 +19,7 @@ end
 
 function custom_callback(file::AbstractString)
     if endswith(file, ".jl")
+        revise()
         build_docs()
     end
     LiveServer.file_changed_callback(file)

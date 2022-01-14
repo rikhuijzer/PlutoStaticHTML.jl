@@ -24,4 +24,9 @@ end</code></pre>
 <pre><code class="code-output">5</code></pre>
 
 <!-- PlutoStaticHTML.End -->
+
+<script>
+console.log("bar")
+</script>
+
 ```

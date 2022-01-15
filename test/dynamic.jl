@@ -8,7 +8,7 @@
         Cell("y = x + 1")
     ])
     run_notebook!(nb, session)
-    # Apparently, the value is set by Javascript?
+    # Apparently, the default value is set by Javascript?
     # The next test is the most important anyway.
     @test _cell(nb, :y).output.body == "missing"
     PlutoStaticHTML._set_bond_value!(session, nb, :x, 2)

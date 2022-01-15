@@ -16,6 +16,10 @@ function _run_dynamic!(nb::Notebook, session::ServerSession)
     end
 end
 
+function _possibilities(input::HTMLInput{:range})::Vector
+    
+end
+
 """
     _possibilities(cell::Cell)::Union{Vector,Nothing}
 
@@ -24,7 +28,9 @@ This method works by reading the Pluto generated HTML input, such as `range`.
 """
 function _possibilities(cell::Cell)::Union{Vector,Nothing}
     if _is_bond(cell)
-        body = cell.output.body
+        html = cell.output.body
+        input = HTMLInput(html)
+        return _possibilities(input)::Vector
     else
         return nothing
     end
@@ -57,14 +63,13 @@ function _cell(nb::Notebook, assignee::Symbol)
 end
 
 "Temporary function for development purposes."
-function __asnotebook()
+function __notebook()
     nb = _load_notebook("/home/rik/git/PlutoStaticHTML.jl/docs/src/dynamic.jl")
     options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
     session = ServerSession()
     session.options = options
 
     run_notebook!(nb, session)
-    cells = _cells_by_rootassignee(nb)
     return nb
 end
 

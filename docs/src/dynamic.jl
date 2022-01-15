@@ -21,7 +21,7 @@ begin
 end
 
 # ╔═╡ 0000000a-7036-4bc5-b7b4-4e701eb653f7
-@bind a Slider(1:3)
+@bind a Slider(2:0.1:100)
 
 # ╔═╡ 0000000b-1321-4ba0-9642-ce0fd362c618
 @bind b Slider([4, 5])

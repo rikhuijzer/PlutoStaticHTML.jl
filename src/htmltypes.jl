@@ -1,6 +1,8 @@
 """
 Based on Gumbo.jl.
 Not using Gumbo because it is not worth the dependency.
+
+Note that Pluto always starts the range at 1 and has step size 1.
 """
 struct HTMLInput{T}
     attributes::Dict{String,String}
@@ -43,11 +45,10 @@ end
 
 function _get_float(attributes::Dict{String,String}, key::String, default::Float64)::Float64
     value = get(attributes, key, default)::Union{String,Float64}
-    return parse(Float64, value)
+    return value isa String ? parse(Float64, value) : value
 end
 
-function HTTPRange(in::Dict{String,String})
-    A = in.attributes
+function HTTPRange(A::Dict{String,String})
     min = _get_float(A, "min", 0.0)
     max = _get_float(A, "max", 100.0)
     step = _get_float(A, "step", 1.0)
@@ -73,4 +74,5 @@ function _drop_extra(T::Type, kwargs::Dict)::Dict{Symbol,String}
     return Dict(zip(K, V))
 end
 
-HTTPElement(in::HTMLInput{:range}) = _drop_extra(HTTPRange, in.attributes)
+HTMLElement(input::HTMLInput{:range}) = HTTPRange(input.attributes)
+

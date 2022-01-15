@@ -7,10 +7,33 @@ _is_bond(body, ::MIME"text/html") = startswith(body, "<bond")
 _is_bond(body, mime) = false
 _is_bond(cell::Pluto.Cell) = _is_bond(cell.output.body, cell.output.mime)
 
-"Return indirect upstream cells. Pluto never needs this it seems."
-function indirect_upstream_cells(nb::Notebook, cell::Cell)
-    map = Pluto.upstream_cells_map(cell, nb)
+function _myflatten(indirect)
+    
 end
+
+"Return indirect upstream cells. Pluto never needs this it seems."
+function _indirect_upstream_cells(nb::Notebook, cell::Cell; out=[])
+    direct = Pluto.upstream_cells_map(cell, nb)::Dict{Symbol, Vector{Cell}}
+    for name::Symbol in collect(keys(direct))
+        cells = direct[name]
+        if !isempty(cells)
+            for cell in cells
+                push!(out, cell.cell_id)
+                _indirect_upstream_cells(nb, cell; out)
+            end
+        end
+    end
+    return out
+end
+
+"""
+Return upstream bind cells for `cell`.
+For these, we need to store all possible outputs.
+"""
+function _upstream_bind_cells(nb::Notebook, cell::Cell)
+    1
+end
+
 
 """
 Outputs for one cell which depends on one or more binds.
@@ -44,15 +67,6 @@ struct NotebookBindOutputs
         end
         return new(Dict(zip(uuids, bindoutputs)))
     end
-end
-
-"""
-Return upstream bind cells for `cell`.
-For these, we need to store all possible outputs.
-"""
-function _upstream_bind_cells(nb::Notebook, cell::Cell)
-    top = nb.topology
-
 end
 
 function _run_dynamic!(nb::Notebook, session::ServerSession)

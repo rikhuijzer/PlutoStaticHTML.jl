@@ -13,4 +13,18 @@
     @test _cell(nb, :y).output.body == "missing"
     PlutoStaticHTML._set_bond_value!(session, nb, :x, 2)
     @test _cell(nb, :y).output.body == "3"
+
+    nb = Notebook([
+        Cell("a = 1"), # 1
+        Cell("b = 2"), # 2
+        Cell("c = 3"), # 3
+        Cell("d = a + b"), # 4
+        Cell("e = b + c"), # 5
+        Cell("f = e") # 6
+        ])
+    f = nb.cells[end]
+    run_notebook!(nb, session)
+    actual = PlutoStaticHTML._indirect_upstream_cells(nb, f)
+    expected = [nb.cells[index].cell_id for index in [5, 2, 3]]
+    @test Set(actual) == Set(expected)
 end

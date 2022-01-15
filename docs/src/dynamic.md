@@ -1,11 +1,14 @@
 # Dynamic
 
 ```@raw html
+<script>
+console.log("ba")
+</script>
 <!-- PlutoStaticHTML.Begin -->
 <!--
     # This information is used for caching.
     [PlutoStaticHTML.State]
-    input_sha = "cb3dbe95143895e712426a128f0d666d8ed1a79e090620f056649c4450638cae"
+    input_sha = "442ac73b6dcc56c7c2b7fd97544a8ee29eff765a129bafab2fcc184831b39f5e"
     julia_version = "1.6.5"
 -->
 <pre><code class="language-julia">begin
@@ -21,12 +24,10 @@ end</code></pre>
 <bond def="b"><input type='range' min='1' max='2' value='1'></bond>
 
 <pre><code class="language-julia">c = a + b</code></pre>
-<pre><code class="code-output">5</code></pre>
+<pre class=documenter-example-output><code class="code-output">5</code></pre>
+
+<pre><code class="language-julia">d = c + 1</code></pre>
+<pre class=documenter-example-output><code class="code-output">6</code></pre>
 
 <!-- PlutoStaticHTML.End -->
-
-<script>
-console.log("bar")
-</script>
-
 ```

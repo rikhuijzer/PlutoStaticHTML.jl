@@ -40,5 +40,7 @@ end
 
 fw = custom_simplewatcher(dir)
 
+build_docs()
+
 build_dir = joinpath(PKGDIR, "docs", "build")
 serve(fw; dir=build_dir)

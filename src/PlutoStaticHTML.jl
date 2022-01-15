@@ -40,5 +40,6 @@ export BuildOptions, parallel_build
 # tmp
 export __build
 export _cell
+export __notebook
 
 end # module

@@ -17,7 +17,26 @@ function _run_dynamic!(nb::Notebook, session::ServerSession)
 end
 
 function _possibilities(input::HTMLInput{:range})::Vector
-    
+    return collect(range(input.min, input.max; step=input.step))
+end
+
+"Based on test/Bonds.jl"
+function _set_bond_value!(
+        session::ServerSession,
+        notebook::Notebook,
+        name::Symbol,
+        value;
+        is_first_value=false
+    )
+    notebook.bonds[name] = Dict("value" => value)
+    Pluto.set_bond_values_reactive(;
+        session,
+        notebook,
+        bound_sym_names=[name],
+        is_first_values=[is_first_value],
+        run_async=false
+    )
+    return nothing
 end
 
 """
@@ -65,12 +84,12 @@ end
 "Temporary function for development purposes."
 function __notebook()
     nb = _load_notebook("/home/rik/git/PlutoStaticHTML.jl/docs/src/dynamic.jl")
-    options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
     session = ServerSession()
+    options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
     session.options = options
 
     run_notebook!(nb, session)
-    return nb
+    return (session, nb)
 end
 
 "Temporary function for development purposes"

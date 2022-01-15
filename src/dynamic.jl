@@ -16,6 +16,38 @@ function _run_dynamic!(nb::Notebook, session::ServerSession)
     end
 end
 
+function _cells_by_rootassignee(nb::Notebook)
+    pairs = map(nb.cell_order) do cell_uuid
+        cell = nb.cells_dict[cell_uuid]
+        out = cell.output
+        if hasfield(typeof(out), :rootassignee)
+            assignee = out.rootassignee
+            if isnothing(assignee)
+                assignee = cell.cell_dependencies.downstream_cells_map |> keys |> only
+            end
+            return (; cell_uuid, assignee)
+        else
+            return missing
+        end
+    end
+    mapping = collect(skipmissing(pairs))
+    K = getproperty.(mapping, :assignee)
+    V = getproperty.(mapping, :cell_uuid)
+    return Dict(zip(K, V))
+end
+
+"Temporary function for development purposes."
+function __asnotebook()
+    nb = _load_notebook("/home/rik/git/PlutoStaticHTML.jl/docs/src/dynamic.jl")
+    options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
+    session = ServerSession()
+    session.options = options
+
+    run_notebook!(nb, session)
+    cells = _cells_by_rootassignee(nb)
+    return nb
+end
+
 "Temporary function for development purposes"
 function __build()
     dir = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")

@@ -16,8 +16,22 @@ function _run_dynamic!(nb::Notebook, session::ServerSession)
     end
 end
 
+"""
+    _possibilities(cell::Cell)::Union{Vector,Nothing}
+
+Return possible values for `cell` or `Nothing` if this cell isn't a `Bond`.
+This method works by reading the Pluto generated HTML input, such as `range`.
+"""
+function _possibilities(cell::Cell)::Union{Vector,Nothing}
+    if _is_bond(cell)
+        body = cell.output.body
+    else
+        return nothing
+    end
+end
+
 function _cells_by_rootassignee(nb::Notebook)
-    pairs = map(nb.cell_order) do cell_uuid
+    assignees = map(nb.cell_order) do cell_uuid
         cell = nb.cells_dict[cell_uuid]
         out = cell.output
         if hasfield(typeof(out), :rootassignee)
@@ -30,10 +44,16 @@ function _cells_by_rootassignee(nb::Notebook)
             return missing
         end
     end
-    mapping = collect(skipmissing(pairs))
-    K = getproperty.(mapping, :assignee)
-    V = getproperty.(mapping, :cell_uuid)
+    tuples = collect(skipmissing(assignees))
+    K = getproperty.(tuples, :assignee)
+    V = getproperty.(tuples, :cell_uuid)
     return Dict(zip(K, V))
+end
+
+function _cell(nb::Notebook, assignee::Symbol)
+    mapping = PlutoStaticHTML._cells_by_rootassignee(nb)
+    cell_uuid = mapping[assignee]
+    return nb.cells_dict[cell_uuid]
 end
 
 "Temporary function for development purposes."

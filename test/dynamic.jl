@@ -26,5 +26,10 @@
     run_notebook!(nb, session)
     actual = PlutoStaticHTML._indirect_upstream_cells(nb, f)
     expected = [nb.cells[index].cell_id for index in [5, 2, 3]]
-    @test Set(actual) == Set(expected)
+    @test actual == expected
+
+    b = nb.cells[2]
+    actual = PlutoStaticHTML._indirect_downstream_cells(nb, b)
+    expected = [nb.cells[index].cell_id for index in [4, 5, 6]]
+    @test actual == expected
 end

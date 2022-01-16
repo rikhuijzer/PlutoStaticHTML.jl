@@ -11,19 +11,29 @@ function _myflatten(indirect)
     
 end
 
-"Return indirect upstream cells. Pluto never needs this it seems."
-function _indirect_upstream_cells(nb::Notebook, cell::Cell; out=[])
-    direct = Pluto.upstream_cells_map(cell, nb)::Dict{Symbol, Vector{Cell}}
+function _indirect_dependency_cells(nb, cell::Cell, map_fn; out=Base.UUID[])
+    direct = map_fn(cell, nb)::Dict{Symbol, Vector{Cell}}
     for name::Symbol in collect(keys(direct))
         cells = direct[name]
         if !isempty(cells)
             for cell in cells
                 push!(out, cell.cell_id)
-                _indirect_upstream_cells(nb, cell; out)
+                _indirect_dependency_cells(nb, cell, map_fn; out)
             end
         end
     end
     return out
+end
+
+"Return indirect upstream cells. Pluto never needs this it seems."
+function _indirect_upstream_cells(nb::Notebook, cell::Cell)
+    map_fn = Pluto.upstream_cells_map
+    return _indirect_dependency_cells(nb, cell, map_fn)
+end
+
+function _indirect_downstream_cells(nb::Notebook, cell::Cell)
+    map_fn = Pluto.downstream_cells_map
+    return _indirect_dependency_cells(nb, cell, map_fn)
 end
 
 """

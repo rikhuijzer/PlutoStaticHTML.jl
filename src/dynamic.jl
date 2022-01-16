@@ -283,13 +283,14 @@ function _update_run_bind_values!(nbo, session, binds_group, values)
     # Update stored values.
     for downstream_cell::Cell in _downstream_output_cells(nbo, cells)
         bo = nbo.bindoutputs[cell2uuid(downstream_cell)]
-        order = bo.upstream_binds # NTuple{N, Base.UUID}
-        @show order
-        @show bondvalues
-        # key = Tuple(bondvalues[uuid] for uuid in order)
-        # value = _val(downstream_cell)
+        binds_order = bo.upstream_binds # NTuple{N, Base.UUID}
+        # @show binds_order
+        # @show _val.(uuid2cell.(Ref(nbo.nb), binds_order))
+        # @show bondvalues
+        key = Tuple(bondvalues[uuid] for uuid in binds_order)
+        value = _val(downstream_cell)
         # @show key
-        # bo.values[key] = value
+        bo.values[key] = downstream_cell.output
     end
 end
 
@@ -302,15 +303,10 @@ function _run_dynamic!(nb::Notebook, session::ServerSession)
     binds = filter(_is_bind, nb.cells)
     _instantiate_bind_values!(nb)
     for cell::Cell in binds
-        related = uuid2cell.(Ref(nbo.nb), _related_binds(nbo, cell))
-        binds_group = [cell; related]::Vector{Cell}
+        binds_group = _binds_group(nb, cell)::Vector{Cell}
         combined_possibilities = _combined_possibilities(binds_group)
         for values in combined_possibilities
-            # Passing UUIDs because otherwise the cell may change which gives problems.
             _update_run_bind_values!(nbo, session, binds_group, values)
-            for downstream_cell::Base.UUID in _downstream_output_cells(nbo, binds_group)
-                _store_output!(nbo, downstream_cell)
-            end
         end
     end
     return nbo

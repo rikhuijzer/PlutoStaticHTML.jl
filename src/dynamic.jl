@@ -229,24 +229,6 @@ function _combined_possibilities(cells::Vector{Cell})::Vector{Tuple}
     return vec(prod)
 end
 
-"prob useless"
-function _set_bind_values!(nb::Notebook, binds::Vector{Cell}, values)
-    for (cell, value) in zip(binds, values)
-        input = string(value)::String
-        _change_assignment!(cell, input)
-    end
-end
-
-"prob useless"
-function _run_bind_values!(nb::Notebook, session, binds::Vector{Cell})
-    to_reeval = binds
-    user_requested_run = false
-    run_async = false
-    @show to_reeval
-    @time Pluto.run_reactive_async!(session, nb, to_reeval; user_requested_run, run_async)
-    return nothing
-end
-
 function _instantiate_bind_values!(nb::Notebook)
     binds = filter(_is_bind, nb.cells)
     for cell in binds

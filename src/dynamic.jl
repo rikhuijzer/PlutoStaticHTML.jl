@@ -276,25 +276,6 @@ function _run_dynamic!(nb::Notebook, session::ServerSession)
     return nbo
 end
 
-"Based on test/Bonds.jl"
-function _set_bind_value!(
-        session::ServerSession,
-        notebook::Notebook,
-        name::Symbol,
-        value;
-        is_first_value=false
-    )
-    notebook.bonds[name] = Dict("value" => value)
-    Pluto.set_bind_values_reactive(;
-        session,
-        notebook,
-        bound_sym_names=[name],
-        is_first_values=[is_first_value],
-        run_async=false
-    )
-    return nothing
-end
-
 function _cells_by_rootassignee(nb::Notebook)
     assignees = map(nb.cell_order) do cell_uuid
         cell = nb.cells_dict[cell_uuid]

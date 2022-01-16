@@ -3,19 +3,8 @@ options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false
 session.options = options
 
 nb = Notebook([
-    Cell("""@bind x html"<input type=range min=1 max=2 value=1>" """),
-    Cell("y = x + 1")
-])
-run_notebook!(nb, session)
-# Apparently, the default value is set by Javascript?
-# The next test is the most important anyway.
-@test _cell(nb, :y).output.body == "missing"
-PlutoStaticHTML._set_bond_value!(session, nb, :x, 2)
-@test _cell(nb, :y).output.body == "3"
-
-nb = Notebook([
     Cell("""@bind a html"<input type=range min='1' max='2'>" """), # 1
-    Cell("""@bind b html"<input type=range>" """), # 2
+    Cell("""@bind b html"<input type=range min='1' max='3'>" """), # 2
     Cell("c = 3"), # 3
     Cell("d = a + b"), # 4
     Cell("e = b + c"), # 5
@@ -53,9 +42,11 @@ actual = PlutoStaticHTML._get_output(nbo, f.cell_id, upstream_outputs)
 @test actual == output
 
 actual = PlutoStaticHTML._combined_possibilities([b])
-expected = [("$f",) for f in 0.0:100.0]
+expected = [("$f",) for f in 1.0:3.0]
 @test actual == expected
 actual = PlutoStaticHTML._combined_possibilities([a, b])
-@test first(actual) == ("1.0", "0.0")
-@test length(actual) == 2 * 101
-# PlutoStaticHTML._run_dynamic!(notebook, session, cell)
+@test last(actual) == ("2.0", "3.0")
+@test length(actual) == 2 * 3
+
+PlutoStaticHTML._run_dynamic!(nb, session)
+

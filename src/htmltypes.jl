@@ -34,7 +34,7 @@ end
 Based on the HTTP range specification.
 Currently ignores `autocomplete` and `list`.
 """
-struct HTTPRange <: HTTPElement
+struct HTTPRange
     min::Float64
     max::Float64
     step::Float64

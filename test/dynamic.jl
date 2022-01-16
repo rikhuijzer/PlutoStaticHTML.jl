@@ -35,18 +35,22 @@ expected = uuids(nb, [4, 5, 6])
 @test Set(actual) == Set(expected)
 
 upstream_binds = PlutoStaticHTML._upstream_binds(nbo, f.cell_id)
-output = Pluto.CellOutput(; body="3")
-PlutoStaticHTML._store_output!(nbo, f.cell_id, upstream_binds, output)
-upstream_outputs = PlutoStaticHTML._upstream_outputs(nbo, f.cell_id, upstream_binds)
-actual = PlutoStaticHTML._get_output(nbo, f.cell_id, upstream_outputs)
-@test actual == output
+# output = Pluto.CellOutput(; body="3")
+# PlutoStaticHTML._store_output!(nbo, f.cell_id, upstream_binds, output)
+# upstream_outputs = PlutoStaticHTML._upstream_outputs(nbo, f.cell_id, upstream_binds)
+# actual = PlutoStaticHTML._get_output(nbo, f.cell_id, upstream_outputs)
+# @test actual == output
 
 actual = PlutoStaticHTML._combined_possibilities([b])
-expected = [("$f",) for f in 1.0:3.0]
+expected = [(f,) for f in 1.0:3.0]
 @test actual == expected
 actual = PlutoStaticHTML._combined_possibilities([a, b])
-@test last(actual) == ("2.0", "3.0")
+@test last(actual) == (2.0, 3.0)
 @test length(actual) == 2 * 3
 
-PlutoStaticHTML._run_dynamic!(nb, session)
+@test PlutoStaticHTML._related_binds(nb, a) == cell2uuid(b)
+
+nbo = PlutoStaticHTML._run_dynamic!(nb, session)
+bo = nbo.bindoutputs[cell2uuid(f)]
+bo.values
 

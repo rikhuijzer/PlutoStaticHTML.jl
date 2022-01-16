@@ -58,7 +58,7 @@ Outputs for one cell which depends on one or more binds.
 struct BindOutputs{N}
     name::Base.UUID
     upstream_binds::NTuple{N, Base.UUID}
-    values::Dict{NTuple{N, CellOutput}, CellOutput}
+    values::Dict{NTuple{N, BondValue}, CellOutput}
 end
 
 function show(io::IO, bo::BindOutputs)
@@ -89,7 +89,7 @@ struct NotebookBindOutputs
             upstream_uuids = _upstream_bind_cells(nb, cell)
             N = length(upstream_uuids)
             upstream_binds = NTuple{N, Base.UUID}(upstream_uuids)
-            values = Dict{NTuple{N, CellOutput}, CellOutput}()
+            values = Dict{NTuple{N, BondValue}, CellOutput}()
             uuid = cell2uuid(cell)
             return BindOutputs{N}(uuid, upstream_binds, values)
         end
@@ -168,13 +168,13 @@ function _binds(nb::Notebook)::Vector{Base.UUID}
     return cell2uuid.(filter(_is_bind, nb.cells))
 end
 
-"Using strings to allow writing and reading of possibility to and from `cell.code`."
-const Possibility = String
-const Possibilities = Vector{Possibility}
 
-function _possibilities(input::HTMLInput{:range})::Possibilities
+"The possible values can be any according to Pluto.BondValue."
+function _possibilities(input::HTMLInput{:range})::Vector{Any}
     r = HTTPRange(input)
-    return string.(collect(range(r.min, r.max; step=r.step)))
+    real_values = collect(range(r.min, r.max; step=r.step))
+    bond_values = collect(1:length(real_values))
+    return bond_values
 end
 
 "Variable which is set by `cell`."
@@ -189,28 +189,30 @@ function _var(cell::Cell)::Symbol
 end
 
 "Pluto.possible_bond_values didn't work, so here we are."
-function _change_assignment!(cell::Cell, input::Possibility)
+function _change_assignment!(cell::Cell, input)
     var = _var(cell)
-    @show string(var, " = ", input)
+    # For debugging purposes; to test whether Pluto evaluates the cells.
+    input = "(@show $var; $input)"
+    # @show string(var, " = ", input)
     cell.code = string(var, " = ", input)
 end
 
-function _read_assignment(cell::Cell)::Possibility
+function _read_assignment(cell::Cell)
     input_start_location = first(findfirst("=", cell.code)) + 2
-    return string(cell.code[input_start_location:end])::Possibility
+    return string(cell.code[input_start_location:end])
 end
 
 "Return all binds which affect some output together with this cell."
-function _related_binds(nbo, cell::Cell)::Vector{Base.UUID}
+function _related_binds(nb, cell::Cell)::Vector{Base.UUID}
     @assert _is_bind(cell)
     # These are non-bind because a bind cannot depend on a bind.
-    downstream = _indirect_downstream_cells(nbo.nb, cell)
+    downstream = _indirect_downstream_cells(nb, cell)
     related = Cell[]
     for cell_uuid in downstream
-        downstream_cell = uuid2cell(nbo.nb, cell_uuid)
-        upstream = _indirect_upstream_cells(nbo.nb, downstream_cell)
+        downstream_cell = uuid2cell(nb, cell_uuid)
+        upstream = _indirect_upstream_cells(nb, downstream_cell)
         for upstream_cell_uuid in upstream
-            upstream_cell = uuid2cell(nbo.nb, upstream_cell_uuid)
+            upstream_cell = uuid2cell(nb, upstream_cell_uuid)
             if _is_bind(upstream_cell)
                 push!(related, cell)
             end
@@ -227,6 +229,7 @@ function _combined_possibilities(cells::Vector{Cell})::Vector{Tuple}
     return vec(prod)
 end
 
+"prob useless"
 function _set_bind_values!(nb::Notebook, binds::Vector{Cell}, values)
     for (cell, value) in zip(binds, values)
         input = string(value)::String
@@ -234,23 +237,60 @@ function _set_bind_values!(nb::Notebook, binds::Vector{Cell}, values)
     end
 end
 
+"prob useless"
 function _run_bind_values!(nb::Notebook, session, binds::Vector{Cell})
     to_reeval = binds
     user_requested_run = false
     run_async = false
-    Pluto.run_reactive_async!(session, nb, to_reeval; user_requested_run, run_async)
+    @show to_reeval
+    @time Pluto.run_reactive_async!(session, nb, to_reeval; user_requested_run, run_async)
     return nothing
 end
 
-function _downstream_output_cells(nbo, binds_group::Vector{Cell})::Vector{Base.UUID}
-    out = Base.UUID[]
+function _instantiate_bind_values!(nb::Notebook)
+    binds = filter(_is_bind, nb.cells)
+    for cell in binds
+        v = _var(cell)
+        nb.bonds[v] = Pluto.BondValue(1)
+    end
+end
+
+function _downstream_output_cells(nbo, binds_group::Vector{Cell})::Vector{Cell}
+    out = Cell[]
     for bind::Cell in binds_group
         downstream = _indirect_downstream_cells(nbo.nb, bind)
         # Cannot be binds because they are downstream.
         downstream_cells = uuid2cell.(Ref(nbo.nb), downstream)
-        foreach(c -> push!(out, cell2uuid(c)), downstream_cells)
+        foreach(c -> push!(out, c), downstream_cells)
     end
     return unique(out)
+end
+
+_val(cell::Cell) = cell.output.body
+
+function _update_run_bind_values!(nbo, session, binds_group, values)
+    binds_uuids = cell2uuid.(binds_group)
+    bondvalues = Dict(zip(binds_uuids, Pluto.BondValue.(values)))
+    cell_uuids = collect(keys(bondvalues))
+    cells = uuid2cell.(Ref(nbo.nb), cell_uuids)
+    bound_sym_names = [_var(cell) for cell in cells]
+    for (cell, bound_sym_name) in zip(cells, bound_sym_names)
+        # Note that the bondvalue is the slider number and not the real number.
+        nbo.nb.bonds[bound_sym_name] = bondvalues[cell2uuid(cell)]
+    end
+    Pluto.set_bond_values_reactive(; session, notebook=nbo.nb, bound_sym_names)
+
+    # Update stored values.
+    for downstream_cell::Cell in _downstream_output_cells(nbo, cells)
+        bo = nbo.bindoutputs[cell2uuid(downstream_cell)]
+        order = bo.upstream_binds # NTuple{N, Base.UUID}
+        @show order
+        @show bondvalues
+        # key = Tuple(bondvalues[uuid] for uuid in order)
+        # value = _val(downstream_cell)
+        # @show key
+        # bo.values[key] = value
+    end
 end
 
 """
@@ -260,14 +300,14 @@ function _run_dynamic!(nb::Notebook, session::ServerSession)
     @assert isready(nb)
     nbo = NotebookBindOutputs(nb)
     binds = filter(_is_bind, nb.cells)
-    for cell in binds
+    _instantiate_bind_values!(nb)
+    for cell::Cell in binds
         related = uuid2cell.(Ref(nbo.nb), _related_binds(nbo, cell))
         binds_group = [cell; related]::Vector{Cell}
         combined_possibilities = _combined_possibilities(binds_group)
-        for p in combined_possibilities
-            @show p
-            _set_bind_values!(nb, binds_group, p)
-            _run_bind_values!(nb, session, binds_group)
+        for values in combined_possibilities
+            # Passing UUIDs because otherwise the cell may change which gives problems.
+            _update_run_bind_values!(nbo, session, binds_group, values)
             for downstream_cell::Base.UUID in _downstream_output_cells(nbo, binds_group)
                 _store_output!(nbo, downstream_cell)
             end

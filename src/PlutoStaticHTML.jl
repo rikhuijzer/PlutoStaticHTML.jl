@@ -10,6 +10,7 @@ using Pkg:
     Types.UUID,
     Operations
 using Pluto:
+    BondValue,
     Cell,
     CellOutput,
     Configuration.CompilerOptions,

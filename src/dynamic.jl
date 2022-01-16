@@ -73,7 +73,7 @@ Struct field contents are modified while changing binds and grabbing outputs.
 One invariant of this struct is that each cell which depends on an upstream bind has an entry in it.
 """
 struct NotebookBindOutputs
-    bindoutputs::Dict{Base.UUID,BindOutputs}
+    bindoutputs::Dict{Base.UUID, BindOutputs}
 
     function NotebookBindOutputs(nb::Notebook)
         @assert isready(nb)
@@ -94,6 +94,9 @@ struct NotebookBindOutputs
         return new(Dict(zip(uuids, bindoutputs)))
     end
 end
+
+"Return cells which depend on upstream bind cells."
+_depend_binds(nbo::NotebookBindOutputs)::Vector{Base.UUID} = collect(keys(nbo.bindoutputs))
 
 function show(io::IO, nbo::NotebookBindOutputs)
     println(io, string(typeof(nbo), '(', typeof(nbo.bindoutputs), '('))

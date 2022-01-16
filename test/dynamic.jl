@@ -40,3 +40,6 @@ expected = uuids(nb, [2])
 @test actual == expected
 
 nbo = PlutoStaticHTML.NotebookBindOutputs(nb)
+actual = PlutoStaticHTML._depend_binds(nbo)
+expected = uuids(nb, [5, 4, 6])
+@test actual == expected

@@ -306,16 +306,19 @@ end
 const BEGIN_IDENTIFIER = "<!-- PlutoStaticHTML.Begin -->"
 const END_IDENTIFIER = "<!-- PlutoStaticHTML.End -->"
 
-"""
-    notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()) -> String
+isready(nb::Notebook) = nb.process_status == "ready"
 
-Return the code and output as HTML for `notebook`.
+"""
+    notebook2html(nb::Notebook, path, opts::HTMLOptions=HTMLOptions()) -> String
+
+Return the code and output as HTML for `nb`.
 Assumes that the notebook has already been executed.
 """
-function notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions())::String
-    order = notebook.cell_order
+function notebook2html(nb::Notebook, path, opts::HTMLOptions=HTMLOptions())::String
+    @assert isready(nb)
+    order = nb.cell_order
     outputs = map(order) do cell_uuid
-        cell = notebook.cells_dict[cell_uuid]
+        cell = nb.cells_dict[cell_uuid]
         _cell2html(cell, opts)
     end
     html = join(outputs, '\n')
@@ -323,7 +326,7 @@ function notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()
         html = string(path2state(path)) * html
     end
     if opts.append_build_context
-        html = html * _context(notebook)
+        html = html * _context(nb)
     end
     html = string(BEGIN_IDENTIFIER, '\n', html, '\n', END_IDENTIFIER)::String
     return html
@@ -359,9 +362,9 @@ function _load_notebook(
         compiler_options::Union{Nothing,CompilerOptions}=nothing
     )::Notebook
     tmp_path = _tmp_copy(path)
-    notebook = load_notebook_nobackup(tmp_path)
-    notebook.compiler_options = compiler_options
-    return notebook
+    nb = load_notebook_nobackup(tmp_path)
+    nb.compiler_options = compiler_options
+    return nb
 end
 
 """
@@ -386,9 +389,9 @@ function notebook2html(
         session=ServerSession(),
         append_cells=Cell[],
     )::String
-    notebook = _load_notebook(path)
-    PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook!(notebook, session)
-    html = notebook2html(notebook, path, opts)
+    nb = _load_notebook(path)
+    PlutoStaticHTML._append_cell!(nb, append_cells)
+    run_notebook!(nb, session)
+    html = notebook2html(nb, path, opts)
     return html
 end

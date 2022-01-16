@@ -5,12 +5,9 @@ function _inject_script(html, script)
     return script * html
 end
 
-function _myflatten(indirect)
-    
-end
-
 "Return indirect dependency cells. Pluto never needs this it seems."
 function _indirect_dependency_cells(nb, cell::Cell, map_fn; out=Base.UUID[])
+    @assert isready(nb)
     direct = map_fn(cell, nb)::Dict{Symbol, Vector{Cell}}
     for name::Symbol in collect(keys(direct))
         cells = direct[name]
@@ -38,7 +35,6 @@ _is_bind(body, ::MIME"text/html") = startswith(body, "<bond")
 _is_bind(body, ::Any) = false
 _is_bind(cell::Pluto.Cell) = _is_bind(cell.output.body, cell.output.mime)
 
-
 """
 Return upstream bind cells for `cell`.
 For these, we need to store all possible outputs.
@@ -57,39 +53,77 @@ Outputs for one cell which depends on one or more binds.
     Names of the upstream binds, that is, the binds on which the cell depends.
 - `values`: A value for each combination of values for `upstream_binds`.
 """
-struct BindOutputs
+struct BindOutputs{N}
     name::Base.UUID
-    upstream_binds::Tuple{Symbol}
-    values::Dict{Tuple,Any}
+    upstream_binds::NTuple{N, Base.UUID}
+    values::Dict{NTuple{N, Base.UUID}, Any}
 end
 
 """
 All the BindOutputs for the entire notebook.
 Struct field contents are modified while changing binds and grabbing outputs.
-The invariant of this struct is that each cell has an entry in it.
+One invariant of this struct is that each cell which depends on an upstream bind has an entry in it.
 """
 struct NotebookBindOutputs
     bindoutputs::Dict{Base.UUID,BindOutputs}
 
     function NotebookBindOutputs(nb::Notebook)
-        uuids = nb.cell_order
-        bindoutputs = map(uuids) do uuid
-            cell = nb.cells_dict[uuid]
-            upstream_binds = (:foo, ) # _upstream_bind_cells(nb, cell)
-            values = Dict{Tuple,Any}()
-            return BindOutputs(uuid, upstream_binds, values)
+        @assert isready(nb)
+        output_cells = filter(!_is_bind, nb.cells)
+        depend_on_binds = filter(output_cells) do cell
+            !isempty(_upstream_bind_cells(nb, cell))
         end
+
+        bindoutputs = map(depend_on_binds) do cell
+            upstream_uuids = _upstream_bind_cells(nb, cell)
+            N = length(upstream_uuids)
+            upstream_binds = NTuple{N, Base.UUID}(upstream_uuids)
+            values = Dict{NTuple{N, Base.UUID}, Any}()
+            uuid = cell2uuid(cell)
+            return BindOutputs{N}(uuid, upstream_binds, values)
+        end
+        uuids = cell2uuid.(depend_on_binds)
         return new(Dict(zip(uuids, bindoutputs)))
     end
 end
 
-function _run_dynamic!(nb::Notebook, session::ServerSession)
-    cells = [nb.cells_dict[cell_uuid] for cell_uuid in nb.cell_order]
-    for cell in reverse(cells)
-        if _is_bond(cell)
-            @show Pluto.downstream_cells_map(cell, nb)
-        end
+"""
+    _possibilities(cell::Cell)::Union{Vector,Nothing}
+
+Return possible values for `cell` or `Nothing` if this cell isn't a `Bond`.
+This method works by reading the Pluto generated HTML input, such as `range`.
+"""
+function _possibilities(cell::Cell)::Union{Vector,Nothing}
+    if _is_bind(cell)
+        html = cell.output.body
+        input = HTMLInput(html)
+        return _possibilities(input)::Vector
+    else
+        return nothing
     end
+end
+
+function _binds(nb::Notebook)::Vector{Base.UUID}
+    @assert isready(nb)
+    return cell2uuid.(filter(_is_bind, nb.cells))
+end
+
+"""
+Gather the dynamic (@bind) outputs.
+
+"""
+function _run_dynamic!(nb::Notebook, session::ServerSession)
+    @assert isready(nb)
+    return NotebookBindOutputs(nb)
+    cells = uuid2cell.(Ref(nb), nb.cell_order)
+
+
+    output_cells = filter(!_is_bind, nb.cells)
+    depend_on_binds = filter(output_cells) do cell
+        !isempty(_upstream_bind_cells(nb, cell))
+    end
+
+
 end
 
 "Based on test/Bonds.jl"
@@ -113,22 +147,6 @@ end
 
 function _possibilities(input::HTMLInput{:range})::Vector
     return collect(range(input.min, input.max; step=input.step))
-end
-
-"""
-    _possibilities(cell::Cell)::Union{Vector,Nothing}
-
-Return possible values for `cell` or `Nothing` if this cell isn't a `Bond`.
-This method works by reading the Pluto generated HTML input, such as `range`.
-"""
-function _possibilities(cell::Cell)::Union{Vector,Nothing}
-    if _is_bond(cell)
-        html = cell.output.body
-        input = HTMLInput(html)
-        return _possibilities(input)::Vector
-    else
-        return nothing
-    end
 end
 
 function _cells_by_rootassignee(nb::Notebook)

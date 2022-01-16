@@ -202,24 +202,24 @@ function _read_assignment(cell::Cell)
     return string(cell.code[input_start_location:end])
 end
 
-"Return all binds which affect some output together with this cell."
-function _related_binds(nb, cell::Cell)::Vector{Base.UUID}
+"Return all binds and the input `cell` which affect some output together with this cell."
+function _binds_group(nb, cell::Cell)::Vector{Cell}
     @assert _is_bind(cell)
     # These are non-bind because a bind cannot depend on a bind.
     downstream = _indirect_downstream_cells(nb, cell)
     related = Cell[]
-    for cell_uuid in downstream
-        downstream_cell = uuid2cell(nb, cell_uuid)
-        upstream = _indirect_upstream_cells(nb, downstream_cell)
+    for cell_uuid::Base.UUID in downstream
+        cell = uuid2cell(nb, cell_uuid)
+        upstream = _indirect_upstream_cells(nb, cell)
         for upstream_cell_uuid in upstream
             upstream_cell = uuid2cell(nb, upstream_cell_uuid)
             if _is_bind(upstream_cell)
-                push!(related, cell)
+                push!(related, upstream_cell)
             end
         end
     end
     related = unique(related)
-    return filter(!=(cell), related)
+    return related
 end
 
 "Vector of all possible bind combinations."

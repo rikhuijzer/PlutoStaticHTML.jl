@@ -48,7 +48,8 @@ actual = PlutoStaticHTML._combined_possibilities([a, b])
 @test last(actual) == (2.0, 3.0)
 @test length(actual) == 2 * 3
 
-@test PlutoStaticHTML._related_binds(nb, a) == cell2uuid(b)
+@test PlutoStaticHTML._binds_group(nb, a) == [a, b]
+@test PlutoStaticHTML._binds_group(nb, b) == [a, b]
 
 nbo = PlutoStaticHTML._run_dynamic!(nb, session)
 bo = nbo.bindoutputs[cell2uuid(f)]

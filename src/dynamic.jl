@@ -98,6 +98,23 @@ end
 "Return cells which depend on upstream bind cells."
 _depend_binds(nbo::NotebookBindOutputs)::Vector{Base.UUID} = collect(keys(nbo.bindoutputs))
 
+function _upstream_binds(nbo::NotebookBindOutputs, cell::Base.UUID)
+    return nbo.bindoutputs[cell].upstream_binds
+end
+
+function _add_output!(nbo::NotebookBindOutputs, cell::Base.UUID, upstream_binds, value)
+    N = length(upstream_binds)
+    bo::BindOutputs{N} = nbo.bindoutputs[cell]
+    bo.values[upstream_binds] = value
+    return nothing
+end
+
+function _get_output(nbo::NotebookBindOutputs, cell::Base.UUID, upstream_binds)
+    N = length(upstream_binds)
+    bo::BindOutputs{N} = nbo.bindoutputs[cell]
+    return bo.values[upstream_binds]
+end
+
 function show(io::IO, nbo::NotebookBindOutputs)
     println(io, string(typeof(nbo), '(', typeof(nbo.bindoutputs), '('))
     for key in keys(nbo.bindoutputs)

@@ -41,5 +41,11 @@ expected = uuids(nb, [2])
 
 nbo = PlutoStaticHTML.NotebookBindOutputs(nb)
 actual = PlutoStaticHTML._depend_binds(nbo)
-expected = uuids(nb, [5, 4, 6])
-@test actual == expected
+expected = uuids(nb, [4, 5, 6])
+@test Set(actual) == Set(expected)
+
+upstream_binds = PlutoStaticHTML._upstream_binds(nbo, f.cell_id)
+value = 4
+PlutoStaticHTML._add_output!(nbo, f.cell_id, upstream_binds, value)
+actual = PlutoStaticHTML._get_output(nbo, f.cell_id, upstream_binds)
+@test actual == value

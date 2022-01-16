@@ -58,7 +58,7 @@ Outputs for one cell which depends on one or more binds.
 struct BindOutputs{N}
     name::Base.UUID
     upstream_binds::NTuple{N, Base.UUID}
-    values::Dict{NTuple{N, BondValue}, CellOutput}
+    values::Dict{NTuple{N, Any}, CellOutput}
 end
 
 function show(io::IO, bo::BindOutputs)
@@ -89,7 +89,7 @@ struct NotebookBindOutputs
             upstream_uuids = _upstream_bind_cells(nb, cell)
             N = length(upstream_uuids)
             upstream_binds = NTuple{N, Base.UUID}(upstream_uuids)
-            values = Dict{NTuple{N, BondValue}, CellOutput}()
+            values = Dict{NTuple{N, Any}, CellOutput}()
             uuid = cell2uuid(cell)
             return BindOutputs{N}(uuid, upstream_binds, values)
         end
@@ -251,7 +251,7 @@ function _instantiate_bind_values!(nb::Notebook)
     binds = filter(_is_bind, nb.cells)
     for cell in binds
         v = _var(cell)
-        nb.bonds[v] = Pluto.BondValue(1)
+        nb.bonds[v] = BondValue(1)
     end
 end
 
@@ -270,13 +270,13 @@ _val(cell::Cell) = cell.output.body
 
 function _update_run_bind_values!(nbo, session, binds_group, values)
     binds_uuids = cell2uuid.(binds_group)
-    bondvalues = Dict(zip(binds_uuids, Pluto.BondValue.(values)))
+    bondvalues = Dict(zip(binds_uuids, values))
     cell_uuids = collect(keys(bondvalues))
     cells = uuid2cell.(Ref(nbo.nb), cell_uuids)
     bound_sym_names = [_var(cell) for cell in cells]
     for (cell, bound_sym_name) in zip(cells, bound_sym_names)
         # Note that the bondvalue is the slider number and not the real number.
-        nbo.nb.bonds[bound_sym_name] = bondvalues[cell2uuid(cell)]
+        nbo.nb.bonds[bound_sym_name] = BondValue(bondvalues[cell2uuid(cell)])
     end
     Pluto.set_bond_values_reactive(; session, notebook=nbo.nb, bound_sym_names)
 

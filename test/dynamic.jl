@@ -53,5 +53,5 @@ actual = PlutoStaticHTML._combined_possibilities([a, b])
 
 nbo = PlutoStaticHTML._run_dynamic!(nb, session)
 bo = nbo.bindoutputs[cell2uuid(f)]
-bo.values
+@test bo.values[(2,)].body == "5" # 2 + 3
 

@@ -1,16 +1,15 @@
+cell2uuid(cell::Pluto.Cell) = cell.cell_id
+uuid2cell(nb::Notebook, id::Base.UUID) = nb.cells_dict[id]
 
 function _inject_script(html, script)
     return script * html
 end
 
-_is_bond(body, ::MIME"text/html") = startswith(body, "<bond")
-_is_bond(body, mime) = false
-_is_bond(cell::Pluto.Cell) = _is_bond(cell.output.body, cell.output.mime)
-
 function _myflatten(indirect)
     
 end
 
+"Return indirect dependency cells. Pluto never needs this it seems."
 function _indirect_dependency_cells(nb, cell::Cell, map_fn; out=Base.UUID[])
     direct = map_fn(cell, nb)::Dict{Symbol, Vector{Cell}}
     for name::Symbol in collect(keys(direct))
@@ -25,25 +24,30 @@ function _indirect_dependency_cells(nb, cell::Cell, map_fn; out=Base.UUID[])
     return out
 end
 
-"Return indirect upstream cells. Pluto never needs this it seems."
-function _indirect_upstream_cells(nb::Notebook, cell::Cell)
+function _indirect_upstream_cells(nb::Notebook, cell::Cell)::Vector{Base.UUID}
     map_fn = Pluto.upstream_cells_map
     return _indirect_dependency_cells(nb, cell, map_fn)
 end
 
-function _indirect_downstream_cells(nb::Notebook, cell::Cell)
+function _indirect_downstream_cells(nb::Notebook, cell::Cell)::Vector{Base.UUID}
     map_fn = Pluto.downstream_cells_map
     return _indirect_dependency_cells(nb, cell, map_fn)
 end
+
+_is_bind(body, ::MIME"text/html") = startswith(body, "<bond")
+_is_bind(body, ::Any) = false
+_is_bind(cell::Pluto.Cell) = _is_bind(cell.output.body, cell.output.mime)
+
 
 """
 Return upstream bind cells for `cell`.
 For these, we need to store all possible outputs.
 """
-function _upstream_bind_cells(nb::Notebook, cell::Cell)
-    1
+function _upstream_bind_cells(nb::Notebook, cell::Cell)::Vector{Base.UUID}
+    upstream = uuid2cell.(Ref(nb), _indirect_upstream_cells(nb, cell))
+    filtered = filter(_is_bind, upstream)
+    return cell2uuid.(filtered)
 end
-
 
 """
 Outputs for one cell which depends on one or more binds.

@@ -15,8 +15,8 @@
     @test _cell(nb, :y).output.body == "3"
 
     nb = Notebook([
-        Cell("a = 1"), # 1
-        Cell("b = 2"), # 2
+        Cell("""@bind a html"<input type=range>" """), # 1
+        Cell("""@bind b html"<input type=range>" """), # 2
         Cell("c = 3"), # 3
         Cell("d = a + b"), # 4
         Cell("e = b + c"), # 5
@@ -25,11 +25,15 @@
     f = nb.cells[end]
     run_notebook!(nb, session)
     actual = PlutoStaticHTML._indirect_upstream_cells(nb, f)
-    expected = [nb.cells[index].cell_id for index in [5, 2, 3]]
+    expected = [nb.cells[i].cell_id for i in [5, 2, 3]]
     @test actual == expected
 
     b = nb.cells[2]
     actual = PlutoStaticHTML._indirect_downstream_cells(nb, b)
-    expected = [nb.cells[index].cell_id for index in [4, 5, 6]]
+    expected = [nb.cells[i].cell_id for i in [4, 5, 6]]
+    @test actual == expected
+
+    actual = PlutoStaticHTML._upstream_bind_cells(nb, f)
+    expected = [nb.cells[2].cell_id]
     @test actual == expected
 end

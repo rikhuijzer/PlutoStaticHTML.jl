@@ -36,6 +36,7 @@ include("html.jl")
 include("build.jl")
 include("htmltypes.jl")
 include("dynamic.jl")
+include("data.jl")
 
 export HTMLOptions, notebook2html, run_notebook!
 export BuildOptions, parallel_build

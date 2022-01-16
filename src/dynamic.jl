@@ -132,12 +132,12 @@ end
 "Store output for `cell` based on the current state of the notebook."
 function _store_output!(nbo::NotebookBindOutputs, cell::Base.UUID, output::CellOutput)
     upstream_binds = _upstream_binds(nbo, cell)
-    return _set_output!(nbo, cell, upstream_binds, output)
+    return _store_output!(nbo, cell, upstream_binds, output)
 end
 
 "Store output for `cell` based on the current state of the notebook."
 function _store_output!(nbo::NotebookBindOutputs, cell_uuid::Base.UUID)
-    cell = uuid2cell(cell_uuid)
+    cell = uuid2cell(nbo.nb, cell_uuid)
     return _store_output!(nbo, cell_uuid, cell.output)
 end
 
@@ -177,9 +177,21 @@ function _possibilities(input::HTMLInput{:range})::Possibilities
     return string.(collect(range(r.min, r.max; step=r.step)))
 end
 
+"Variable which is set by `cell`."
+function _var(cell::Cell)::Symbol
+    ra = cell.output.rootassignee
+    if isnothing(ra)
+        mapping = cell.cell_dependencies.downstream_cells_map
+        return only(keys(mapping))
+    else
+        return ra
+    end
+end
+
 "Pluto.possible_bond_values didn't work, so here we are."
 function _change_assignment!(cell::Cell, input::Possibility)
-    var::Symbol = cell.output.rootassignee
+    var = _var(cell)
+    @show string(var, " = ", input)
     cell.code = string(var, " = ", input)
 end
 
@@ -188,42 +200,9 @@ function _read_assignment(cell::Cell)::Possibility
     return string(cell.code[input_start_location:end])::Possibility
 end
 
-function _run_store!(nbo, session, cell::Base.UUID, input)::Bool
-    _change_assignment!(cell, input)
-    run_notebook!(nb, session)
-    downstream_output_cells = _indirect_downstream_cells(nb, cell)
-    for uuid::Base.UUID in downstream_output_cells
-        _store_output!(nbo, uuid)
-    end
-    return true
-end
-
-"""
-Initiate input for `cell` and stores the outputs for all cells that depend on `cell`.
-"""
-function _run_initiate!(nbo, session, P::Possibilities, cell::Base.UUID)::Bool
-    input = first(P)
-    return _run_store!(nbo, session, cell, input)
-end
-
-"""
-Increase input for `cell` and capture the outputs for all cells that depend on `cell`.
-Note that this also stores the outputs of other bind cells at the time of running.
-"""
-function _run_increase!(nbo, session, P::Possibilities, cell::Base.UUID)
-    current = _read_assignment(cell)::Possibility
-    current_index = findfirst(==(current), P)
-    if current_index == length(P)
-        return false
-    else
-        next_input = P[current_index + 1]
-        return _run_store!(nbo, session, cell, next_input)
-    end
-end
-
 "Return all binds which affect some output together with this cell."
 function _related_binds(nbo, cell::Cell)::Vector{Base.UUID}
-    @assert is_bind(cell)
+    @assert _is_bind(cell)
     # These are non-bind because a bind cannot depend on a bind.
     downstream = _indirect_downstream_cells(nbo.nb, cell)
     related = Cell[]
@@ -238,7 +217,7 @@ function _related_binds(nbo, cell::Cell)::Vector{Base.UUID}
         end
     end
     related = unique(related)
-    return pop!(related, cell)
+    return filter(!=(cell), related)
 end
 
 "Vector of all possible bind combinations."
@@ -248,8 +227,30 @@ function _combined_possibilities(cells::Vector{Cell})::Vector{Tuple}
     return vec(prod)
 end
 
-function _recursive_run!(nbo::NotebookBindOutputs, cells::Vector{Cell})
-    
+function _set_bind_values!(nb::Notebook, binds::Vector{Cell}, values)
+    for (cell, value) in zip(binds, values)
+        input = string(value)::String
+        _change_assignment!(cell, input)
+    end
+end
+
+function _run_bind_values!(nb::Notebook, session, binds::Vector{Cell})
+    to_reeval = binds
+    user_requested_run = false
+    run_async = false
+    Pluto.run_reactive_async!(session, nb, to_reeval; user_requested_run, run_async)
+    return nothing
+end
+
+function _downstream_output_cells(nbo, binds_group::Vector{Cell})::Vector{Base.UUID}
+    out = Base.UUID[]
+    for bind::Cell in binds_group
+        downstream = _indirect_downstream_cells(nbo.nb, bind)
+        # Cannot be binds because they are downstream.
+        downstream_cells = uuid2cell.(Ref(nbo.nb), downstream)
+        foreach(c -> push!(out, cell2uuid(c)), downstream_cells)
+    end
+    return unique(out)
 end
 
 """
@@ -260,15 +261,23 @@ function _run_dynamic!(nb::Notebook, session::ServerSession)
     nbo = NotebookBindOutputs(nb)
     binds = filter(_is_bind, nb.cells)
     for cell in binds
-        related = _related_binds(nbo, cell)
-        group = [cell; related]
-        _recursive_run!(nbo, group)
+        related = uuid2cell.(Ref(nbo.nb), _related_binds(nbo, cell))
+        binds_group = [cell; related]::Vector{Cell}
+        combined_possibilities = _combined_possibilities(binds_group)
+        for p in combined_possibilities
+            @show p
+            _set_bind_values!(nb, binds_group, p)
+            _run_bind_values!(nb, session, binds_group)
+            for downstream_cell::Base.UUID in _downstream_output_cells(nbo, binds_group)
+                _store_output!(nbo, downstream_cell)
+            end
+        end
     end
-
+    return nbo
 end
 
 "Based on test/Bonds.jl"
-function _set_bond_value!(
+function _set_bind_value!(
         session::ServerSession,
         notebook::Notebook,
         name::Symbol,
@@ -276,7 +285,7 @@ function _set_bond_value!(
         is_first_value=false
     )
     notebook.bonds[name] = Dict("value" => value)
-    Pluto.set_bond_values_reactive(;
+    Pluto.set_bind_values_reactive(;
         session,
         notebook,
         bound_sym_names=[name],

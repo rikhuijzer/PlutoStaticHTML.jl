@@ -14,7 +14,7 @@ PlutoStaticHTML._set_bond_value!(session, nb, :x, 2)
 @test _cell(nb, :y).output.body == "3"
 
 nb = Notebook([
-    Cell("""@bind a html"<input type=range>" """), # 1
+    Cell("""@bind a html"<input type=range min='1' max='2'>" """), # 1
     Cell("""@bind b html"<input type=range>" """), # 2
     Cell("c = 3"), # 3
     Cell("d = a + b"), # 4
@@ -30,6 +30,7 @@ actual = PlutoStaticHTML._indirect_upstream_cells(nb, f)
 expected = uuids(nb, [5, 2, 3])
 @test actual == expected
 
+a = nb.cells[1]
 b = nb.cells[2]
 actual = PlutoStaticHTML._indirect_downstream_cells(nb, b)
 expected = uuids(nb, [4, 5, 6])
@@ -54,4 +55,7 @@ actual = PlutoStaticHTML._get_output(nbo, f.cell_id, upstream_outputs)
 actual = PlutoStaticHTML._combined_possibilities([b])
 expected = [("$f",) for f in 0.0:100.0]
 @test actual == expected
+actual = PlutoStaticHTML._combined_possibilities([a, b])
+@test first(actual) == ("1.0", "0.0")
+@test length(actual) == 2 * 101
 # PlutoStaticHTML._run_dynamic!(notebook, session, cell)

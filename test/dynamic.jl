@@ -39,4 +39,4 @@ actual = PlutoStaticHTML._upstream_bind_cells(nb, f)
 expected = uuids(nb, [2])
 @test actual == expected
 
-PlutoStaticHTML.NotebookBindOutputs(nb)
+nbo = PlutoStaticHTML.NotebookBindOutputs(nb)

@@ -1,6 +1,8 @@
 module PlutoStaticHTML
 
-import Base: string
+import Base:
+    show,
+    string
 
 using Base64: base64encode
 using Pkg:

@@ -59,6 +59,14 @@ struct BindOutputs{N}
     values::Dict{NTuple{N, Base.UUID}, Any}
 end
 
+function show(io::IO, bo::BindOutputs)
+    println(io, string(typeof(bo), '('))
+    println(io, string("    name = ", bo.name))
+    println(io, string("    upstream_binds = ", bo.upstream_binds))
+    println(io, string("    values = ", bo.values))
+    print(io, "  )")
+end
+
 """
 All the BindOutputs for the entire notebook.
 Struct field contents are modified while changing binds and grabbing outputs.
@@ -85,6 +93,14 @@ struct NotebookBindOutputs
         uuids = cell2uuid.(depend_on_binds)
         return new(Dict(zip(uuids, bindoutputs)))
     end
+end
+
+function show(io::IO, nbo::NotebookBindOutputs)
+    println(io, string(typeof(nbo), '(', typeof(nbo.bindoutputs), '('))
+    for key in keys(nbo.bindoutputs)
+        println(io, string("  ", key, " => ", nbo.bindoutputs[key]))
+    end
+    print(io, ')')
 end
 
 """

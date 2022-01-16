@@ -30,8 +30,6 @@ function HTMLInput(html::AbstractString)
     return HTMLInput{type}(Dict(attributes...))
 end
 
-abstract type HTTPElement end
-
 """
 Based on the HTTP range specification.
 Currently ignores `autocomplete` and `list`.
@@ -74,5 +72,5 @@ function _drop_extra(T::Type, kwargs::Dict)::Dict{Symbol,String}
     return Dict(zip(K, V))
 end
 
-HTMLElement(input::HTMLInput{:range}) = HTTPRange(input.attributes)
+HTTPRange(input::HTMLInput{:range}) = HTTPRange(input.attributes)
 

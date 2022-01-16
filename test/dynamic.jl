@@ -46,9 +46,12 @@ expected = uuids(nb, [4, 5, 6])
 
 upstream_binds = PlutoStaticHTML._upstream_binds(nbo, f.cell_id)
 output = Pluto.CellOutput(; body="3")
-PlutoStaticHTML._set_output!(nbo, f.cell_id, upstream_binds, output)
+PlutoStaticHTML._store_output!(nbo, f.cell_id, upstream_binds, output)
 upstream_outputs = PlutoStaticHTML._upstream_outputs(nbo, f.cell_id, upstream_binds)
 actual = PlutoStaticHTML._get_output(nbo, f.cell_id, upstream_outputs)
 @test actual == output
 
+actual = PlutoStaticHTML._combined_possibilities([b])
+expected = [("$f",) for f in 0.0:100.0]
+@test actual == expected
 # PlutoStaticHTML._run_dynamic!(notebook, session, cell)

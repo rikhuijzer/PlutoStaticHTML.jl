@@ -45,7 +45,10 @@ expected = uuids(nb, [4, 5, 6])
 @test Set(actual) == Set(expected)
 
 upstream_binds = PlutoStaticHTML._upstream_binds(nbo, f.cell_id)
-value = 4
-PlutoStaticHTML._add_output!(nbo, f.cell_id, upstream_binds, value)
-actual = PlutoStaticHTML._get_output(nbo, f.cell_id, upstream_binds)
-@test actual == value
+output = Pluto.CellOutput(; body="3")
+PlutoStaticHTML._set_output!(nbo, f.cell_id, upstream_binds, output)
+upstream_outputs = PlutoStaticHTML._upstream_outputs(nbo, f.cell_id, upstream_binds)
+actual = PlutoStaticHTML._get_output(nbo, f.cell_id, upstream_outputs)
+@test actual == output
+
+# PlutoStaticHTML._run_dynamic!(notebook, session, cell)

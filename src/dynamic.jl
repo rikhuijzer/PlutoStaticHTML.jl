@@ -51,12 +51,14 @@ Outputs for one cell which depends on one or more binds.
 - `name`: Name of the cell.
 - `upstream_binds`:
     Names of the upstream binds, that is, the binds on which the cell depends.
-- `values`: A value for each combination of values for `upstream_binds`.
+- `values`:
+    A value for each combination of values for `upstream_binds`.
+    For example, an entry could be `[2, 4] => 6` if `name` depends on two bind cells which give 6 as output when the bind cells are set to 2 and 4.
 """
 struct BindOutputs{N}
     name::Base.UUID
     upstream_binds::NTuple{N, Base.UUID}
-    values::Dict{NTuple{N, Base.UUID}, Any}
+    values::Dict{NTuple{N, CellOutput}, CellOutput}
 end
 
 function show(io::IO, bo::BindOutputs)
@@ -73,6 +75,7 @@ Struct field contents are modified while changing binds and grabbing outputs.
 One invariant of this struct is that each cell which depends on an upstream bind has an entry in it.
 """
 struct NotebookBindOutputs
+    nb::Notebook
     bindoutputs::Dict{Base.UUID, BindOutputs}
 
     function NotebookBindOutputs(nb::Notebook)
@@ -86,33 +89,40 @@ struct NotebookBindOutputs
             upstream_uuids = _upstream_bind_cells(nb, cell)
             N = length(upstream_uuids)
             upstream_binds = NTuple{N, Base.UUID}(upstream_uuids)
-            values = Dict{NTuple{N, Base.UUID}, Any}()
+            values = Dict{NTuple{N, CellOutput}, CellOutput}()
             uuid = cell2uuid(cell)
             return BindOutputs{N}(uuid, upstream_binds, values)
         end
         uuids = cell2uuid.(depend_on_binds)
-        return new(Dict(zip(uuids, bindoutputs)))
+        return new(nb, Dict(zip(uuids, bindoutputs)))
     end
 end
 
 "Return cells which depend on upstream bind cells."
 _depend_binds(nbo::NotebookBindOutputs)::Vector{Base.UUID} = collect(keys(nbo.bindoutputs))
 
-function _upstream_binds(nbo::NotebookBindOutputs, cell::Base.UUID)
+function _upstream_binds(nbo::NotebookBindOutputs, cell::Base.UUID)::NTuple
     return nbo.bindoutputs[cell].upstream_binds
 end
 
-function _add_output!(nbo::NotebookBindOutputs, cell::Base.UUID, upstream_binds, value)
-    N = length(upstream_binds)
-    bo::BindOutputs{N} = nbo.bindoutputs[cell]
-    bo.values[upstream_binds] = value
+function _upstream_outputs(nbo::NotebookBindOutputs, cell::Base.UUID, upstream_binds)
+    upstream_outputs = map(upstream_binds) do uuid
+        cell = uuid2cell(nbo.nb, uuid)
+        cell.output
+    end
+    return upstream_outputs
+end
+
+function _set_output!(nbo::NotebookBindOutputs, cell::Base.UUID, upstream_binds, output::CellOutput)
+    upstream_outputs = _upstream_outputs(nbo, cell, upstream_binds)
+    bo = nbo.bindoutputs[cell]
+    bo.values[upstream_outputs] = output
     return nothing
 end
 
-function _get_output(nbo::NotebookBindOutputs, cell::Base.UUID, upstream_binds)
-    N = length(upstream_binds)
-    bo::BindOutputs{N} = nbo.bindoutputs[cell]
-    return bo.values[upstream_binds]
+function _get_output(nbo::NotebookBindOutputs, cell::Base.UUID, upstream_outputs)::CellOutput
+    bo::BindOutputs = nbo.bindoutputs[cell]
+    return bo.values[upstream_outputs]
 end
 
 function show(io::IO, nbo::NotebookBindOutputs)
@@ -144,15 +154,57 @@ function _binds(nb::Notebook)::Vector{Base.UUID}
     return cell2uuid.(filter(_is_bind, nb.cells))
 end
 
+function _change_assignment!(cell::Cell, value::String)
+    var::Symbol = cell.output.rootassignee
+    cell.code = string(var, " = ", value)
+end
+
+_strvalue(cell::Cell) = string(cell.output.body)::String
+
+"""
+Store output for `cell` after things have been updated.
+"""
+function _store_output!(nbo::NotebookBindOutputs, cell::Base.UUID)
+    upstream_binds = _upstream_binds(nbo, cell)
+    N = length(upstream_binds)
+    upstream_values = map(upstream_binds) do uuid::Base.UUID
+        cell = uuid2cell(nb, uuid)
+        value = cell.output.body
+    end
+    
+end
+
+"""
+Initiate value for `cell` and stores the outputs for all cells that depend on `cell`.
+"""
+function _run_initiate!(nbo, nb::Notebook, session, possibilities::Vector, cell::Base.UUID)
+    value = first(possibilities)
+    _change_assignment!(cell, value)
+    run_notebook!(nb, session)
+    downstream_output_cells = _indirect_downstream_cells(nb, cell)
+    for cell in downstream_output_cells
+
+    end
+    return nothing
+end
+
+"""
+Increase value for `cell` and capture the outputs for all cells that depend on `cell`.
+Note that this also stores the value of other bind cells at the time of running.
+"""
+function _run_increase!(nbo, nb::Notebook, session, possibilities::Vector, cell::Base.UUID)
+    current = cell.output.body
+
+end
+
 """
 Gather the dynamic (@bind) outputs.
 
 """
 function _run_dynamic!(nb::Notebook, session::ServerSession)
     @assert isready(nb)
-    return NotebookBindOutputs(nb)
+    nbo = NotebookBindOutputs(nb)
     cells = uuid2cell.(Ref(nb), nb.cell_order)
-
 
     output_cells = filter(!_is_bind, nb.cells)
     depend_on_binds = filter(output_cells) do cell

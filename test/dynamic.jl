@@ -22,18 +22,21 @@
         Cell("e = b + c"), # 5
         Cell("f = e") # 6
         ])
+
+    uuids(nb::Notebook, I::Vector{Int}) = cell2uuid.(getindex(nb.cells, I))
+
     f = nb.cells[end]
     run_notebook!(nb, session)
     actual = PlutoStaticHTML._indirect_upstream_cells(nb, f)
-    expected = [nb.cells[i].cell_id for i in [5, 2, 3]]
+    expected = uuids(nb, [5, 2, 3])
     @test actual == expected
 
     b = nb.cells[2]
     actual = PlutoStaticHTML._indirect_downstream_cells(nb, b)
-    expected = [nb.cells[i].cell_id for i in [4, 5, 6]]
+    expected = uuids(nb, [4, 5, 6])
     @test actual == expected
 
     actual = PlutoStaticHTML._upstream_bind_cells(nb, f)
-    expected = [nb.cells[2].cell_id]
+    expected = uuids(nb, [2])
     @test actual == expected
 end

@@ -36,6 +36,7 @@ include("dynamic.jl")
 
 export HTMLOptions, notebook2html, run_notebook!
 export BuildOptions, parallel_build
+export cell2uuid
 
 # tmp
 export __build

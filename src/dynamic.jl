@@ -16,7 +16,7 @@ function _indirect_dependency_cells(nb, cell::Cell, map_fn; out=Base.UUID[])
         cells = direct[name]
         if !isempty(cells)
             for cell in cells
-                push!(out, cell.cell_id)
+                push!(out, cell2uuid(cell))
                 _indirect_dependency_cells(nb, cell, map_fn; out)
             end
         end

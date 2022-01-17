@@ -41,7 +41,8 @@ function _storebinds(dir, nbo::NotebookBindOutputs, hopts::HTMLOptions)
         # This format is compressed and requires readers to know which output
         # depends on which binds.
         # The mapping/index can be stored in a separate file later.
-        for values_key in collect(keys(bo.values))
+        # Sort here is for debugging purposes.
+        for values_key in sort(collect(keys(bo.values)))
             output::Pluto.CellOutput = bo.values[values_key]
             # Dir which stores the output files.
             subdirs = values_key[1:end-1]
@@ -53,7 +54,7 @@ function _storebinds(dir, nbo::NotebookBindOutputs, hopts::HTMLOptions)
             html = _output2html(output.body, output.mime, hopts)
             filename = string(values_key[end])::String
             path = joinpath(output_dir, filename)
-            println("Writing $html to $path")
+            println("Writing $path")
             write(path, html)
         end
     end

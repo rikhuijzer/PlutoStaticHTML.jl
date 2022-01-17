@@ -3,7 +3,8 @@ options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false
 session.options = options
 
 nb = Notebook([
-    Cell("""@bind a html"<input type=range min='1' max='2'>" """), # 1
+    # Note that the PlutoUI Slider output always starts at one and stores the range somewhere.
+    Cell("""@bind a html"<input type=range min='2' max='3'>" """), # 1
     Cell("""@bind b html"<input type=range min='1' max='3'>" """), # 2
     Cell("c = 3"), # 3
     Cell("d = a + b"), # 4
@@ -59,3 +60,9 @@ d = nb.cells[end-2]
 bo = nbo.bindoutputs[cell2uuid(d)]
 @test bo.values[(2, 3)].body == "5" # d = a + b = 2 + 3
 
+mktempdir() do dir
+    PlutoStaticHTML._storebinds(dir, nbo, HTMLOptions())
+    path = joinpath(dir, "d", "2", "3")
+    output = read(path, String)
+    @test contains(output, ">5<") # d = a + b = 2 + 3
+end

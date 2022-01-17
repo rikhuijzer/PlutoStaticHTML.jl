@@ -15,7 +15,8 @@ end
         dir::AbstractString;
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
-        use_distributed::Bool::true,
+        use_distributed::Bool=true,
+        store_binds::Bool=false
     )
 
 Options for `parallel_build`:
@@ -41,6 +42,7 @@ Options for `parallel_build`:
 - `store_binds::Bool=false`:
     Store outputs for all possible combinations of bind values.
     *Highly experimental feature which may be removed at any time.*
+- `max_bind_
 """
 struct BuildOptions
     dir::String
@@ -52,13 +54,15 @@ struct BuildOptions
         dir::AbstractString;
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
-        use_distributed::Bool=true
+        use_distributed::Bool=true,
+        store_binds::Bool=false
     )
         return new(
             string(dir)::String,
             write_files,
             nothingstring(previous_dir),
-            use_distributed
+            use_distributed,
+            store_binds
         )
     end
 end

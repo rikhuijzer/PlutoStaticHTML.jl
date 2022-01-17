@@ -38,6 +38,9 @@ Options for `parallel_build`:
     Unfortunately, the drawback is that compilation has to happen for each process.
     By setting this option to `false`, all notebooks are built sequentially in the same process which avoids recompilation.
     This is likely quicker in situations where there are few threads available such as GitHub Runners depending on the notebook contents.
+- `store_binds::Bool=false`:
+    Store outputs for all possible combinations of bind values.
+    *Highly experimental feature which may be removed at any time.*
 """
 struct BuildOptions
     dir::String
@@ -136,8 +139,7 @@ end
         bopts::BuildOptions,
         files,
         hopts::HTMLOptions=HTMLOptions();
-        session=ServerSession(),
-        write_files=true
+        session=ServerSession()
     ) -> Vector{String}
 
 Build all `files` in `dir` in parallel.
@@ -146,8 +148,7 @@ function parallel_build(
         bopts::BuildOptions,
         files,
         hopts::HTMLOptions=HTMLOptions();
-        session=ServerSession(),
-        write_files=true
+        session=ServerSession()
     )::Vector{String}
 
     dir = bopts.dir
@@ -215,16 +216,14 @@ end
 """
     parallel_build(
         bopts::BuildOptions,
-        hopts::HTMLOptions=HTMLOptions();
-        write_files=true
+        hopts::HTMLOptions=HTMLOptions()
     ) -> Vector{String}
 
 Build all ".jl" files in `dir` in parallel.
 """
 function parallel_build(
         bopts::BuildOptions,
-        hopts::HTMLOptions=HTMLOptions();
-        write_files=true
+        hopts::HTMLOptions=HTMLOptions()
     )::Vector{String}
     files = filter(readdir(bopts.dir)) do file
         endswith(file, ".jl") && !startswith(file, TMP_COPY_PREFIX)

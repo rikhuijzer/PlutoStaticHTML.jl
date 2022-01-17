@@ -8,7 +8,7 @@ console.log("ba")
 <!--
     # This information is used for caching.
     [PlutoStaticHTML.State]
-    input_sha = "1925947cac2b63a98b439324857fc2ce0879445346414887133cf01aeacb6bec"
+    input_sha = "0446517597cff6c4638ed63f57e6000aa57abdaca43f59bb47d2fc741cfa3c30"
     julia_version = "1.6.5"
 -->
 <pre><code class="language-julia">begin
@@ -17,20 +17,17 @@ console.log("ba")
 end</code></pre>
 
 
-<pre><code class="language-julia">@bind a Slider(2:0.1:100)</code></pre>
-<bond def="a"><input type='range' min='1' max='981' value='1'></bond>
+<pre><code class="language-julia">@bind a html"&lt;input type=range min='2' max='3'&gt;"</code></pre>
+<bond def="a"><input type=range min='2' max='3'></bond>
 
-<pre><code class="language-julia">@bind b Slider([4, 5])</code></pre>
-<bond def="b"><input type='range' min='1' max='2' value='1'></bond>
+<pre><code class="language-julia">@bind b html"&lt;input type=range min='1' max='3'&gt;"</code></pre>
+<bond def="b"><input type=range min='1' max='3'></bond>
 
 <pre><code class="language-julia">c = a + b</code></pre>
-<pre class=pre_class><code class="code-output">6.0</code></pre>
+<pre id='c' class='pre_class'><code class='code-output'>5</code></pre>
 
 <pre><code class="language-julia">d = c + 1</code></pre>
-<pre class=pre_class><code class="code-output">7.0</code></pre>
-
-<pre><code class="language-julia">@bind z Slider([1, 2])</code></pre>
-<bond def="z"><input type='range' min='1' max='2' value='1'></bond>
+<pre id='d' class='pre_class'><code class='code-output'>6</code></pre>
 
 <!-- PlutoStaticHTML.End -->
 ```

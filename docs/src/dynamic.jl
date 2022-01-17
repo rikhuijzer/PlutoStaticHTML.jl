@@ -24,16 +24,13 @@ end
 @bind a html"<input type=range min='2' max='3'>"
 
 # ╔═╡ 0000000b-1321-4ba0-9642-ce0fd362c618
-@bind b Slider([4, 5])
+@bind b html"<input type=range min='1' max='3'>"
 
 # ╔═╡ 0000000c-8ead-4ea2-a301-2da990b9c516
 c = a + b
 
 # ╔═╡ 0000000d-7dd7-4ad6-858a-8eae9f1c36f3
 d = c + 1
-
-# ╔═╡ 2f7e692c-07f2-4c79-84fe-a9d5ac4ae445
-@bind z Slider([1, 2])
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -241,6 +238,5 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═0000000b-1321-4ba0-9642-ce0fd362c618
 # ╠═0000000c-8ead-4ea2-a301-2da990b9c516
 # ╠═0000000d-7dd7-4ad6-858a-8eae9f1c36f3
-# ╠═2f7e692c-07f2-4c79-84fe-a9d5ac4ae445
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

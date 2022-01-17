@@ -42,13 +42,16 @@ Options for `parallel_build`:
 - `store_binds::Bool=false`:
     Store outputs for all possible combinations of bind values.
     *Highly experimental feature which may be removed at any time.*
-- `max_bind_
+- `max_stored_binds::Int=1_000`:
+    Maximum number of bind outputs to store.
+    Most repositories and static site hosters should easily be able to handle 10k files or more, but a default of 1k seems reasonable.
 """
 struct BuildOptions
     dir::String
     write_files::Bool
     previous_dir::Union{Nothing,String}
     use_distributed::Bool
+    store_binds::Bool
 
     function BuildOptions(
         dir::AbstractString;
@@ -178,7 +181,12 @@ function parallel_build(
                 options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
                 session.options = options
                 run_notebook!(nb, session)
-                # _run_dynamic!(nb, session)
+                if bopts.store_binds
+                    nbo = _run_dynamic!(nb, session)
+                    top_dir_name = first(splitext(basename(in_path)))
+                    output_dir = joinpath(dirname(in_path), top_dir_name)
+                    _storebinds(output_dir, nbo, hopts)
+                end
                 SessionActions.shutdown(session, nb)
                 return nb
             end

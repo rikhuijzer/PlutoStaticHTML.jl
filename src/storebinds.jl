@@ -27,6 +27,7 @@ Luckily, nowadays, storing 10k files isn't that big of a deal anymore.
 For example, the CloudFlare Pages free plan allows for storing 20k files and the Git tree for the Linux Kernel contains 48k files.
 """
 function _storebinds(dir, nbo::NotebookBindOutputs, hopts::HTMLOptions)
+    mkpath(dir)
     # Remember that bindoutputs are outputs for cells which depend on binds.
     K = collect(keys(nbo.bindoutputs))
     for bindoutputs_key::Base.UUID in K
@@ -51,7 +52,8 @@ function _storebinds(dir, nbo::NotebookBindOutputs, hopts::HTMLOptions)
                 joinpath(dir, string(name_sym), string.(subdirs...))
             # This is called multiple times per dir, may need optimization.
             mkpath(output_dir)
-            html = _output2html(output.body, output.mime, hopts)
+            cell = Cell(; output)
+            html = _output2html(cell, output.mime, hopts)
             filename = string(values_key[end])::String
             path = joinpath(output_dir, filename)
             println("Writing $path")

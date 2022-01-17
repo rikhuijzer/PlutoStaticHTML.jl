@@ -177,17 +177,6 @@ function _possibilities(input::HTMLInput{:range})::Vector{Any}
     return bond_values
 end
 
-"Variable which is set by `cell`."
-function _var(cell::Cell)::Symbol
-    ra = cell.output.rootassignee
-    if isnothing(ra)
-        mapping = cell.cell_dependencies.downstream_cells_map
-        return only(keys(mapping))
-    else
-        return ra
-    end
-end
-
 "Pluto.possible_bond_values didn't work, so here we are."
 function _change_assignment!(cell::Cell, input)
     var = _var(cell)
@@ -336,7 +325,7 @@ function __build()
     dir = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
     file = "dynamic.jl"
 
-    bopts = BuildOptions(dir; use_distributed=false)
+    bopts = BuildOptions(dir; store_binds=true, use_distributed=false)
     hopts = HTMLOptions(; output_class="documenter-example-output")
     htmls = parallel_build(bopts, [file], hopts)
     html = only(htmls)

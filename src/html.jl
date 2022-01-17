@@ -107,11 +107,12 @@ function code_block(code; code_class="language-julia")
     return """<pre><code class="$code_class">$code</code></pre>"""
 end
 
-function output_block(s; class="code-output", pre_class="pre_class")
+function output_block(s; class="code-output", pre_class="pre_class", var="")
     if s == ""
         return ""
     end
-    return """<pre class=$pre_class><code class="$class">$s</code></pre>"""
+    id = var == "" ? "" : "id='$var'"
+    return """<pre $id class='$pre_class'><code class='$class'>$s</code></pre>"""
 end
 
 function _code2html(code::AbstractString, hopts::HTMLOptions)
@@ -239,21 +240,36 @@ function _clean_tree(parent, elements, T)
     return string(elements)::String
 end
 
-function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.tree+object", hopts)
-    T = symbol2type(body[:type])
+"Variable which is set by `cell`."
+function _var(cell::Cell)::Symbol
+    ra = cell.output.rootassignee
+    if isnothing(ra)
+        mapping = cell.cell_dependencies.downstream_cells_map
+        return only(keys(mapping))
+    else
+        return ra
+    end
+end
+
+function _output2html(cell::Cell, ::MIME"application/vnd.pluto.tree+object", hopts)
+    T = symbol2type(cell.output.body[:type])
     cleaned = _clean_tree(body, body[:elements], T)
     pre_class = hopts.output_pre_class
     class = hopts.output_class
-    return output_block(cleaned; class, pre_class)
+    var = _var(cell)
+    return output_block(cleaned; class, pre_class, var)
 end
 
-_output2html(body, ::MIME"text/plain", hopts) = output_block(body)
-_output2html(body, ::MIME"text/html", hopts) = body
-_output2html(body, T::MIME, hopts) = error("Unknown type: $T")
+function _output2html(cell::Cell, ::MIME"text/plain", hopts)
+    var = _var(cell)
+    output_block(cell.output.body; var)
+end
+_output2html(cell::Cell, ::MIME"text/html", hopts) = cell.output.body
+_output2html(cell::Cell, T::MIME, hopts) = error("Unknown type: $T")
 
 function _cell2html(cell::Cell, hopts::HTMLOptions)
     code = _code2html(cell.code, hopts)
-    output = _output2html(cell.output.body, cell.output.mime, hopts)
+    output = _output2html(cell, cell.output.mime, hopts)
     return """
         $code
         $output

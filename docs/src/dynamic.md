@@ -26,7 +26,8 @@ end</code></pre>
 <pre><code class="language-julia">d = c + 1</code></pre>
 <pre id='d' class='pre_class'><code class='code-output'>6</code></pre>
 
-<!-- PlutoStaticHTML.End --><script type='text/javascript'>
+<!-- PlutoStaticHTML.End -->// this file should be fully stand-alone and parse the index.
+<script type='text/javascript'>
     async function getText(url) {
         let f = await fetch(url);
         let text = await f.text();

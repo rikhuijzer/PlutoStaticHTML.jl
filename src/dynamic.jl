@@ -333,6 +333,7 @@ function __build()
     # Drop extension regex; thanks to https://stackoverflow.com/questions/25351184.
     rx = raw"""/\.[^/.]+$/"""
     script = """
+        // this file should be fully stand-alone and parse the index.
         <script type='text/javascript'>
             async function getText(url) {
                 let f = await fetch(url);

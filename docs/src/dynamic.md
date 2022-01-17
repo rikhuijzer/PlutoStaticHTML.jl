@@ -1,9 +1,6 @@
 # Dynamic
 
 ```@raw html
-<script>
-console.log("ba")
-</script>
 <!-- PlutoStaticHTML.Begin -->
 <!--
     # This information is used for caching.
@@ -29,5 +26,22 @@ end</code></pre>
 <pre><code class="language-julia">d = c + 1</code></pre>
 <pre id='d' class='pre_class'><code class='code-output'>6</code></pre>
 
-<!-- PlutoStaticHTML.End -->
+<!-- PlutoStaticHTML.End --><script type='text/javascript'>
+    async function getText(url) {
+        let f = await fetch(url);
+        let text = await f.text();
+        return text
+    }
+    async function process() {
+        output_dir = window.location.href.replace(/\.[^/.]+$/, "")
+        const url = output_dir + '/c/1/1.html';
+        console.log('url: ' + url);
+        var output = await getText(url);
+        console.log('output: ' + output);
+        const el = document.getElementById('d');
+        console.log(el);
+    }
+    process()
+</script>
+
 ```

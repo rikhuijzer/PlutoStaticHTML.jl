@@ -2,7 +2,7 @@ cell2uuid(cell::Pluto.Cell) = cell.cell_id
 uuid2cell(nb::Notebook, id::Base.UUID) = nb.cells_dict[id]
 
 function _inject_script(html, script)
-    return script * html
+    return html * script
 end
 
 "Return indirect dependency cells. Pluto never needs this it seems."
@@ -330,9 +330,25 @@ function __build()
     htmls = parallel_build(bopts, [file], hopts)
     html = only(htmls)
 
+    # Drop extension regex; thanks to https://stackoverflow.com/questions/25351184.
+    rx = raw"""/\.[^/.]+$/"""
     script = """
-        <script>
-        console.log("ba")
+        <script type='text/javascript'>
+            async function getText(url) {
+                let f = await fetch(url);
+                let text = await f.text();
+                return text
+            }
+            async function process() {
+                output_dir = window.location.href.replace($rx, "")
+                const url = output_dir + '/c/1/1.html';
+                console.log('url: ' + url);
+                var output = await getText(url);
+                console.log('output: ' + output);
+                const el = document.getElementById('d');
+                console.log(el);
+            }
+            process()
         </script>
         """
 

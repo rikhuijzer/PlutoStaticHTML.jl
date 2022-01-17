@@ -54,7 +54,7 @@ function _storebinds(dir, nbo::NotebookBindOutputs, hopts::HTMLOptions)
             mkpath(output_dir)
             cell = Cell(; output)
             html = _output2html(cell, output.mime, hopts)
-            filename = string(values_key[end])::String
+            filename = string(values_key[end])::String * ".html"
             path = joinpath(output_dir, filename)
             println("Writing $path")
             write(path, html)

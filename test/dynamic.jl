@@ -62,7 +62,7 @@ bo = nbo.bindoutputs[cell2uuid(d)]
 
 mktempdir() do dir
     PlutoStaticHTML._storebinds(dir, nbo, HTMLOptions())
-    path = joinpath(dir, "d", "2", "3")
+    path = joinpath(dir, "d", "2", "3.html")
     output = read(path, String)
     @test contains(output, ">5<") # d = a + b = 2 + 3
 end

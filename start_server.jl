@@ -25,7 +25,7 @@ function custom_callback(file::AbstractString)
     LiveServer.file_changed_callback(file)
 end
 
-function custom_simplewatcher(dir)
+function custom_simplewatcher()
     # The callback, defined by LiveServer.jl, receives a file.
     cb(file) = custom_callback(file)
     sw = LiveServer.SimpleWatcher(cb)
@@ -35,10 +35,16 @@ function custom_simplewatcher(dir)
         println("Watching $path")
         LiveServer.watch_file!(sw, path)
     end
+
+    scripts_dir = joinpath(PKGDIR, "docs", "src", "assets")
+    for path in readdir(scripts_dir; join=true)
+        println("Watching $path")
+        LiveServer.watch_file!(sw, path)
+    end
     return sw
 end
 
-fw = custom_simplewatcher(dir)
+fw = custom_simplewatcher()
 
 build_docs()
 

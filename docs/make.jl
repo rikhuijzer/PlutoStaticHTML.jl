@@ -70,7 +70,7 @@ pages = [
 mathengine = MathJax3()
 prettyurls = get(ENV, "CI", nothing) == "true"
 assets = [
-    asset("assets/script.js", islocal=true)
+    # asset("assets/dynamic.js", islocal=true)
 ]
 format = HTML(; assets, mathengine, prettyurls)
 modules = [PlutoStaticHTML]

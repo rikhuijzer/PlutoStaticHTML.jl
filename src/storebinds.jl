@@ -1,8 +1,8 @@
 function _storeindex(dir, name_upstream_symbols)
     index_path = joinpath(dir, "outputs_index.html")
     open(index_path, "w") do io
-        write(io, "<!-- Index file from PlutoStaticHTML.jl -->\n")
-        write(io, "<!-- Here, `a/\$b/\$c` means, the output for `a` depends on `b` and `c` and can be found at the URL `a/b/c` for different values for `b` and `c`. -->\n")
+        write(io, "<!-- Index file from PlutoStaticHTML.jl. -->\n")
+        write(io, "<!-- In this file, `a/\$b/\$c` means, the output for `a` depends on `b` and `c` and can be found at the URL `a/b/c` for different values for `b` and `c`. -->\n")
         for (name_sym, sorted_upstream) in name_upstream_symbols
             mapping = string(name_sym, raw"/$", join(sorted_upstream, raw"/$"), '\n')
             @show mapping

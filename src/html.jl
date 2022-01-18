@@ -111,7 +111,7 @@ function output_block(s; class="code-output", pre_class="pre_class", var="")
     if s == ""
         return ""
     end
-    id = var == "" ? "" : "id='$var'"
+    id = var == "" ? "" : "id='var-$var'"
     return """<pre $id class='$pre_class'><code class='$class'>$s</code></pre>"""
 end
 

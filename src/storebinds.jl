@@ -1,3 +1,17 @@
+function _storeindex(dir, name_upstream_symbols)
+    index_path = joinpath(dir, "outputs_index.html")
+    open(index_path, "w") do io
+        write(io, "<!-- Index file from PlutoStaticHTML.jl -->\n")
+        write(io, "<!-- Here, `a/\$b/\$c` means, the output for `a` depends on `b` and `c` and can be found at the URL `a/b/c` for different values for `b` and `c`. -->\n")
+        for (name_sym, sorted_upstream) in name_upstream_symbols
+            mapping = string(name_sym, raw"/$", join(sorted_upstream, raw"/$"), '\n')
+            @show mapping
+            write(io, mapping)
+        end
+    end
+    return nothing
+end
+
 """
 Write the bind outputs `nbo` to disk inside `dir` so that the outputs can be made available on a static website.
 
@@ -30,19 +44,20 @@ function _storebinds(dir, nbo::NotebookBindOutputs, hopts::HTMLOptions)
     mkpath(dir)
     # Remember that bindoutputs are outputs for cells which depend on binds.
     K = collect(keys(nbo.bindoutputs))
-    for bindoutputs_key::Base.UUID in K
+    name_upstream_symbols = map(K) do bindoutputs_key::Base.UUID
         bo::BindOutputs = nbo.bindoutputs[bindoutputs_key]
         name_sym = _var(uuid2cell(nbo.nb, bo.name))
         upstream_binds_syms = _var.(uuid2cell.(Ref(nbo.nb), bo.upstream_binds))
         # This way, the output is always the same and can be used as an API.
         sorted_upstream = sort(collect(upstream_binds_syms))
 
+
         # Stores the values at <name_sym>/<value.key[1]>/.../<value.key[n]>
         # So, the filename is the same as the last value in the key.
         # This format is compressed and requires readers to know which output
         # depends on which binds.
-        # The mapping/index can be stored in a separate file later.
-        # Sort here is for debugging purposes.
+
+        # Sort for debugging purposes.
         for values_key in sort(collect(keys(bo.values)))
             output::Pluto.CellOutput = bo.values[values_key]
             # Dir which stores the output files.
@@ -59,5 +74,13 @@ function _storebinds(dir, nbo::NotebookBindOutputs, hopts::HTMLOptions)
             println("Writing $path")
             write(path, html)
         end
+
+        (; name_sym, sorted_upstream)
     end
+
+    # Store index so that it is clear where which output is stored.
+    # This index is also read by the Javascript in the front end.
+    _storeindex(dir, name_upstream_symbols)
+
+    return nothing
 end

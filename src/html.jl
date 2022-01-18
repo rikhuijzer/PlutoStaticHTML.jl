@@ -107,7 +107,7 @@ function code_block(code; code_class="language-julia")
     return """<pre><code class="$code_class">$code</code></pre>"""
 end
 
-function output_block(s; class="code-output", pre_class="pre_class", var="")
+function output_block(s; class="code-output", pre_class="pre-class", var="")
     if s == ""
         return ""
     end

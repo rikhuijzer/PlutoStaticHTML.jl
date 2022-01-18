@@ -337,6 +337,8 @@ function __build()
             $script_content
 
 
+
+
         </script>
         """
 

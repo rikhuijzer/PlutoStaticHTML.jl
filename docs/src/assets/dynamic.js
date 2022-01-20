@@ -15,10 +15,8 @@ function relative(suffix) {
 }
 
 async function readOutput(name, upstream_vars) {
-    const output_dir = relative('');
-    console.log('output_dir: ' + output_dir);
     const upstream_vars_part = upstream_vars.join('/');
-    const url = output_dir + `/${name}/${upstream_vars_part}.html`;
+    const url = relative(`${name}/${upstream_vars_part}.html`);
     console.log('url: ' + url);
     const output = await getText(url);
     return output;
@@ -30,7 +28,6 @@ function parseIndexLine(line) {
     const key = elements[0]; // 'c'
     const binds = elements.slice(1); // [ '$a', '$b' ]
     const binds_vars = binds.map(s => s.replace('$', '')); // [ 'a', 'b' ]
-    console.log('binds_vars: ' + binds_vars);
     return [key, binds_vars];
 }
 
@@ -67,7 +64,20 @@ async function replaceVariable(id, output) {
     el.outerHTML = text;
 }
 
-var output = readOutput('c', ['1', '3']);
+/* Add `oninput` events to all binds (HTML inputs). */
+async function addOnInputEvents() {
+    const binds = document.querySelectorAll('bond');
+    for (i in binds) {
+        const bind = binds[i];
+        console.log('bind: ' + bind);
+        const bindvar = bind.attributes.def.textContent;
+        bond.attributes.onchange = `bindChangeEvent('${bindvar}');`;
+    }
+}
+
+var output = readOutput('c', ['1', '2']);
 replaceVariable('c', output);
 
 readIndex();
+
+addOnInputEvents();

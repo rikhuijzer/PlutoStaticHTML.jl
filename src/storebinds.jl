@@ -1,5 +1,6 @@
 function _storeindex(dir, name_upstream_symbols)
-    index_path = joinpath(dir, "outputs_index.html")
+    # Storing as txt because HTML will ignore newlines and LiveServer will add JS.
+    index_path = joinpath(dir, "outputs_index.txt")
     open(index_path, "w") do io
         write(io, "<!-- Index file from PlutoStaticHTML.jl. -->\n")
         write(io, "<!-- In this file, `a/\$b/\$c` means, the output for `a` depends on `b` and `c` and can be found at the URL `a/b/c` for different values for `b` and `c`. -->\n")

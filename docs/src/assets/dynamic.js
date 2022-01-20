@@ -67,12 +67,13 @@ async function replaceVariable(id, output) {
 /* Add `oninput` events to all binds (HTML inputs). */
 async function addOnInputEvents() {
     const binds = document.querySelectorAll('bond');
-    for (i in binds) {
-        const bind = binds[i];
+    binds.forEach(function(bind) {
         console.log('bind: ' + bind);
         const bindvar = bind.attributes.def.textContent;
-        bond.attributes.onchange = `bindChangeEvent('${bindvar}');`;
-    }
+        const inputElement = bind.children[0];
+        const action = `bindChangeEvent('${bindvar}')`;
+        inputElement.setAttribute('onchange', action);
+    });
 }
 
 var output = readOutput('c', ['1', '2']);

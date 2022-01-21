@@ -183,13 +183,6 @@ function parallel_build(
                 session.options = options
                 session.options.server.disable_writing_notebook_files = true
                 run_notebook!(nb, session)
-                if bopts.store_binds
-                    nbo = _run_dynamic!(nb, session)
-                    top_dir_name = first(splitext(basename(in_path)))
-                    output_dir = joinpath(dirname(in_path), top_dir_name)
-                    _storebinds(output_dir, nbo, hopts)
-                end
-                SessionActions.shutdown(session, nb)
                 return nb
             end
         end
@@ -211,13 +204,20 @@ function parallel_build(
             write_html(in_file, html)
             return html
         else
-            while !_notebook_done(x)
+            nb = x
+            while !_notebook_done(nb)
                 sleep(0.1)
             end
 
             path = joinpath(dir, in_file)
-            html = notebook2html(x, path, hopts)
-            SessionActions.shutdown(session, x)
+            if bopts.store_binds
+                nbo = _run_dynamic!(nb, session)
+                top_dir_name = first(splitext(basename(in_path)))
+                output_dir = joinpath(dirname(in_path), top_dir_name)
+                _storebinds(output_dir, nbo, hopts)
+            end
+            html = notebook2html(nb, path, hopts)
+            SessionActions.shutdown(session, nb)
 
             write_html(in_file, html)
             return string(html)::String

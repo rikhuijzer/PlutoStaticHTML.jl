@@ -14,7 +14,9 @@ end
     BuildOptions(
         dir::AbstractString;
         write_files::Bool=true,
-        previous_dir::Union{Nothing,AbstractString}=nothing
+        previous_dir::Union{Nothing,AbstractString}=nothing,
+        use_distributed::Bool=true,
+        store_binds::Bool=false
     )
 
 Options for `parallel_build`:
@@ -37,24 +39,33 @@ Options for `parallel_build`:
     Unfortunately, the drawback is that compilation has to happen for each process.
     By setting this option to `false`, all notebooks are built sequentially in the same process which avoids recompilation.
     This is likely quicker in situations where there are few threads available such as GitHub Runners depending on the notebook contents.
+- `store_binds::Bool=false`:
+    Store outputs for all possible combinations of bind values.
+    *Highly experimental feature which may be removed at any time.*
+- `max_stored_binds::Int=1_000`:
+    Maximum number of bind outputs to store.
+    Most repositories and static site hosters should easily be able to handle 10k files or more, but a default of 1k seems reasonable.
 """
 struct BuildOptions
     dir::String
     write_files::Bool
     previous_dir::Union{Nothing,String}
     use_distributed::Bool
+    store_binds::Bool
 
     function BuildOptions(
         dir::AbstractString;
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
-        use_distributed::Bool=true
+        use_distributed::Bool=true,
+        store_binds::Bool=false
     )
         return new(
             string(dir)::String,
             write_files,
             nothingstring(previous_dir),
-            use_distributed
+            use_distributed,
+            store_binds
         )
     end
 end
@@ -135,8 +146,7 @@ end
         bopts::BuildOptions,
         files,
         hopts::HTMLOptions=HTMLOptions();
-        session=ServerSession(),
-        write_files=true
+        session=ServerSession()
     ) -> Vector{String}
 
 Build all `files` in `dir` in parallel.
@@ -145,8 +155,7 @@ function parallel_build(
         bopts::BuildOptions,
         files,
         hopts::HTMLOptions=HTMLOptions();
-        session=ServerSession(),
-        write_files=true
+        session=ServerSession()
     )::Vector{String}
 
     dir = bopts.dir
@@ -172,6 +181,12 @@ function parallel_build(
                 options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
                 session.options = options
                 run_notebook!(nb, session)
+                if bopts.store_binds
+                    nbo = _run_dynamic!(nb, session)
+                    top_dir_name = first(splitext(basename(in_path)))
+                    output_dir = joinpath(dirname(in_path), top_dir_name)
+                    _storebinds(output_dir, nbo, hopts)
+                end
                 SessionActions.shutdown(session, nb)
                 return nb
             end
@@ -213,16 +228,14 @@ end
 """
     parallel_build(
         bopts::BuildOptions,
-        hopts::HTMLOptions=HTMLOptions();
-        write_files=true
+        hopts::HTMLOptions=HTMLOptions()
     ) -> Vector{String}
 
 Build all ".jl" files in `dir` in parallel.
 """
 function parallel_build(
         bopts::BuildOptions,
-        hopts::HTMLOptions=HTMLOptions();
-        write_files=true
+        hopts::HTMLOptions=HTMLOptions()
     )::Vector{String}
     files = filter(readdir(bopts.dir)) do file
         endswith(file, ".jl") && !startswith(file, TMP_COPY_PREFIX)

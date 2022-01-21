@@ -1,6 +1,8 @@
 module PlutoStaticHTML
 
-import Base: string
+import Base:
+    show,
+    string
 
 using Base64: base64encode
 using Pkg:
@@ -8,6 +10,7 @@ using Pkg:
     Types.UUID,
     Operations
 using Pluto:
+    BondValue,
     Cell,
     CellOutput,
     Configuration.CompilerOptions,
@@ -31,8 +34,17 @@ include("context.jl")
 include("cache.jl")
 include("html.jl")
 include("build.jl")
+include("htmltypes.jl")
+include("dynamic.jl")
+include("storebinds.jl")
 
 export HTMLOptions, notebook2html, run_notebook!
 export BuildOptions, parallel_build
+export cell2uuid
+
+# tmp
+export __build
+export _cell
+export __notebook
 
 end # module

@@ -17,6 +17,7 @@ const IMAGEMIME = Union{
     HTMLOptions(;
         code_class::AbstractString="language-julia",
         output_class::AbstractString="code-output",
+        output_pre_class::AbstractString="documenter-example-output",
         hide_code::Bool=false,
         hide_md_code::Bool=true,
         add_state::Bool=true,
@@ -29,6 +30,8 @@ Options for `notebook2html`:
 - `code_class`:
     HTML class for code.
     This is used by CSS and/or the syntax highlighter.
+` `output_pre_class`:
+    HTML class for `<pre>`.
 - `output_class`:
     HTML class for output.
     This is used by CSS and/or the syntax highlighter.
@@ -52,6 +55,7 @@ Options for `notebook2html`:
 """
 struct HTMLOptions
     code_class::String
+    output_pre_class::String
     output_class::String
     hide_code::Bool
     hide_md_code::Bool
@@ -61,6 +65,7 @@ struct HTMLOptions
 
     function HTMLOptions(;
         code_class::AbstractString="language-julia",
+        output_pre_class::AbstractString="documenter-example-output",
         output_class::AbstractString="code-output",
         hide_code::Bool=false,
         hide_md_code::Bool=true,
@@ -70,6 +75,7 @@ struct HTMLOptions
     )
         return new(
             string(code_class)::String,
+            string(output_pre_class)::String,
             string(output_class)::String,
             hide_code,
             hide_md_code,
@@ -101,18 +107,19 @@ function code_block(code; code_class="language-julia")
     return """<pre><code class="$code_class">$code</code></pre>"""
 end
 
-function output_block(s; class="code-output")
+function output_block(s; class="code-output", pre_class="pre-class", var="")
     if s == ""
         return ""
     end
-    return """<pre><code class="$class">$s</code></pre>"""
+    id = var == "" ? "" : "id='var-$var'"
+    return """<pre $id class='$pre_class'><code class='$class'>$s</code></pre>"""
 end
 
-function _code2html(code::AbstractString, opts::HTMLOptions)
-    if opts.hide_code
+function _code2html(code::AbstractString, hopts::HTMLOptions)
+    if hopts.hide_code
         return ""
     end
-    if opts.hide_md_code && startswith(code, "md\"")
+    if hopts.hide_md_code && startswith(code, "md\"")
         return ""
     end
     if contains(code, "# hideall")
@@ -122,16 +129,16 @@ function _code2html(code::AbstractString, opts::HTMLOptions)
     lines = split(code, sep)
     filter!(!endswith("# hide"), lines)
     code = join(lines, sep)
-    return code_block(code; opts.code_class)
+    return code_block(code; hopts.code_class)
 end
 
-function _output2html(body, T::IMAGEMIME, class)
-    encoded = base64encode(body)
+function _output2html(cell::Cell, T::IMAGEMIME, hopts)
+    encoded = base64encode(cell.output.body)
     uri = "data:$T;base64,$encoded"
     return """<img src="$uri">"""
 end
 
-function _output2html(body, ::MIME"application/vnd.pluto.stacktrace+object", class)
+function _output2html(cell::Cell, ::MIME"application/vnd.pluto.stacktrace+object", hopts)
     return error(body)
 end
 
@@ -141,7 +148,8 @@ function _tr_wrap(elements::Vector)
 end
 _tr_wrap(::Array{String, 0}) = "<tr>\n<td>...</td>\n</tr>"
 
-function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.table+object", class)
+function _output2html(cell::Cell, ::MIME"application/vnd.pluto.table+object", hopts)
+    body = cell.output.body::Dict{Symbol,Any}
     rows = body[:rows]
     nms = body[:schema][:names]
     headers = _tr_wrap(["<th>$colname</th>" for colname in nms])
@@ -233,19 +241,42 @@ function _clean_tree(parent, elements, T)
     return string(elements)::String
 end
 
-function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.tree+object", class)
-    T = symbol2type(body[:type])
-    cleaned = _clean_tree(body, body[:elements], T)
-    return output_block(cleaned; class)
+"Variable which is set by `cell`."
+function _var(cell::Cell)::Symbol
+    ra = cell.output.rootassignee
+    if isnothing(ra)
+        mapping = cell.cell_dependencies.downstream_cells_map
+        K = keys(mapping)
+        if isempty(K)
+            return :unknown
+        end
+        # `only` cannot be used because loading packages can give multiple keys.
+        return first(K)
+    else
+        return ra
+    end
 end
 
-_output2html(body, ::MIME"text/plain", class) = output_block(body)
-_output2html(body, ::MIME"text/html", class) = body
-_output2html(body, T::MIME, class) = error("Unknown type: $T")
+function _output2html(cell::Cell, ::MIME"application/vnd.pluto.tree+object", hopts)
+    body = cell.output.body
+    T = symbol2type(body[:type])
+    cleaned = _clean_tree(body, body[:elements], T)
+    pre_class = hopts.output_pre_class
+    class = hopts.output_class
+    var = _var(cell)
+    return output_block(cleaned; class, pre_class, var)
+end
 
-function _cell2html(cell::Cell, opts::HTMLOptions)
-    code = _code2html(cell.code, opts)
-    output = _output2html(cell.output.body, cell.output.mime, opts.output_class)
+function _output2html(cell::Cell, ::MIME"text/plain", hopts)
+    var = _var(cell)
+    output_block(cell.output.body; var)
+end
+_output2html(cell::Cell, ::MIME"text/html", hopts) = cell.output.body
+_output2html(cell::Cell, T::MIME, hopts) = error("Unknown type: $T")
+
+function _cell2html(cell::Cell, hopts::HTMLOptions)
+    code = _code2html(cell.code, hopts)
+    output = _output2html(cell, cell.output.mime, hopts)
     return """
         $code
         $output
@@ -298,16 +329,19 @@ end
 const BEGIN_IDENTIFIER = "<!-- PlutoStaticHTML.Begin -->"
 const END_IDENTIFIER = "<!-- PlutoStaticHTML.End -->"
 
-"""
-    notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()) -> String
+isready(nb::Notebook) = nb.process_status == "ready"
 
-Return the code and output as HTML for `notebook`.
+"""
+    notebook2html(nb::Notebook, path, opts::HTMLOptions=HTMLOptions()) -> String
+
+Return the code and output as HTML for `nb`.
 Assumes that the notebook has already been executed.
 """
-function notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions())::String
-    order = notebook.cell_order
+function notebook2html(nb::Notebook, path, opts::HTMLOptions=HTMLOptions())::String
+    @assert isready(nb)
+    order = nb.cell_order
     outputs = map(order) do cell_uuid
-        cell = notebook.cells_dict[cell_uuid]
+        cell = nb.cells_dict[cell_uuid]
         _cell2html(cell, opts)
     end
     html = join(outputs, '\n')
@@ -315,7 +349,7 @@ function notebook2html(notebook::Notebook, path, opts::HTMLOptions=HTMLOptions()
         html = string(path2state(path)) * html
     end
     if opts.append_build_context
-        html = html * _context(notebook)
+        html = html * _context(nb)
     end
     html = string(BEGIN_IDENTIFIER, '\n', html, '\n', END_IDENTIFIER)::String
     return html
@@ -351,9 +385,9 @@ function _load_notebook(
         compiler_options::Union{Nothing,CompilerOptions}=nothing
     )::Notebook
     tmp_path = _tmp_copy(path)
-    notebook = load_notebook_nobackup(tmp_path)
-    notebook.compiler_options = compiler_options
-    return notebook
+    nb = load_notebook_nobackup(tmp_path)
+    nb.compiler_options = compiler_options
+    return nb
 end
 
 """
@@ -378,9 +412,9 @@ function notebook2html(
         session=ServerSession(),
         append_cells=Cell[],
     )::String
-    notebook = _load_notebook(path)
-    PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook!(notebook, session)
-    html = notebook2html(notebook, path, opts)
+    nb = _load_notebook(path)
+    PlutoStaticHTML._append_cell!(nb, append_cells)
+    run_notebook!(nb, session)
+    html = notebook2html(nb, path, opts)
     return html
 end

@@ -2,6 +2,7 @@ using Documenter:
     DocMeta,
     HTML,
     MathJax3,
+    asset,
     deploydocs,
     makedocs
 using PlutoStaticHTML
@@ -38,18 +39,40 @@ function write_notebook()
     return nothing
 end
 
-write_notebook()
+if !("DISABLE_NOTEBOOK_BUILD" in keys(ENV))
+    write_notebook()
+end
+
+function write_dynamic_notebook()
+    html = __build()
+    md = """
+        # Dynamic
+
+        ```@raw html
+        $html
+        ```
+        """
+    md_path = joinpath(NOTEBOOK_DIR, "dynamic.md")
+    write(md_path, md)
+    return nothing
+end
+
+write_dynamic_notebook()
 
 sitename = "PlutoStaticHTML.jl"
 pages = [
     "PlutoStaticHTML" => "index.md",
-    "Example notebook" => "notebook.md"
+    "Example notebook" => "notebook.md",
+    "Dynamic" => "dynamic.md"
 ]
 
 # Using MathJax3 since Pluto uses that engine too.
 mathengine = MathJax3()
 prettyurls = get(ENV, "CI", nothing) == "true"
-format = HTML(; mathengine, prettyurls)
+assets = [
+    # asset("assets/dynamic.js", islocal=true)
+]
+format = HTML(; assets, mathengine, prettyurls)
 modules = [PlutoStaticHTML]
 strict = true
 checkdocs = :none
@@ -59,3 +82,6 @@ repo = "github.com/rikhuijzer/PlutoStaticHTML.jl.git"
 push_preview = false
 devbranch = "main"
 deploydocs(; devbranch, repo, push_preview)
+
+# For local development.
+cd(pkgdir(PlutoStaticHTML))

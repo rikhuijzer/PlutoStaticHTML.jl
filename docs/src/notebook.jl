@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.5
+# v0.17.6
 
 using Markdown
 using InteractiveUtils
@@ -14,8 +14,6 @@ end
 md"""
 The web page that you're looking is a Pluto notebook, see
 [notebook.jl](https://rikhuijzer.github.io/PlutoStaticHTML.jl/dev/notebook.jl).
-
-Note that, compared to the default Javascript Pluto output, raw HTML is easier to embed in Documenter.jl (as this web site demonstrates) or Franklin.jl.
 """
 
 # ╔═╡ 7ca85dab-6066-4b2a-b61c-9d9607b8756c

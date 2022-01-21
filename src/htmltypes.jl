@@ -34,7 +34,7 @@ end
 Based on the HTTP range specification.
 Currently ignores `autocomplete` and `list`.
 """
-struct HTTPRange
+struct HTMLRange
     min::Float64
     max::Float64
     step::Float64
@@ -46,12 +46,12 @@ function _get_float(attributes::Dict{String,String}, key::String, default::Float
     return value isa String ? parse(Float64, value) : value
 end
 
-function HTTPRange(A::Dict{String,String})
+function HTMLRange(A::Dict{String,String})
     min = _get_float(A, "min", 0.0)
     max = _get_float(A, "max", 100.0)
     step = _get_float(A, "step", 1.0)
     value = _get_float(A, "value", 1.0)
-    return HTTPRange(min, max, step, value)
+    return HTMLRange(min, max, step, value)
 end
 
 "Drop any kwargs which are not a fieldname of `T`."
@@ -72,5 +72,5 @@ function _drop_extra(T::Type, kwargs::Dict)::Dict{Symbol,String}
     return Dict(zip(K, V))
 end
 
-HTTPRange(input::HTMLInput{:range}) = HTTPRange(input.attributes)
+HTMLRange(input::HTMLInput{:range}) = HTMLRange(input.attributes)
 

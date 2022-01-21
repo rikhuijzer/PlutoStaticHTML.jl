@@ -171,7 +171,7 @@ end
 
 "The possible values can be any according to Pluto.BondValue."
 function _possibilities(input::HTMLInput{:range})::Vector{Any}
-    r = HTTPRange(input)
+    r = HTMLRange(input)
     real_values = collect(range(r.min, r.max; step=r.step))
     bond_values = collect(1:length(real_values))
     return bond_values

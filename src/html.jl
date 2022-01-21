@@ -132,13 +132,13 @@ function _code2html(code::AbstractString, hopts::HTMLOptions)
     return code_block(code; hopts.code_class)
 end
 
-function _output2html(body, T::IMAGEMIME, hopts)
-    encoded = base64encode(body)
+function _output2html(cell::Cell, T::IMAGEMIME, hopts)
+    encoded = base64encode(cell.output.body)
     uri = "data:$T;base64,$encoded"
     return """<img src="$uri">"""
 end
 
-function _output2html(body, ::MIME"application/vnd.pluto.stacktrace+object", hopts)
+function _output2html(cell::Cell, ::MIME"application/vnd.pluto.stacktrace+object", hopts)
     return error(body)
 end
 
@@ -148,7 +148,8 @@ function _tr_wrap(elements::Vector)
 end
 _tr_wrap(::Array{String, 0}) = "<tr>\n<td>...</td>\n</tr>"
 
-function _output2html(body::Dict{Symbol,Any}, ::MIME"application/vnd.pluto.table+object", hopts)
+function _output2html(cell::Cell, ::MIME"application/vnd.pluto.table+object", hopts)
+    body = cell.output.body::Dict{Symbol,Any}
     rows = body[:rows]
     nms = body[:schema][:names]
     headers = _tr_wrap(["<th>$colname</th>" for colname in nms])
@@ -245,14 +246,20 @@ function _var(cell::Cell)::Symbol
     ra = cell.output.rootassignee
     if isnothing(ra)
         mapping = cell.cell_dependencies.downstream_cells_map
-        return only(keys(mapping))
+        K = keys(mapping)
+        if isempty(K)
+            return :unknown
+        end
+        # `only` cannot be used because loading packages can give multiple keys.
+        return first(K)
     else
         return ra
     end
 end
 
 function _output2html(cell::Cell, ::MIME"application/vnd.pluto.tree+object", hopts)
-    T = symbol2type(cell.output.body[:type])
+    body = cell.output.body
+    T = symbol2type(body[:type])
     cleaned = _clean_tree(body, body[:elements], T)
     pre_class = hopts.output_pre_class
     class = hopts.output_class

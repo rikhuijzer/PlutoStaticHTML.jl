@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.5
+# v0.17.6
 
 using Markdown
 using InteractiveUtils
@@ -19,6 +19,11 @@ begin
 	# Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
 	using PlutoUI
 end
+
+# ╔═╡ 52ce8ede-93d4-4724-ae7f-7d4cb0d2370a
+md"""
+The functionality shown at this page is highly experimental and may be dropped from this package at any point in time.
+"""
 
 # ╔═╡ 0000000a-7036-4bc5-b7b4-4e701eb653f7
 @bind a html"<input type=range min='2' max='3'>"
@@ -233,6 +238,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 """
 
 # ╔═╡ Cell order:
+# ╠═52ce8ede-93d4-4724-ae7f-7d4cb0d2370a
 # ╠═93635e2a-755e-11ec-3dae-c77f892d6c22
 # ╠═0000000a-7036-4bc5-b7b4-4e701eb653f7
 # ╠═0000000b-1321-4ba0-9642-ce0fd362c618

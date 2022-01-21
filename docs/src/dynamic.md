@@ -5,9 +5,13 @@
 <!--
     # This information is used for caching.
     [PlutoStaticHTML.State]
-    input_sha = "0446517597cff6c4638ed63f57e6000aa57abdaca43f59bb47d2fc741cfa3c30"
+    input_sha = "5eecea05d8c9d7cb54c807da2847eeb83f75814c9bceffc86c36542840288f77"
     julia_version = "1.6.5"
 -->
+
+<div class="markdown"><p>The functionality shown at this page is highly experimental and may be dropped from this package at any point in time.</p>
+</div>
+
 <pre><code class="language-julia">begin
 	# Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
 	using PlutoUI

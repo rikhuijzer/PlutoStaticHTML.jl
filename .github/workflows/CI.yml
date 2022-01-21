@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  # pull_request:
+  pull_request:
   workflow_dispatch:
   # Regularily run the test since Pluto internals can change at any moment.
   schedule:

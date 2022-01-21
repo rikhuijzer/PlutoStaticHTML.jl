@@ -4,6 +4,6 @@
 
     input = PlutoStaticHTML.HTMLInput(html)
     @test Set(keys(input.attributes)) == Set(["max", "min", "value"])
-    elem = PlutoStaticHTML.HTMLElement(input)
-    @test elem == PlutoStaticHTML.HTMLElement(4.0, 5.0, 1.0, 6.0)
+    elem = PlutoStaticHTML.HTMLRange(input)
+    @test elem == PlutoStaticHTML.HTMLRange(4.0, 5.0, 1.0, 6.0)
 end

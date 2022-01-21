@@ -62,7 +62,7 @@ write_dynamic_notebook()
 sitename = "PlutoStaticHTML.jl"
 pages = [
     "PlutoStaticHTML" => "index.md",
-    # "Example notebook" => "notebook.md",
+    "Example notebook" => "notebook.md",
     "Dynamic" => "dynamic.md"
 ]
 

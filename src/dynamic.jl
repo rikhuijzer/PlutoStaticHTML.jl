@@ -335,10 +335,6 @@ function __build()
     script = """
         <script type='text/javascript'>
             $script_content
-
-
-
-
         </script>
         """
 

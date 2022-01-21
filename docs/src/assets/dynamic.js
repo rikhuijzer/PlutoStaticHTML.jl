@@ -14,12 +14,33 @@ function relative(suffix) {
     return current_path + with_slash;
 }
 
-async function readOutput(name, upstream_vars) {
-    const upstream_vars_part = upstream_vars.join('/');
-    const url = relative(`${name}/${upstream_vars_part}.html`);
-    console.log('url: ' + url);
+/* Read output for output variable `name::string` with a vector of upstream variable values. */
+async function readOutputFromValues(name, upstream_values) {
+    const upstream_vals_part = upstream_values.join('/');
+    const url = relative(`${name}/${upstream_vals_part}.html`);
     const output = await getText(url);
     return output;
+}
+
+/* Return current value for `bindvar`. */
+function readBindValue(bindvar) {
+    const binds = document.querySelectorAll('bond');
+    for (i in binds) {
+        const bind = binds[i];
+        if (bind.attributes.def.value === bindvar) {
+            const inputElement = bind.children[0];
+            return inputElement.value;
+        }
+    }
+    return -1;
+}
+
+/* Read output for output variable `name::string` with a vector of upstream variable names. */
+async function readOutputFromVariables(name, upstream_vars) {
+    const upstream_values = upstream_vars.map(function(upstream_var) {
+        return readBindValue(upstream_var);
+    });
+    return await readOutputFromValues(name, upstream_values);
 }
 
 /* Parse a line, such as "c/$a/$b". */
@@ -60,7 +81,6 @@ async function readIndex() {
 async function replaceVariable(id, output) {
     const text = await output;
     const el = document.getElementById('var-' + id);
-    console.log(el);
     el.outerHTML = text;
 }
 
@@ -68,7 +88,6 @@ async function replaceVariable(id, output) {
 async function addOnInputEvents() {
     const binds = document.querySelectorAll('bond');
     binds.forEach(function(bind) {
-        console.log('bind: ' + bind);
         const bindvar = bind.attributes.def.textContent;
         const inputElement = bind.children[0];
         const action = `bindChangeEvent('${bindvar}')`;
@@ -76,9 +95,20 @@ async function addOnInputEvents() {
     });
 }
 
-var output = readOutput('c', ['1', '2']);
-replaceVariable('c', output);
+var mapping = readIndex();
 
-readIndex();
+async function bindChangeEvent(bindvar) {
+    outputs_index = await mapping;
+    for (const [outputvar, upstream_binds] of Object.entries(outputs_index)) {
+        // Update the output variables which depend on `bindvar`.
+        if (upstream_binds.includes(bindvar)) {
+            const value = await readOutputFromVariables(outputvar, upstream_binds);
+            replaceVariable(outputvar, value);
+        }
+    }
+}
+
+var output = readOutputFromValues('c', ['1', '2']);
 
 addOnInputEvents();
+

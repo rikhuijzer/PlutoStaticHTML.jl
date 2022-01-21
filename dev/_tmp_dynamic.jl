@@ -14,20 +14,19 @@ macro bind(def, element)
     end
 end
 
+# ╔═╡ 93635e2a-755e-11ec-3dae-c77f892d6c22
+begin
+    # Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
+    using Pkg
+    Pkg.activate(; temp=true)
+    Pkg.add("PlutoUI")
+    using PlutoUI
+end
+
 # ╔═╡ 52ce8ede-93d4-4724-ae7f-7d4cb0d2370a
 md"""
 The functionality shown at this page is highly experimental and may be dropped from this package at any point in time.
 """
-
-# ╔═╡ 93635e2a-755e-11ec-3dae-c77f892d6c22
-begin
-	# Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
-	# using Pkg
-	# Pkg.activate(; temp=true)
-	# Pkg.add("PlutoUI")
-	# Pkg.instantiate()
-	# using PlutoUI
-end
 
 # ╔═╡ 0000000a-7036-4bc5-b7b4-4e701eb653f7
 @bind a html"<input type=range min='2' max='3'>"
@@ -41,21 +40,6 @@ c = a + b
 # ╔═╡ 0000000d-7dd7-4ad6-858a-8eae9f1c36f3
 d = c + 1
 
-# ╔═╡ 00000000-0000-0000-0000-000000000001
-PLUTO_PROJECT_TOML_CONTENTS = """
-[deps]
-"""
-
-# ╔═╡ 00000000-0000-0000-0000-000000000002
-PLUTO_MANIFEST_TOML_CONTENTS = """
-# This file is machine-generated - editing it directly is not advised
-
-julia_version = "1.7.1"
-manifest_format = "2.0"
-
-[deps]
-"""
-
 # ╔═╡ Cell order:
 # ╠═52ce8ede-93d4-4724-ae7f-7d4cb0d2370a
 # ╠═93635e2a-755e-11ec-3dae-c77f892d6c22
@@ -63,5 +47,3 @@ manifest_format = "2.0"
 # ╠═0000000b-1321-4ba0-9642-ce0fd362c618
 # ╠═0000000c-8ead-4ea2-a301-2da990b9c516
 # ╠═0000000d-7dd7-4ad6-858a-8eae9f1c36f3
-# ╟─00000000-0000-0000-0000-000000000001
-# ╟─00000000-0000-0000-0000-000000000002

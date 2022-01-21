@@ -2,7 +2,7 @@
 <!--
     # This information is used for caching.
     [PlutoStaticHTML.State]
-    input_sha = "829bc6d9ac33f731ca402db00c2292584e2bce0b18f5b18c5162e7b5fcd93995"
+    input_sha = "b333cdbbf4d12501e51f4d614e1edcfb589a93cd0cdced16223308610ccb2366"
     julia_version = "1.7.1"
 -->
 
@@ -10,12 +10,11 @@
 </div>
 
 <pre><code class="language-julia">begin
-	# Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
-	# using Pkg
-	# Pkg.activate(; temp=true)
-	# Pkg.add("PlutoUI")
-	# Pkg.instantiate()
-	# using PlutoUI
+    # Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
+    using Pkg
+    Pkg.activate(; temp=true)
+    Pkg.add("PlutoUI")
+    using PlutoUI
 end</code></pre>
 
 
@@ -26,9 +25,9 @@ end</code></pre>
 <bond def="b"><input type=range min='1' max='3'></bond>
 
 <pre><code class="language-julia">c = a + b</code></pre>
-<pre id='var-c' class='pre-class'><code class='code-output'>5</code></pre>
+<pre id='var-c' class='pre-class'><code class='code-output'>missing</code></pre>
 
 <pre><code class="language-julia">d = c + 1</code></pre>
-<pre id='var-d' class='pre-class'><code class='code-output'>6</code></pre>
+<pre id='var-d' class='pre-class'><code class='code-output'>missing</code></pre>
 
 <!-- PlutoStaticHTML.End -->

@@ -325,7 +325,7 @@ function __build()
     dir = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
     file = "dynamic.jl"
 
-    bopts = BuildOptions(dir; store_binds=true, use_distributed=false)
+    bopts = BuildOptions(dir; store_binds=true, use_distributed=true)
     hopts = HTMLOptions(; output_class="documenter-example-output")
     htmls = parallel_build(bopts, [file], hopts)
     html = only(htmls)

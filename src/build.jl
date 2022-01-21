@@ -39,6 +39,7 @@ Options for `parallel_build`:
     Unfortunately, the drawback is that compilation has to happen for each process.
     By setting this option to `false`, all notebooks are built sequentially in the same process which avoids recompilation.
     This is likely quicker in situations where there are few threads available such as GitHub Runners depending on the notebook contents.
+    Beware that `use_distributed=false` will not work with Pluto's built-in package manager.
 - `store_binds::Bool=false`:
     Store outputs for all possible combinations of bind values.
     *Highly experimental feature which may be removed at any time.*
@@ -180,6 +181,7 @@ function parallel_build(
                 nb = _load_notebook(in_path; compiler_options)
                 options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
                 session.options = options
+                session.options.server.disable_writing_notebook_files = true
                 run_notebook!(nb, session)
                 if bopts.store_binds
                     nbo = _run_dynamic!(nb, session)

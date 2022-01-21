@@ -22,10 +22,9 @@ The functionality shown at this page is highly experimental and may be dropped f
 # ╔═╡ 93635e2a-755e-11ec-3dae-c77f892d6c22
 begin
     # Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
-    # using Pkg
-    # Pkg.activate(; temp=true)
-    # Pkg.add("PlutoUI")
-    # Pkg.instantiate()
+    using Pkg
+    Pkg.activate(; temp=true)
+    Pkg.add("PlutoUI")
     using PlutoUI
 end
 

@@ -14,19 +14,20 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ 93635e2a-755e-11ec-3dae-c77f892d6c22
-begin
-	# Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
-	using Pkg
-	Pkg.activate(; temp=true)
-	Pkg.add("PlutoUI")
-	using PlutoUI
-end
-
 # ╔═╡ 52ce8ede-93d4-4724-ae7f-7d4cb0d2370a
 md"""
 The functionality shown at this page is highly experimental and may be dropped from this package at any point in time.
 """
+
+# ╔═╡ 93635e2a-755e-11ec-3dae-c77f892d6c22
+begin
+	# Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
+	# using Pkg
+	# Pkg.activate(; temp=true)
+	# Pkg.add("PlutoUI")
+	# Pkg.instantiate()
+	# using PlutoUI
+end
 
 # ╔═╡ 0000000a-7036-4bc5-b7b4-4e701eb653f7
 @bind a html"<input type=range min='2' max='3'>"

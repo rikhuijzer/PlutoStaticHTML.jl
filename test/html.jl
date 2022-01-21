@@ -119,3 +119,14 @@ end
     @test_throws Exception run_notebook!(nb, session)
 end
 
+# Test whether `run_notebook!` can also handle loading of packages when `use_distributed=false`.
+# https://github.com/rikhuijzer/PlutoStaticHTML.jl/issues/42
+@testset "run_notebook!_pkg" begin
+    session = ServerSession()
+    options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
+    session.options = options
+
+    nb = Notebook([Cell("using PlutoUI")])
+    run_notebook!(nb, session)
+
+end

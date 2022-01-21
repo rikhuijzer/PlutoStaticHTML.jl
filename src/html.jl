@@ -139,7 +139,7 @@ function _output2html(cell::Cell, T::IMAGEMIME, hopts)
 end
 
 function _output2html(cell::Cell, ::MIME"application/vnd.pluto.stacktrace+object", hopts)
-    return error(body)
+    return error(cell.output.body)
 end
 
 function _tr_wrap(elements::Vector)

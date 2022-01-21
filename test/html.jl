@@ -118,4 +118,3 @@ end
     nb = Notebook([Cell("@assert false")])
     @test_throws Exception run_notebook!(nb, session)
 end
-

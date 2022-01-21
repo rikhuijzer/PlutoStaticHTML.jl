@@ -44,7 +44,7 @@ if !("DISABLE_NOTEBOOK_BUILD" in keys(ENV))
 end
 
 function write_dynamic_notebook()
-    html = __build()
+    html = PlutoStaticHTML.__build()
     md = """
         # Dynamic
 

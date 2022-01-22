@@ -66,3 +66,13 @@ mktempdir() do dir
     output = read(path, String)
     @test contains(output, ">5<") # d = a + b = 2 + 3
 end
+
+session = ServerSession()
+nb = Notebook([
+    Cell("""(using Pkg; Pkg.add("TOML");)"""),
+    Cell("x = 1")
+    ])
+run_notebook!(nb, session)
+# This caused stack overflow.
+PlutoStaticHTML._indirect_upstream_cells(nb, nb.cells[1])
+

@@ -204,7 +204,7 @@ function parallel_build(
             write_html(in_file, html)
             return html
         else
-            nb = x
+            nb = x::Notebook
             while !_notebook_done(nb)
                 sleep(0.1)
             end

@@ -209,7 +209,10 @@ end
 function _combined_possibilities(cells::Vector{Cell})::Vector{Tuple}
     all_possibilities = _possibilities.(cells)
     prod = collect(Iterators.product(all_possibilities...))
-    return vec(prod)
+    V = vec(prod)
+    # Just to be sure for now. This should become an option.
+    @assert length(V) < 1_000
+    return V
 end
 
 function _instantiate_bind_values!(nb::Notebook)

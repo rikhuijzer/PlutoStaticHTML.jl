@@ -19,9 +19,6 @@ function attribute(s::AbstractString)::Union{Missing,Pair{String,String}}
     end
 end
 
-"""
-"""
-
 "Parse `<select>`."
 function _selectpossibilities(html::AbstractString)::UnitRange{Int}
     matches::Vector{UnitRange{Int}} = findall("<option", html)

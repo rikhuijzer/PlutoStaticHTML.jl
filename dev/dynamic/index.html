@@ -3,11 +3,11 @@
 <!--
     # This information is used for caching.
     [PlutoStaticHTML.State]
-    input_sha = "b333cdbbf4d12501e51f4d614e1edcfb589a93cd0cdced16223308610ccb2366"
+    input_sha = "c37075b62d046a37ae40830bf8d93512a375528117508e9343596387cf248da0"
     julia_version = "1.7.1"
 -->
 
-<div class="markdown"><p>The functionality shown at this page is highly experimental and may be dropped from this package at any point in time.</p>
+<div class="markdown"><p>Note that the functionality shown at this page is highly experimental and may give wrong results.</p>
 </div>
 
 <pre><code class="language-julia">begin
@@ -19,17 +19,23 @@
 end</code></pre>
 
 
-<pre><code class="language-julia">@bind a html"&lt;input type=range min='2' max='3'&gt;"</code></pre>
-<bond def="a"><input type=range min='2' max='3'></bond>
+<pre><code class="language-julia">@bind a Slider(1.0:0.1:1.3)</code></pre>
+<bond def="a" unique_id="HoPZd0bvzIVT"><input type='range' min='1' max='4' value='1'></bond>
 
-<pre><code class="language-julia">@bind b html"&lt;input type=range min='1' max='3'&gt;"</code></pre>
-<bond def="b"><input type=range min='1' max='3'></bond>
+<pre><code class="language-julia">@bind b Select([1, 2])</code></pre>
+<bond def="b" unique_id="R5wfxqPddFii"><select><option value='1'>1</option><option value='2'>2</option></select></bond>
 
 <pre><code class="language-julia">c = a + b</code></pre>
-<pre id='var-c' class='pre-class'><code class='code-output'>5</code></pre>
+<pre id='var-c' class='pre-class'><code class='code-output'>2.0</code></pre>
 
 <pre><code class="language-julia">d = c + 1</code></pre>
-<pre id='var-d' class='pre-class'><code class='code-output'>6</code></pre>
+<pre id='var-d' class='pre-class'><code class='code-output'>3.0</code></pre>
+
+<pre><code class="language-julia">@bind response Select(["👍" =&gt; "yes", "👎" =&gt; "no"])</code></pre>
+<bond def="response" unique_id="pqrJGxVlqUlW"><select><option value='1'>yes</option><option value='2'>no</option></select></bond>
+
+<pre><code class="language-julia">response</code></pre>
+<pre id='var-unknown' class='pre-class'><code class='code-output'>"👍"</code></pre>
 
 <!-- PlutoStaticHTML.End --><script type='text/javascript'>
     
@@ -142,10 +148,11 @@ async function bindChangeEvent(bindvar) {
     }
 }
 
+// This is to trigger one of the async calls.
 var output = readOutputFromValues('c', ['1', '2']);
 
 addOnInputEvents();
 
 
 </script>
-</article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../notebook/">« Example notebook</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Saturday 22 January 2022 10:58">Saturday 22 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../notebook/">« Example notebook</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Saturday 22 January 2022 13:13">Saturday 22 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

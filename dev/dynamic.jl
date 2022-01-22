@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.6
+# v0.17.7
 
 using Markdown
 using InteractiveUtils
@@ -14,11 +14,6 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ 52ce8ede-93d4-4724-ae7f-7d4cb0d2370a
-md"""
-The functionality shown at this page is highly experimental and may be dropped from this package at any point in time.
-"""
-
 # ╔═╡ 93635e2a-755e-11ec-3dae-c77f892d6c22
 begin
     # Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
@@ -28,17 +23,28 @@ begin
     using PlutoUI
 end
 
+# ╔═╡ 52ce8ede-93d4-4724-ae7f-7d4cb0d2370a
+md"""
+Note that the functionality shown at this page is highly experimental and may give wrong results.
+"""
+
 # ╔═╡ 0000000a-7036-4bc5-b7b4-4e701eb653f7
-@bind a html"<input type=range min='2' max='3'>"
+@bind a Slider(1.0:0.1:1.3)
 
 # ╔═╡ 0000000b-1321-4ba0-9642-ce0fd362c618
-@bind b html"<input type=range min='1' max='3'>"
+@bind b Select([1, 2])
 
 # ╔═╡ 0000000c-8ead-4ea2-a301-2da990b9c516
 c = a + b
 
 # ╔═╡ 0000000d-7dd7-4ad6-858a-8eae9f1c36f3
 d = c + 1
+
+# ╔═╡ 207af9a9-5410-474f-bd5b-19ee0d692df5
+@bind response Select(["👍" => "yes", "👎" => "no"])
+
+# ╔═╡ 9c173019-5596-48d5-a636-3db61cc2bd78
+response
 
 # ╔═╡ Cell order:
 # ╠═52ce8ede-93d4-4724-ae7f-7d4cb0d2370a
@@ -47,3 +53,5 @@ d = c + 1
 # ╠═0000000b-1321-4ba0-9642-ce0fd362c618
 # ╠═0000000c-8ead-4ea2-a301-2da990b9c516
 # ╠═0000000d-7dd7-4ad6-858a-8eae9f1c36f3
+# ╠═207af9a9-5410-474f-bd5b-19ee0d692df5
+# ╠═9c173019-5596-48d5-a636-3db61cc2bd78

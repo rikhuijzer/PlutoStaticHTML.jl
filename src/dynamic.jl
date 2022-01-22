@@ -10,6 +10,10 @@ function _indirect_dependency_cells(nb, cell::Cell, map_fn; out=Base.UUID[])
     @assert isready(nb)
     direct = map_fn(cell, nb)::Dict{Symbol, Vector{Cell}}
     for name::Symbol in collect(keys(direct))
+        if name == :Pkg
+            # For Pkg cells, the upstream cell is itself for some reason.
+            continue
+        end
         cells = direct[name]
         if !isempty(cells)
             for cell in cells

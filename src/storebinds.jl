@@ -6,7 +6,6 @@ function _storeindex(dir, name_upstream_symbols)
         write(io, "<!-- In this file, `a/\$b/\$c` means, the output for `a` depends on `b` and `c` and can be found at the URL `a/b/c` for different values for `b` and `c`. -->\n")
         for (name_sym, sorted_upstream) in name_upstream_symbols
             mapping = string(name_sym, raw"/$", join(sorted_upstream, raw"/$"), '\n')
-            @show mapping
             write(io, mapping)
         end
     end

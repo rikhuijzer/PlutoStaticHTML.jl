@@ -142,6 +142,43 @@ function reuse_previous_html(previous::Previous, dir, in_file)::Bool
     return reuse
 end
 
+"Write `html` to a file which is a sibling to `in_path`."
+function _write_html(in_path, html, bopts::BuildOptions)
+    if bopts.write_files
+        dir = dirname(in_path)
+        in_file = basename(in_path)
+        without_extension, _ = splitext(in_file)
+        out_file = "$(without_extension).html"
+        out_path = joinpath(dir, out_file)
+        write(out_path, html)
+    end
+    return nothing
+end
+
+function _outcome2html(session, prev::Previous, in_path, bopts, hopts)::String
+    html = prev.html
+    _write_html(in_path, html, bopts)
+    return html
+end
+
+function _outcome2html(session, nb::Notebook, in_path, bopts, hopts)::String
+    while !_notebook_done(nb)
+        sleep(0.1)
+    end
+
+    if bopts.store_binds
+        nbo = _run_dynamic!(nb, session)
+        top_dir_name = first(splitext(basename(in_path)))
+        output_dir = joinpath(dirname(in_path), top_dir_name)
+        _storebinds(output_dir, nbo, hopts)
+    end
+    html = notebook2html(nb, in_path, hopts)
+    SessionActions.shutdown(session, nb)
+
+    _write_html(in_path, html, bopts)
+    return string(html)::String
+end
+
 """
     parallel_build(
         bopts::BuildOptions,
@@ -160,6 +197,7 @@ function parallel_build(
     )::Vector{String}
 
     dir = bopts.dir
+
 
     # Start all the notebooks in parallel with async enabled if `use_distributed`.
     X = map(files) do in_file
@@ -183,45 +221,15 @@ function parallel_build(
                 session.options = options
                 session.options.server.disable_writing_notebook_files = true
                 run_notebook!(nb, session)
-                if bopts.store_binds
-                    nbo = _run_dynamic!(nb, session)
-                    top_dir_name = first(splitext(basename(in_path)))
-                    output_dir = joinpath(dirname(in_path), top_dir_name)
-                    _storebinds(output_dir, nbo, hopts)
-                end
-                SessionActions.shutdown(session, nb)
                 return nb
             end
         end
     end
 
-    function write_html(in_file, html)
-        if bopts.write_files
-            without_extension, _ = splitext(in_file)
-            out_file = "$(without_extension).html"
-            out_path = joinpath(dir, out_file)
-            write(out_path, html)
-        end
-        return nothing
-    end
-
     H = map(zip(files, X)) do (in_file, x)
-        if x isa Previous
-            html = x.html
-            write_html(in_file, html)
-            return html
-        else
-            while !_notebook_done(x)
-                sleep(0.1)
-            end
-
-            path = joinpath(dir, in_file)
-            html = notebook2html(x, path, hopts)
-            SessionActions.shutdown(session, x)
-
-            write_html(in_file, html)
-            return string(html)::String
-        end
+        in_path = joinpath(dir, in_file)
+        html = _outcome2html(session, x, in_path, bopts, hopts)
+        return html
     end
 
     return H

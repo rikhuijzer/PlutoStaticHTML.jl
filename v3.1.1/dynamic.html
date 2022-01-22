@@ -1,0 +1,39 @@
+<!-- PlutoStaticHTML.Begin -->
+<!--
+    # This information is used for caching.
+    [PlutoStaticHTML.State]
+    input_sha = "c37075b62d046a37ae40830bf8d93512a375528117508e9343596387cf248da0"
+    julia_version = "1.7.1"
+-->
+
+<div class="markdown"><p>Note that the functionality shown at this page is highly experimental and may give wrong results.</p>
+</div>
+
+<pre><code class="language-julia">begin
+    # Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
+    using Pkg
+    Pkg.activate(; temp=true)
+    Pkg.add("PlutoUI")
+    using PlutoUI
+end</code></pre>
+
+
+<pre><code class="language-julia">@bind a Slider(1.0:0.1:1.3)</code></pre>
+<bond def="a" unique_id="mI8rCSdjrRRY"><input type='range' min='1' max='4' value='1'></bond>
+
+<pre><code class="language-julia">@bind b Select([1, 2])</code></pre>
+<bond def="b" unique_id="xXgX&#43;j5ra4nw"><select><option value='1'>1</option><option value='2'>2</option></select></bond>
+
+<pre><code class="language-julia">c = a + b</code></pre>
+<pre id='var-c' class='pre-class'><code class='code-output'>2.0</code></pre>
+
+<pre><code class="language-julia">d = c + 1</code></pre>
+<pre id='var-d' class='pre-class'><code class='code-output'>3.0</code></pre>
+
+<pre><code class="language-julia">@bind response Select(["👍" =&gt; "yes", "👎" =&gt; "no"])</code></pre>
+<bond def="response" unique_id="ILOci82DcvDG"><select><option value='1'>yes</option><option value='2'>no</option></select></bond>
+
+<pre><code class="language-julia">response</code></pre>
+<pre id='var-unknown' class='pre-class'><code class='code-output'>"👍"</code></pre>
+
+<!-- PlutoStaticHTML.End -->

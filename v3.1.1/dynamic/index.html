@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Dynamic · PlutoStaticHTML.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><script src="../../copy.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">PlutoStaticHTML.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">PlutoStaticHTML</a></li><li><a class="tocitem" href="../notebook/">Example notebook</a></li><li class="is-active"><a class="tocitem" href>Dynamic</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Dynamic</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Dynamic</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/rikhuijzer/PlutoStaticHTML.jl/blob/master/docs/src/dynamic.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Dynamic"><a class="docs-heading-anchor" href="#Dynamic">Dynamic</a><a id="Dynamic-1"></a><a class="docs-heading-anchor-permalink" href="#Dynamic" title="Permalink"></a></h1><!-- PlutoStaticHTML.Begin -->
+<!--
+    # This information is used for caching.
+    [PlutoStaticHTML.State]
+    input_sha = "c37075b62d046a37ae40830bf8d93512a375528117508e9343596387cf248da0"
+    julia_version = "1.7.1"
+-->
+
+<div class="markdown"><p>Note that the functionality shown at this page is highly experimental and may give wrong results.</p>
+</div>
+
+<pre><code class="language-julia">begin
+    # Examples at https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html.
+    using Pkg
+    Pkg.activate(; temp=true)
+    Pkg.add("PlutoUI")
+    using PlutoUI
+end</code></pre>
+
+
+<pre><code class="language-julia">@bind a Slider(1.0:0.1:1.3)</code></pre>
+<bond def="a" unique_id="mI8rCSdjrRRY"><input type='range' min='1' max='4' value='1'></bond>
+
+<pre><code class="language-julia">@bind b Select([1, 2])</code></pre>
+<bond def="b" unique_id="xXgX&#43;j5ra4nw"><select><option value='1'>1</option><option value='2'>2</option></select></bond>
+
+<pre><code class="language-julia">c = a + b</code></pre>
+<pre id='var-c' class='pre-class'><code class='code-output'>2.0</code></pre>
+
+<pre><code class="language-julia">d = c + 1</code></pre>
+<pre id='var-d' class='pre-class'><code class='code-output'>3.0</code></pre>
+
+<pre><code class="language-julia">@bind response Select(["👍" =&gt; "yes", "👎" =&gt; "no"])</code></pre>
+<bond def="response" unique_id="ILOci82DcvDG"><select><option value='1'>yes</option><option value='2'>no</option></select></bond>
+
+<pre><code class="language-julia">response</code></pre>
+<pre id='var-unknown' class='pre-class'><code class='code-output'>"👍"</code></pre>
+
+<!-- PlutoStaticHTML.End --><script type='text/javascript'>
+    
+async function getText(url) {
+    let f = await fetch(url);
+    let text = await f.text();
+    return text;
+}
+
+/* Return path relative to current location with `suffix`. */
+function relative(suffix) {
+    // Drop extension regex; thanks to https://stackoverflow.com/questions/25351184.
+    const rx = /\.[^/.]+$/;
+    const current_path = window.location.href.replace(rx, "");
+    const with_slash = suffix.startsWith('/') ? suffix : '/' + suffix
+    return current_path + with_slash;
+}
+
+/* Read output for output variable `name::string` with a vector of upstream variable values. */
+async function readOutputFromValues(name, upstream_values) {
+    const upstream_vals_part = upstream_values.join('/');
+    const url = relative(`${name}/${upstream_vals_part}.html`);
+    const output = await getText(url);
+    return output;
+}
+
+/* Return current value for `bindvar`. */
+function readBindValue(bindvar) {
+    const binds = document.querySelectorAll('bond');
+    for (i in binds) {
+        const bind = binds[i];
+        if (bind.attributes.def.value === bindvar) {
+            const inputElement = bind.children[0];
+            return inputElement.value;
+        }
+    }
+    return -1;
+}
+
+/* Read output for output variable `name::string` with a vector of upstream variable names. */
+async function readOutputFromVariables(name, upstream_vars) {
+    const upstream_values = upstream_vars.map(function(upstream_var) {
+        return readBindValue(upstream_var);
+    });
+    return await readOutputFromValues(name, upstream_values);
+}
+
+/* Parse a line, such as "c/$a/$b". */
+function parseIndexLine(line) {
+    const elements = line.split('/'); // [ 'c', '$a', '$b' ]
+    const key = elements[0]; // 'c'
+    const binds = elements.slice(1); // [ '$a', '$b' ]
+    const binds_vars = binds.map(s => s.replace('$', '')); // [ 'a', 'b' ]
+    return [key, binds_vars];
+}
+
+/**
+ * Read and parse the outputs index.
+ * The index is assumed to be at a path relative to the current page.
+ */
+async function readIndex() {
+    const location = relative('outputs_index.txt');
+    const html = await getText(location);
+    const without_comments = html.replace(/<!--.*?-->/sg, "");
+    const lines = without_comments.split('\n');
+    const nonempty = lines.filter(String);
+    const parsed = nonempty.map(parseIndexLine);
+    var mapping = {};
+    for (i in parsed) {
+        const key = parsed[i][0];
+        const binds_vars = parsed[i][1];
+        mapping[key] = binds_vars;
+    };
+    return mapping;
+}
+
+/**
+  * Replace the content of an output which depends on `@bind` variables.
+  *
+  * @param string id [identifier which identifies the output cell for variable `id`.]
+  * @param {async string} output [Output text as obtained via `readOutput`].
+  */
+async function replaceVariable(id, output) {
+    const text = await output;
+    const el = document.getElementById('var-' + id);
+    el.outerHTML = text;
+}
+
+/* Add `oninput` events to all binds (HTML inputs). */
+async function addOnInputEvents() {
+    const binds = document.querySelectorAll('bond');
+    binds.forEach(function(bind) {
+        const bindvar = bind.attributes.def.textContent;
+        const inputElement = bind.children[0];
+        const action = `bindChangeEvent('${bindvar}')`;
+        inputElement.setAttribute('onchange', action);
+    });
+}
+
+var mapping = readIndex();
+
+async function bindChangeEvent(bindvar) {
+    outputs_index = await mapping;
+    for (const [outputvar, upstream_binds] of Object.entries(outputs_index)) {
+        // Update the output variables which depend on `bindvar`.
+        if (upstream_binds.includes(bindvar)) {
+            const value = await readOutputFromVariables(outputvar, upstream_binds);
+            replaceVariable(outputvar, value);
+        }
+    }
+}
+
+// This is to trigger one of the async calls.
+var output = readOutputFromValues('c', ['1', '2']);
+
+addOnInputEvents();
+
+
+</script>
+</article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../notebook/">« Example notebook</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Saturday 22 January 2022 14:12">Saturday 22 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

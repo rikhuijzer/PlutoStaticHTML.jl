@@ -142,6 +142,30 @@ function reuse_previous_html(previous::Previous, dir, in_file)::Bool
     return reuse
 end
 
+function _outcome2html(session, prev::Previous, in_path, nbo, bopts, hopts)::String
+    html = x.html
+    write_html(in_file, html)
+    return html
+end
+
+function _outcome2html(session, nb::Notebook, in_path, nbo, bopts, hopts)::String
+    while !_notebook_done(nb)
+        sleep(0.1)
+    end
+
+    if bopts.store_binds
+        nbo = _run_dynamic!(nb, session)
+        top_dir_name = first(splitext(basename(in_path)))
+        output_dir = joinpath(dirname(in_path), top_dir_name)
+        _storebinds(output_dir, nbo, hopts)
+    end
+    html = notebook2html(nb, in_path, hopts)
+    SessionActions.shutdown(session, nb)
+
+    write_html(in_file, html)
+    return string(html)::String
+end
+
 """
     parallel_build(
         bopts::BuildOptions,
@@ -160,6 +184,7 @@ function parallel_build(
     )::Vector{String}
 
     dir = bopts.dir
+
 
     # Start all the notebooks in parallel with async enabled if `use_distributed`.
     X = map(files) do in_file
@@ -199,29 +224,9 @@ function parallel_build(
     end
 
     H = map(zip(files, X)) do (in_file, x)
-        if x isa Previous
-            html = x.html
-            write_html(in_file, html)
-            return html
-        else
-            nb = x::Notebook
-            while !_notebook_done(nb)
-                sleep(0.1)
-            end
-
-            path = joinpath(dir, in_file)
-            if bopts.store_binds
-                nbo = _run_dynamic!(nb, session)
-                top_dir_name = first(splitext(basename(in_path)))
-                output_dir = joinpath(dirname(in_path), top_dir_name)
-                _storebinds(output_dir, nbo, hopts)
-            end
-            html = notebook2html(nb, path, hopts)
-            SessionActions.shutdown(session, nb)
-
-            write_html(in_file, html)
-            return string(html)::String
-        end
+        in_path = joinpath(dir, in_file)
+        html = _outcome2html(session, x, in_path, nbo, bopts, hopts)
+        return html
     end
 
     return H

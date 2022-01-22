@@ -1,10 +1,6 @@
 cell2uuid(cell::Pluto.Cell) = cell.cell_id
 uuid2cell(nb::Notebook, id::Base.UUID) = nb.cells_dict[id]
 
-function _inject_script(html, script)
-    return html * script
-end
-
 "Return indirect dependency cells. Pluto never needs this it seems."
 function _indirect_dependency_cells(nb, cell::Cell, map_fn; out=Base.UUID[])
     @assert isready(nb)
@@ -328,7 +324,7 @@ function __build()
     html = only(htmls)
 
     # This file should be stand-alone and only be pointed to the index.
-    script_content = read(joinpath(dir, "assets", "dynamic.js"), String)
+    script_content = read(JS_PATH, String)
     script = """
         <script type='text/javascript'>
             $script_content

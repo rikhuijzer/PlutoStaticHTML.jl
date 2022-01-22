@@ -161,6 +161,10 @@ function _outcome2html(session, prev::Previous, in_path, bopts, hopts)::String
     return html
 end
 
+function _inject_script(html, script)
+    return html * script
+end
+
 function _outcome2html(session, nb::Notebook, in_path, bopts, hopts)::String
     while !_notebook_done(nb)
         sleep(0.1)
@@ -175,6 +179,14 @@ function _outcome2html(session, nb::Notebook, in_path, bopts, hopts)::String
         top_dir_name = first(splitext(basename(in_path)))
         output_dir = joinpath(dirname(in_path), top_dir_name)
         _storebinds(output_dir, nbo, hopts)
+
+        script_content = read(JS_PATH, String)
+        script = """
+            <script type='text/javascript'>
+                $script_content
+            </script>
+            """
+        html = _inject_script(html, script)
     end
     SessionActions.shutdown(session, nb)
 

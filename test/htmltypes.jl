@@ -6,4 +6,14 @@
     @test Set(keys(input.attributes)) == Set(["max", "min", "value"])
     elem = PlutoStaticHTML.HTMLRange(input)
     @test elem == PlutoStaticHTML.HTMLRange(4.0, 5.0, 1.0, 6.0)
+
+    html = """
+        <bond def="b">
+            <select>
+                <option value="1">1</option>
+                <option value="2">2</option>
+            </select>
+        </bond>
+        """
+
 end

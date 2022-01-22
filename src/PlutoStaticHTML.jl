@@ -34,7 +34,7 @@ include("context.jl")
 include("cache.jl")
 include("html.jl")
 include("build.jl")
-include("htmltypes.jl")
+include("possibilities.jl")
 include("dynamic.jl")
 include("storebinds.jl")
 

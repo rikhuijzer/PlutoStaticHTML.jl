@@ -152,16 +152,15 @@ function _get_output(nbo::NotebookBindOutputs, cell::Base.UUID, upstream_outputs
 end
 
 """
-    _possibilities(cell::Cell)::Union{Vector,Nothing}
+    _possibilities(cell::Cell)::Union{UnitRange,Nothing}
 
 Return possible values for `cell` or `Nothing` if this cell isn't a `Bond`.
 This method works by reading the Pluto generated HTML input, such as `range`.
 """
-function _possibilities(cell::Cell)::Union{Vector,Nothing}
+function _possibilities(cell::Cell)::Union{UnitRange{Int},Nothing}
     if _is_bind(cell)
         html = cell.output.body
-        input = HTMLInput(html)
-        return _possibilities(input)::Vector
+        return _possibilities(html)::UnitRange{Int}
     else
         return nothing
     end
@@ -170,15 +169,6 @@ end
 function _binds(nb::Notebook)::Vector{Base.UUID}
     @assert isready(nb)
     return cell2uuid.(filter(_is_bind, nb.cells))
-end
-
-
-"The possible values can be any according to Pluto.BondValue."
-function _possibilities(input::HTMLInput{:range})::Vector{Any}
-    r = HTMLRange(input)
-    real_values = collect(range(r.min, r.max; step=r.step))
-    bond_values = collect(1:length(real_values))
-    return bond_values
 end
 
 "Pluto.possible_bond_values didn't work, so here we are."
@@ -250,21 +240,21 @@ function _update_run_bind_values!(nbo, session, binds_group, values)
     cells = uuid2cell.(Ref(nbo.nb), cell_uuids)
     bound_sym_names = [_var(cell) for cell in cells]
     for (cell, bound_sym_name) in zip(cells, bound_sym_names)
-        # Note that the bondvalue is the slider number and not the real number.
+        # Note that the bondvalue is the HTML number and not the real number.
         nbo.nb.bonds[bound_sym_name] = BondValue(bondvalues[cell2uuid(cell)])
     end
+    # `set_bond_values_reactive` does the following:
+    #   1. reads `nb.bonds` which contains entries such as
+    #       `:a => Pluto.BondValue(3)` for `@bind a Slider(1.0:0.1:1.3)`.
+    #   2. calls `run_reactive_async!` on the changed bond values.
     Pluto.set_bond_values_reactive(; session, notebook=nbo.nb, bound_sym_names)
 
     # Update stored values.
     for downstream_cell::Cell in _downstream_output_cells(nbo, cells)
         bo = nbo.bindoutputs[cell2uuid(downstream_cell)]
         binds_order = bo.upstream_binds # NTuple{N, Base.UUID}
-        # @show binds_order
-        # @show _val.(uuid2cell.(Ref(nbo.nb), binds_order))
-        # @show bondvalues
         key = Tuple(bondvalues[uuid] for uuid in binds_order)
         value = _val(downstream_cell)
-        # @show key
         bo.values[key] = downstream_cell.output
     end
 end

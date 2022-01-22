@@ -24,7 +24,9 @@ end
 
 "Parse `<select>`."
 function _selectpossibilities(html::AbstractString)::UnitRange{Int}
-    1:2
+    matches::Vector{UnitRange{Int}} = findall("<option", html)
+    # Good enough for `PlutoUI.Select` binds.
+    return 1:length(matches)
 end
 
 """
@@ -53,7 +55,7 @@ end
 
 HTMLRange(input::HTMLInput{:range}) = HTMLRange(input.attributes)
 
-function _inputpossibilities(html)::UnitRange{Int}
+function HTMLInput(html)
     input_rx = r"<input[^>]*>"
     m = match(input_rx, html)
     input_text = string(m.match)::String
@@ -61,6 +63,10 @@ function _inputpossibilities(html)::UnitRange{Int}
     attributes = Dict(skipmissing(A)...)
     type = Symbol(pop!(attributes, "type"))
     input = HTMLInput{type}(Dict(attributes...))
+end
+
+function _inputpossibilities(html)::UnitRange{Int}
+    input = HTMLInput(html)
     r = HTMLRange(input)
     floatrange = range(r.min, r.max; step=r.step)
     # PlutoUI generated HTML always starts at 1.

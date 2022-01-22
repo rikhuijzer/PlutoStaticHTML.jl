@@ -32,13 +32,19 @@ The functionality shown at this page is highly experimental and may be dropped f
 @bind a Slider(1.0:0.1:1.3)
 
 # ╔═╡ 0000000b-1321-4ba0-9642-ce0fd362c618
-@bind b Slider(1:2)
+@bind b Select([1, 2])
 
 # ╔═╡ 0000000c-8ead-4ea2-a301-2da990b9c516
 c = a + b
 
 # ╔═╡ 0000000d-7dd7-4ad6-858a-8eae9f1c36f3
 d = c + 1
+
+# ╔═╡ 207af9a9-5410-474f-bd5b-19ee0d692df5
+@bind response Select(["👍" => "yes", "👎" => "no"])
+
+# ╔═╡ 9c173019-5596-48d5-a636-3db61cc2bd78
+response
 
 # ╔═╡ Cell order:
 # ╠═52ce8ede-93d4-4724-ae7f-7d4cb0d2370a
@@ -47,3 +53,5 @@ d = c + 1
 # ╠═0000000b-1321-4ba0-9642-ce0fd362c618
 # ╠═0000000c-8ead-4ea2-a301-2da990b9c516
 # ╠═0000000d-7dd7-4ad6-858a-8eae9f1c36f3
+# ╠═207af9a9-5410-474f-bd5b-19ee0d692df5
+# ╠═9c173019-5596-48d5-a636-3db61cc2bd78

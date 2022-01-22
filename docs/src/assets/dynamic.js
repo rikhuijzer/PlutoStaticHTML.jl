@@ -108,6 +108,7 @@ async function bindChangeEvent(bindvar) {
     }
 }
 
+// This is to trigger one of the async calls.
 var output = readOutputFromValues('c', ['1', '2']);
 
 addOnInputEvents();

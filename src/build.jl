@@ -166,13 +166,16 @@ function _outcome2html(session, nb::Notebook, in_path, bopts, hopts)::String
         sleep(0.1)
     end
 
+    # Grab output before changing binds via `_run_dynamic!`.
+    # Otherwise, the outputs look wrong when opening a page for the first time.
+    html = notebook2html(nb, in_path, hopts)
+
     if bopts.store_binds
         nbo = _run_dynamic!(nb, session)
         top_dir_name = first(splitext(basename(in_path)))
         output_dir = joinpath(dirname(in_path), top_dir_name)
         _storebinds(output_dir, nbo, hopts)
     end
-    html = notebook2html(nb, in_path, hopts)
     SessionActions.shutdown(session, nb)
 
     _write_html(in_path, html, bopts)

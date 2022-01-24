@@ -41,8 +41,8 @@ Options for `parallel_build`:
 -  `output_format`:
     What file to write the output to.
     By default this is `html_output::OutputFormat` meaning that the output of the HTML method is pure HTML.
-    To generate Franklin or Documenter files, use `franklin_output` or `documenter_output`.
-    In both cases when `BuildOptions.write_files == true`, the output file has a ".md" extension instead of ".html".
+    To generate Franklin or files, use `franklin_output`.
+    When `BuildOptions.write_files == true` and `output_format != html_output`, the output file has a ".md" extension instead of ".html".
 - `use_distributed`:
     Whether to build the notebooks in different processes.
     By default, this is enabled just like in Pluto and the notebooks are build in parallel.

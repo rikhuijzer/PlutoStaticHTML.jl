@@ -20,6 +20,7 @@ const IMAGEMIME = Union{
         output_pre_class::AbstractString="documenter-example-output",
         hide_code::Bool=false,
         hide_md_code::Bool=true,
+        hide_md_def_code::Bool=true,
         add_state::Bool=true,
         append_build_context::Bool=false,
         compiler_options::Union{Nothing,CompilerOptions}=nothing
@@ -40,6 +41,8 @@ Options for `notebook2html`:
     Can be useful when readers are not interested in code at all.
 - `hide_md_code`:
     Whether to omit all Markdown code blocks.
+- `hide_md_def_code`:
+    Whether to omit Franklin Markdown definition code blocks (blocks surrounded by +++).
 - `add_state`:
     Whether to add a comment in HTML with the state of the input notebook.
     This state can be used for caching.
@@ -59,6 +62,7 @@ struct HTMLOptions
     output_class::String
     hide_code::Bool
     hide_md_code::Bool
+    hide_md_def_code::Bool
     add_state::Bool
     append_build_context::Bool
     compiler_options::Union{Nothing,CompilerOptions}
@@ -69,6 +73,7 @@ struct HTMLOptions
         output_class::AbstractString="code-output",
         hide_code::Bool=false,
         hide_md_code::Bool=true,
+        hide_md_def_code::Bool=true,
         add_state::Bool=true,
         append_build_context::Bool=false,
         compiler_options::Union{Nothing,CompilerOptions}=nothing
@@ -79,6 +84,7 @@ struct HTMLOptions
             string(output_class)::String,
             hide_code,
             hide_md_code,
+            hide_md_def_code,
             add_state,
             append_build_context,
             compiler_options
@@ -112,7 +118,7 @@ function output_block(s; class="code-output", pre_class="pre-class", var="")
         return ""
     end
     id = var == "" ? "" : "id='var-$var'"
-    return """<pre $id class='$pre_class'><code class='$class'>$s</code></pre>"""
+    return "<pre $id class='$pre_class'><code class='$class'>$s</code></pre>"
 end
 
 function _code2html(code::AbstractString, hopts::HTMLOptions)
@@ -121,6 +127,12 @@ function _code2html(code::AbstractString, hopts::HTMLOptions)
     end
     if hopts.hide_md_code && startswith(code, "md\"")
         return ""
+    end
+    if hopts.hide_md_def_code
+        lstripped = lstrip(code, ['\"', ' ', '\n', '\r'])
+        if startswith(lstripped, "+++")
+            return ""
+        end
     end
     if contains(code, "# hideall")
         return ""
@@ -271,6 +283,11 @@ end
 
 function _output2html(cell::Cell, ::MIME"text/plain", hopts)
     var = _var(cell)
+    body = cell.output.body
+    if hopts.hide_md_def_code && startswith(body, "+++")
+        # Go back into Markdown mode instead of HTML
+        return string("~~~\n", body, "\n~~~")
+    end
     output_block(cell.output.body; var)
 end
 _output2html(cell::Cell, ::MIME"text/html", hopts) = cell.output.body
@@ -339,18 +356,18 @@ isready(nb::Notebook) = nb.process_status == "ready"
 Return the code and output as HTML for `nb`.
 Assumes that the notebook has already been executed.
 """
-function notebook2html(nb::Notebook, path, opts::HTMLOptions=HTMLOptions())::String
+function notebook2html(nb::Notebook, path, hopts::HTMLOptions=HTMLOptions())::String
     @assert isready(nb)
     order = nb.cell_order
     outputs = map(order) do cell_uuid
         cell = nb.cells_dict[cell_uuid]
-        _cell2html(cell, opts)
+        _cell2html(cell, hopts)
     end
     html = join(outputs, '\n')
-    if opts.add_state && !isnothing(path)
+    if hopts.add_state && !isnothing(path)
         html = string(path2state(path)) * html
     end
-    if opts.append_build_context
+    if hopts.append_build_context
         html = html * _context(nb)
     end
     html = string(BEGIN_IDENTIFIER, '\n', html, '\n', END_IDENTIFIER)::String

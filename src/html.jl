@@ -105,12 +105,12 @@ function _escape_html(s::AbstractString)
     return s
 end
 
-function code_block(code; code_class="language-julia")
+function code_block(code; pre_class="language-julia", code_class="")
     if code == ""
         return ""
     end
     code = _escape_html(code)
-    return """<pre><code class="$code_class">$code</code></pre>"""
+    return "<pre class='$pre_class'><code class='$code_class'>$code</code></pre>"
 end
 
 function output_block(s; class="code-output", pre_class="pre-class", var="")

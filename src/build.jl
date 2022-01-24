@@ -10,11 +10,17 @@ function nothingstring(x::Union{Nothing,AbstractString})::Union{Nothing,String}
     return x isa Nothing ? x : string(x)::String
 end
 
+@enum OutputFormat begin
+    franklin_output
+    html_output
+end
+
 """
     BuildOptions(
         dir::AbstractString;
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
+        output_format::OutputFormat=html_output,
         use_distributed::Bool=true,
         store_binds::Bool=false
     )
@@ -23,7 +29,7 @@ Options for `parallel_build`:
 
 - `dir`:
     Directory in which the Pluto notebooks are stored.
-- `write_files::Bool=true`:
+- `write_files`:
     Write files to `joinpath(dir, "\$file.html")`.
 - `previous_dir::Union{Nothing,AbstractString}=Nothing`:
     Use the output from the previous run as a cache to speed up running time.
@@ -32,7 +38,12 @@ Options for `parallel_build`:
     The output from the previous run may be embedded in a larger HTML web page.
     This package will extract the original output from the full HTML web page.
     By default, caching is disabled.
-- `use_distributed::Bool=true`:
+-  `output_format`:
+    What file to write the output to.
+    By default this is `html_output::OutputFormat` meaning that the output of the HTML method is pure HTML.
+    To generate Franklin or Documenter files, use `franklin_output` or `documenter_output`.
+    In both cases when `BuildOptions.write_files == true`, the output file has a ".md" extension instead of ".html".
+- `use_distributed`:
     Whether to build the notebooks in different processes.
     By default, this is enabled just like in Pluto and the notebooks are build in parallel.
     The benefit of different processes is that things are more independent of each other.
@@ -51,6 +62,7 @@ struct BuildOptions
     dir::String
     write_files::Bool
     previous_dir::Union{Nothing,String}
+    output_format::OutputFormat
     use_distributed::Bool
     store_binds::Bool
 
@@ -58,6 +70,7 @@ struct BuildOptions
         dir::AbstractString;
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
+        output_format::OutputFormat=html_output,
         use_distributed::Bool=true,
         store_binds::Bool=false
     )
@@ -65,6 +78,7 @@ struct BuildOptions
             string(dir)::String,
             write_files,
             nothingstring(previous_dir),
+            output_format,
             use_distributed,
             store_binds
         )
@@ -142,13 +156,17 @@ function reuse_previous_html(previous::Previous, dir, in_file)::Bool
     return reuse
 end
 
-"Write `html` to a file which is a sibling to `in_path`."
-function _write_html(in_path, html, bopts::BuildOptions)
+"""
+Write to a ".html" or ".md" file depending on `HTMLOptions.output_format`.
+The output file is always a sibling to `in_path`.
+"""
+function _write_main_output(in_path, html, bopts::BuildOptions, hopts::HTMLOptions)
+    ext = bopts.output_format == html_output ? ".html" : ".md"
     if bopts.write_files
         dir = dirname(in_path)
         in_file = basename(in_path)
         without_extension, _ = splitext(in_file)
-        out_file = "$(without_extension).html"
+        out_file = "$(without_extension)$(ext)"
         out_path = joinpath(dir, out_file)
         write(out_path, html)
     end
@@ -157,7 +175,7 @@ end
 
 function _outcome2html(session, prev::Previous, in_path, bopts, hopts)::String
     html = prev.html
-    _write_html(in_path, html, bopts)
+    _write_main_output(in_path, html, bopts, hopts)
     return html
 end
 
@@ -188,10 +206,13 @@ function _outcome2html(session, nb::Notebook, in_path, bopts, hopts)::String
             </script>
             """
         html = _inject_script(html, script)
+        if bopts.output_format == franklin_output
+            html = "~~~\n$(html)\n~~~"
+        end
     end
     SessionActions.shutdown(session, nb)
 
-    _write_html(in_path, html, bopts)
+    _write_main_output(in_path, html, bopts, hopts)
     return string(html)::String
 end
 

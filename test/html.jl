@@ -13,7 +13,7 @@
     end
 end
 
-@testset "html" begin
+@testset "contains" begin
     html = "<b>foo</b>"
     block = PlutoStaticHTML.code_block(html)
     @test contains(block, "&lt;b&gt;foo&lt;/b&gt;")

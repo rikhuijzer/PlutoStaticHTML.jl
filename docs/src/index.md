@@ -214,6 +214,7 @@ Note that Pluto.jl runs MathJax by default which might sometimes cause inconsist
 ## API
 
 ```@docs
+OutputFormat
 HTMLOptions
 BuildOptions
 parallel_build

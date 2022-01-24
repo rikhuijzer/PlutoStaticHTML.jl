@@ -26,7 +26,7 @@ DataFrame(A = [1, 2], B = [3, 4], C = ["some", "text"])
 md"""
 ## Math
 
-Inline and display math should work too.
+Using inline and display math is possible too.
 For example, $x = 3\pi$ and
 
 ```math

@@ -10,7 +10,7 @@ function _direct_dependencies(notebook::Notebook)::String
     filter!(p -> !isnothing(p.version), deps)
     list = ["$(p.name) $(p.version)" for p in deps]
     sort!(list)
-    return join(list, '\n')
+    return join(list, "<br>\n")
 end
 
 function _direct_dependencies(notebook::AbstractString)
@@ -28,8 +28,6 @@ function _context(notebook::Notebook)::String
         <h2>Version</h2>
 
         <p>Built with Julia $VERSION and</p>
-        <pre class="context">
-        $deps
-        </pre>
+        <p>$deps</p>
         """
 end

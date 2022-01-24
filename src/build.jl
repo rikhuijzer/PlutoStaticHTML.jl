@@ -162,7 +162,9 @@ function _outcome2html(session, prev::Previous, in_path, bopts, hopts)::String
 end
 
 function _inject_script(html, script)
-    return html * script
+    l = length(END_IDENTIFIER)
+    without_end = html[1:end-l]
+    return string(without_end, '\n', script, '\n', END_IDENTIFIER)
 end
 
 function _outcome2html(session, nb::Notebook, in_path, bopts, hopts)::String
@@ -180,10 +182,9 @@ function _outcome2html(session, nb::Notebook, in_path, bopts, hopts)::String
         output_dir = joinpath(dirname(in_path), top_dir_name)
         _storebinds(output_dir, nbo, hopts)
 
-        script_content = read(JS_PATH, String)
         script = """
             <script type='text/javascript'>
-                $script_content
+                $DYNAMIC_JS
             </script>
             """
         html = _inject_script(html, script)

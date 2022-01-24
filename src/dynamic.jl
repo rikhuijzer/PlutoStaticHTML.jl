@@ -323,11 +323,9 @@ function __build()
     htmls = parallel_build(bopts, [file], hopts)
     html = only(htmls)
 
-    # This file should be stand-alone and only be pointed to the index.
-    script_content = read(JS_PATH, String)
     script = """
         <script type='text/javascript'>
-            $script_content
+            $DYNAMIC_JS
         </script>
         """
 

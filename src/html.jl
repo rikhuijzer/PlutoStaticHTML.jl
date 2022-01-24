@@ -248,7 +248,9 @@ function _var(cell::Cell)::Symbol
         mapping = cell.cell_dependencies.downstream_cells_map
         K = keys(mapping)
         if isempty(K)
-            return :unknown
+            h = hash(cell.code)
+            # This is used when storing binds to give it reproducible name.
+            return Symbol(first(string("var", h), 10))
         end
         # `only` cannot be used because loading packages can give multiple keys.
         return first(K)

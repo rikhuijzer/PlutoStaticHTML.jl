@@ -29,6 +29,8 @@ using Pluto:
 using SHA: sha256
 using TOML: parse as parsetoml
 
+const DYNAMIC_JS = read(joinpath(@__DIR__, "dynamic.js"), String)
+
 include("module_doc.jl")
 include("context.jl")
 include("cache.jl")

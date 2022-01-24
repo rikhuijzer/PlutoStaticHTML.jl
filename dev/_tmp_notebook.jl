@@ -42,7 +42,7 @@ DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 
 [compat]
 CairoMakie = "~0.7.1"
-DataFrames = "~1.3.1"
+DataFrames = "~1.3.2"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -198,9 +198,9 @@ version = "1.9.0"
 
 [[DataFrames]]
 deps = ["Compat", "DataAPI", "Future", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrettyTables", "Printf", "REPL", "Reexport", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
-git-tree-sha1 = "cfdfef912b7f93e4b848e80b9befdf9e331bc05a"
+git-tree-sha1 = "ae02104e835f219b8930c7664b8012c93475c340"
 uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-version = "1.3.1"
+version = "1.3.2"
 
 [[DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
@@ -1148,9 +1148,9 @@ version = "1.8.6+1"
 
 [[libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
-git-tree-sha1 = "c45f4e40e7aafe9d086379e5578947ec8b95a8fb"
+git-tree-sha1 = "b910cb81ef3fe6e78bf6acee440bda86fd6ae00c"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
-version = "1.3.7+0"
+version = "1.3.7+1"
 
 [[nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]

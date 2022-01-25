@@ -118,3 +118,18 @@ end
     nb = Notebook([Cell("@assert false")])
     @test_throws Exception run_notebook!(nb, session)
 end
+
+@testset "_var" begin
+    session = ServerSession()
+
+    nb = Notebook([
+        Cell("a = 1"),
+        Cell("b = a + 1")
+    ])
+    # This is required for _var.
+    run_notebook!(nb, session)
+
+    @test PlutoStaticHTML._var(nb.cells[1]) == :a
+    @test PlutoStaticHTML._var(nb.cells[2]) == :b
+end
+

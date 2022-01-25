@@ -253,7 +253,12 @@ function _clean_tree(parent, elements, T)
     return string(elements)::String
 end
 
-"Variable which is set by `cell`."
+"""
+    _var(cell::Cell)::Symbol
+
+Return the variable which is set by `cell`.
+This method requires that the notebook to be executed be able to give the right results.
+"""
 function _var(cell::Cell)::Symbol
     ra = cell.output.rootassignee
     if isnothing(ra)
@@ -262,7 +267,7 @@ function _var(cell::Cell)::Symbol
         if isempty(K)
             h = hash(cell.code)
             # This is used when storing binds to give it reproducible name.
-            return Symbol(first(string("var", h), 10))
+            return Symbol(first(string("hash", h), 10))
         end
         # `only` cannot be used because loading packages can give multiple keys.
         return first(K)

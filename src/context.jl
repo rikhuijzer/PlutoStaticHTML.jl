@@ -25,9 +25,9 @@ Return build context, such as the Julia version and package versions, for `noteb
 function _context(notebook::Notebook)::String
     deps = _direct_dependencies(notebook)
     return """
-        <h2>Version</h2>
-
+        <div class='manifest-versions'>
         <p>Built with Julia $VERSION and</p>
-        <p>$deps</p>
+        $deps
+        </div>
         """
 end

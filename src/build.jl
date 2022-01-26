@@ -21,8 +21,7 @@ end
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
         output_format::OutputFormat=html_output,
-        use_distributed::Bool=true,
-        store_binds::Bool=false
+        use_distributed::Bool=true
     )
 
 Options for `parallel_build`:
@@ -51,12 +50,6 @@ Options for `parallel_build`:
     By setting this option to `false`, all notebooks are built sequentially in the same process which avoids recompilation.
     This is likely quicker in situations where there are few threads available such as GitHub Runners depending on the notebook contents.
     Beware that `use_distributed=false` will not work with Pluto's built-in package manager.
-- `store_binds::Bool=false`:
-    Store outputs for all possible combinations of bind values.
-    *Highly experimental feature which may be removed at any time.*
-- `max_stored_binds::Int=1_000`:
-    Maximum number of bind outputs to store.
-    Most repositories and static site hosters should easily be able to handle 10k files or more, but a default of 1k seems reasonable.
 """
 struct BuildOptions
     dir::String
@@ -64,23 +57,20 @@ struct BuildOptions
     previous_dir::Union{Nothing,String}
     output_format::OutputFormat
     use_distributed::Bool
-    store_binds::Bool
 
     function BuildOptions(
         dir::AbstractString;
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
         output_format::OutputFormat=html_output,
-        use_distributed::Bool=true,
-        store_binds::Bool=false
+        use_distributed::Bool=true
     )
         return new(
             string(dir)::String,
             write_files,
             nothingstring(previous_dir),
             output_format,
-            use_distributed,
-            store_binds
+            use_distributed
         )
     end
 end
@@ -194,22 +184,6 @@ function _outcome2html(session, nb::Notebook, in_path, bopts, hopts)::String
     # Otherwise, the outputs look wrong when opening a page for the first time.
     html = notebook2html(nb, in_path, hopts)
 
-    if bopts.store_binds
-        nbo = _run_dynamic!(nb, session)
-        top_dir_name = first(splitext(basename(in_path)))
-        output_dir = joinpath(dirname(in_path), top_dir_name)
-        _storebinds(output_dir, nbo, hopts)
-
-        script = """
-            <script type='text/javascript'>
-                $DYNAMIC_JS
-            </script>
-            """
-        html = _inject_script(html, script)
-        if bopts.output_format == franklin_output
-            html = "~~~\n$(html)\n~~~"
-        end
-    end
     SessionActions.shutdown(session, nb)
 
     _write_main_output(in_path, html, bopts, hopts)

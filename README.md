@@ -6,7 +6,11 @@
 [![Docs stable][docs-stable-img]][docs-stable-url]
 [![Docs dev][docs-dev-img]][docs-dev-url]
 
-A [Julia package](https://julialang.org/) to convert [Pluto notebooks](https://github.com/fonsp/Pluto.jl) to static HTML. Unlike [PlutoSliderServer](https://github.com/JuliaPluto/PlutoSliderServer.jl), the HTML files generated using PlutoStaticHTML are very minimal, and do not require JavaScript on the user side to render. This also makes it easier to style the output using CSS.
+A [Julia package](https://julialang.org/) to convert [Pluto notebooks](https://github.com/fonsp/Pluto.jl) to static HTML.
+Unlike [PlutoSliderServer](https://github.com/JuliaPluto/PlutoSliderServer.jl), the HTML files generated using PlutoStaticHTML are very minimal, and do not require JavaScript on the user side to render.
+This makes it easier to style the output using CSS.
+For example, with this package it is possible to create a website full with plots generated in Julia and all code hidden.
+In effect, no one would be able to tell that the website was built with Julia.
 
 ## Automated builds
 

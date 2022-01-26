@@ -32,10 +32,10 @@ Options for `parallel_build`:
     Write files to `joinpath(dir, "\$file.html")`.
 - `previous_dir::Union{Nothing,AbstractString}=Nothing`:
     Use the output from the previous run as a cache to speed up running time.
-    To use the cache, specify a directory `previous_dir::AbstractString` which contains HTML files from a previous run.
+    To use the cache, specify a directory `previous_dir::AbstractString` which contains HTML or Markdown files from a previous run.
     Specifically, files are expected to be at `joinpath(previous_dir, "\$file.html")`.
-    The output from the previous run may be embedded in a larger HTML web page.
-    This package will extract the original output from the full HTML web page.
+    The output from the previous run may be embedded in a larger HTML or Markdown file.
+    This package will extract the original output from the full file contents.
     By default, caching is disabled.
 -  `output_format`:
     What file to write the output to.
@@ -102,21 +102,23 @@ end
     Previous(state::State, html::String)
 
 - `state`: Previous state.
-- `html`: HTML starting with "$BEGIN_IDENTIFIER" and ending with "$END_IDENTIFIER".
+- `text`: Either
+    - HTML starting with "$BEGIN_IDENTIFIER" and ending with "$END_IDENTIFIER" or
+    - Contents of a Franklin/Documenter Markdown file.
 """
 struct Previous
     state::Union{State,Nothing}
-    html::String
+    text::String
 end
 
-function Previous(html::String)
-    state = contains(html, STATE_IDENTIFIER) ?
-        extract_state(html) :
+function Previous(text::String)
+    state = contains(text, STATE_IDENTIFIER) ?
+        extract_state(text) :
         nothing
-    html = contains(html, BEGIN_IDENTIFIER) ?
-        extract_previous_output(html) :
+    html = contains(text, BEGIN_IDENTIFIER) ?
+        extract_previous_output(text) :
         ""
-    return Previous(state, html)
+    return Previous(state, text)
 end
 
 function Previous(bopts::BuildOptions, in_file)
@@ -125,15 +127,16 @@ function Previous(bopts::BuildOptions, in_file)
         return Previous(nothing, "")
     end
     name, _ = splitext(in_file)
-    prev_path = joinpath(prev_dir, "$name.html")
+    ext = bopts.output_format == html_output ? ".html" : ".md"
+    prev_path = joinpath(prev_dir, "$name$ext")
     if !isfile(prev_path)
         return Previous(nothing, "")
     end
-    html = read(prev_path, String)
-    return Previous(html)
+    text = read(prev_path, String)
+    return Previous(text)
 end
 
-function reuse_previous_html(previous::Previous, dir, in_file)::Bool
+function reuse_previous(previous::Previous, dir, in_file)::Bool
     in_path = joinpath(dir, in_file)
     curr = path2state(in_path)
 
@@ -148,7 +151,7 @@ end
 
 """
 Write to a ".html" or ".md" file depending on `HTMLOptions.output_format`.
-The output file is always a sibling to `in_path`.
+The output file is always a sibling to the file at `in_path`.
 """
 function _write_main_output(in_path, html, bopts::BuildOptions, hopts::HTMLOptions)
     ext = bopts.output_format == html_output ? ".html" : ".md"
@@ -163,10 +166,10 @@ function _write_main_output(in_path, html, bopts::BuildOptions, hopts::HTMLOptio
     return nothing
 end
 
-function _outcome2html(session, prev::Previous, in_path, bopts, hopts)::String
-    html = prev.html
-    _write_main_output(in_path, html, bopts, hopts)
-    return html
+function _outcome2text(session, prev::Previous, in_path, bopts, hopts)::String
+    text = prev.text
+    _write_main_output(in_path, text, bopts, hopts)
+    return text
 end
 
 function _inject_script(html, script)
@@ -175,7 +178,7 @@ function _inject_script(html, script)
     return string(without_end, '\n', script, '\n', END_IDENTIFIER)
 end
 
-function _outcome2html(session, nb::Notebook, in_path, bopts, hopts)::String
+function _outcome2text(session, nb::Notebook, in_path, bopts, hopts)::String
     while !_notebook_done(nb)
         sleep(0.1)
     end
@@ -213,14 +216,13 @@ function parallel_build(
 
     dir = bopts.dir
 
-
     # Start all the notebooks in parallel with async enabled if `use_distributed`.
     X = map(files) do in_file
         in_path = joinpath(dir, in_file)
         @assert isfile(in_path) "Expected .jl file at $in_path"
 
         previous = Previous(bopts, in_file)
-        if reuse_previous_html(previous, bopts.dir, in_file)
+        if reuse_previous(previous, dir, in_file)
             @info "Using cache for Pluto notebook at $in_file"
             return previous
         else
@@ -232,8 +234,7 @@ function parallel_build(
                 return nb
             else
                 nb = _load_notebook(in_path; compiler_options)
-                options = Pluto.Configuration.from_flat_kwargs(; workspace_use_distributed=false)
-                session.options = options
+                session.options.evaluation.workspace_use_distributed = false
                 session.options.server.disable_writing_notebook_files = true
                 run_notebook!(nb, session)
                 return nb
@@ -243,7 +244,7 @@ function parallel_build(
 
     H = map(zip(files, X)) do (in_file, x)
         in_path = joinpath(dir, in_file)
-        html = _outcome2html(session, x, in_path, bopts, hopts)
+        html = _outcome2text(session, x, in_path, bopts, hopts)
         return html
     end
 

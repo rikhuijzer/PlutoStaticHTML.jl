@@ -186,6 +186,10 @@ function _outcome2html(session, nb::Notebook, in_path, bopts, hopts)::String
 
     SessionActions.shutdown(session, nb)
 
+    if bopts.output_format == franklin_output
+        html = "~~~\n$(html)\n~~~"
+    end
+
     _write_main_output(in_path, html, bopts, hopts)
     return string(html)::String
 end

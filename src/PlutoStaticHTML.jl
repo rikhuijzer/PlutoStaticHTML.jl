@@ -29,16 +29,11 @@ using Pluto:
 using SHA: sha256
 using TOML: parse as parsetoml
 
-const DYNAMIC_JS = read(joinpath(@__DIR__, "dynamic.js"), String)
-
 include("module_doc.jl")
 include("context.jl")
 include("cache.jl")
 include("html.jl")
 include("build.jl")
-include("possibilities.jl")
-include("dynamic.jl")
-include("storebinds.jl")
 
 export HTMLOptions, notebook2html, run_notebook!
 export franklin_output, html_output

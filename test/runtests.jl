@@ -9,10 +9,3 @@ end
 
 include("build.jl")
 
-@testset "possibilities" begin
-    include("possibilities.jl")
-end
-
-@testset "dynamic" begin
-    include("dynamic.jl")
-end

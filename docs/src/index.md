@@ -9,8 +9,6 @@ Typically, converting Pluto notebooks to HTML is useful for things like
 - blogs
 - documentation
 
-, it is possible to show Julia generated output without 
-
 This package is used for the tutorials at [TuringGLM.jl](https://turinglang.github.io/TuringGLM.jl/dev/tutorials/linear_regression/).
 Also, I'm using this package for my own blog, for example: <https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/>.
 

@@ -1,17 +1,24 @@
 # PlutoStaticHTML
 
 Convert Pluto notebooks to pure HTML (without Javascript).
-Small discussion with Fons van der Plas at <https://github.com/fonsp/Pluto.jl/discussions/1607>.
+The benefit of this is that it can easily be styled via CSS.
+Also, it is possible to zero or more code blocks making it easy to show Julia generated output without showing code.
+Typically, converting Pluto notebooks to HTML is useful for things like
 
-I'm using this package for my own blog, for example: <https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/>.
-A link to the notebook is at the bottom of the page.
+- tutorials (a ready-to-use template can be found at <https://rikhuijzer.github.io/JuliaTutorialsTemplate/>)
+- blogs
+- documentation
+
+This package is used for the tutorials at [TuringGLM.jl](https://turinglang.github.io/TuringGLM.jl/dev/tutorials/linear_regression/).
+Also, I'm using this package for my own blog, for example: <https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/>.
+
+## API overview
 
 The most important methods are `notebook2html` or `parallel_build` ([API](@ref)).
 
 !!! note
-    `notebook2html` and `parallel_build` evaluate notebooks **after** copying your notebooks.
-    This ensures that the original notebook will not be changed.
-    The copied notebook will be placed in the same folder so that `@__DIR__` can be used to locate files relative to the notebook path.
+    `notebook2html` and `parallel_build` ensure that the original notebook will not be changed.
+    The notebook will be copied and placed in the same folder so that `@__DIR__` can be used to locate files relative to the notebook path.
     Add `**/_tmp_*` to your `.gitignore` to ignore the temporary copies.
 
 ### notebook2html
@@ -48,62 +55,16 @@ are listed below.
 To see how to embed output from a Pluto notebook in Documenter.jl, checkout "make.jl" in this repository.
 
 !!! warn
-    It is typically not a good idea to call the conversion from inside `Documenter.jl`.
+    It is typically not a good idea to call the conversion from inside a Documenter.jl code block.
     For some reason, that is likely to freeze or hang; probably due to `stdout` being flooded with information or something.
+    To avoid this, generate documents via `docs/make.jl` and import those in Documenter.jl.
 
 ## Franklin.jl
 
-See the next section for a parallel version.
-In `utils.jl` define:
-
-    """
-        lx_pluto(com, _)
-
-    Embed a Pluto notebook via:
-    https://github.com/rikhuijzer/PlutoStaticHTML.jl
-    """
-    function lx_pluto(com, _)
-        file = string(Franklin.content(com.braces[1]))::String
-        notebook_path = joinpath("posts", "notebooks", "$file.jl")
-        log_path = joinpath("posts", "notebooks", "$file.log")
-
-        return """
-            ```julia:pluto
-            # hideall
-
-            using PlutoStaticHTML: notebook2html
-
-            path = "$notebook_path"
-            log_path = "$log_path"
-            @assert isfile(path)
-            @info "→ evaluating Pluto notebook at (\$path)"
-            html = open(log_path, "w") do io
-                redirect_stdout(io) do
-                    html = notebook2html(path)
-                    return html
-                end
-            end
-            println("~~~\n\$html\n~~~\n")
-            ```
-            \\textoutput{pluto}
-            """
-    end
-
-Next, the Pluto notebook at "/posts/notebooks/analysis.jl" can be included in a Franklin webpage.
-For example:
-
-```markdown
-+++
-title = "My analysis"
-+++
-
-\pluto{analysis}
-```
+See the template at <https://rikhuijzer.github.io/JuliaTutorialsTemplate/>.
 
 ## Parallel build
 
-The approach above lets Franklin.jl handle the build.
-This doesn't work in parallel.
 To speed up the build, this package defines `parallel_build`.
 `parallel_build` evaluates the notebooks in parallel by default.
 Also, it can use [Caching](@ref) to speed up the build even more.
@@ -128,42 +89,6 @@ julia> parallel_build(BuildOptions(dir), files)
 ```
 
 In CI, be sure to call this before using Franklin `serve` or `optimize`.
-Next, read the HTML back into Franklin by defining in `utils.jl`:
-
-    """
-        lx_readhtml(com, _)
-
-    Embed a Pluto notebook via:
-    https://github.com/rikhuijzer/PlutoStaticHTML.jl
-    """
-    function lx_readhtml(com, _)
-        file = string(Franklin.content(com.braces[1]))::String
-        dir = joinpath("posts", "notebooks")
-        filename = "$(file).jl"
-
-        return """
-            ```julia:pluto
-            # hideall
-
-            filename = "$filename"
-            html = read(filename, String)
-            println("~~~\n\$html\n~~~\n")
-            ```
-            \\textoutput{pluto}
-            """
-    end
-
-and calling this from Franklin.
-For example:
-
-```
-+++
-title = "My analysis"
-reeval = true
-+++
-
-\readhtml{analysis}
-```
 
 ### Caching
 
@@ -188,28 +113,9 @@ Then, `parallel_build` will, for each input file `file.jl`, check:
 
 ## LaTeX equations
 
-With Franklin.jl, update `foot_katex.html` to include:
-
-```javascript
-<script>
-  const options = {
-    delimiters: [
-      {left: "$$", right: "$$", display: true},
-      {left: "$", right: "$", display: false},
-      {left: "\\begin{equation}", right: "\\end{equation}", display: true},
-      {left: "\\begin{align}", right: "\\end{align}", display: true},
-      {left: "\\begin{alignat}", right: "\\end{alignat}", display: true},
-      {left: "\\begin{gather}", right: "\\end{gather}", display: true},
-      {left: "\\(", right: "\\)", display: false},
-      {left: "\\[", right: "\\]", display: true}
-    ]
-  };
-  renderMathInElement(document.body, options);
-</script>
-```
-
-which basically ensures that inline math surrounded by single dollar symbols is also rendered.
-Note that Pluto.jl runs MathJax by default which might sometimes cause inconsistencies between the math in Pluto and inside your HTML.
+Pluto uses MathJax by default, so make sure to setup MathJax in Franklin or Documenter.
+For Franklin, see <https://rikhuijzer.github.io/JuliaTutorialsTemplate/>.
+For Documenter, see `docs/make.jl` in this repository.
 
 ## API
 

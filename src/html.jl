@@ -293,9 +293,17 @@ function _output2html(cell::Cell, ::MIME"text/plain", hopts)
         # Go back into Markdown mode instead of HTML
         return string("~~~\n", body, "\n~~~")
     end
-    output_block(cell.output.body; var)
+    output_block(body; var)
 end
-_output2html(cell::Cell, ::MIME"text/html", hopts) = cell.output.body
+function _output2html(cell::Cell, ::MIME"text/html", hopts)
+    body = cell.output.body
+    # The docstring is already visible in Markdown and shouldn't be shown below the code.
+    if startswith(body, """<div class="pluto-docs-binding">""")
+        return ""
+    else
+        return body
+    end
+end
 _output2html(cell::Cell, T::MIME, hopts) = error("Unknown type: $T")
 
 function _cell2html(cell::Cell, hopts::HTMLOptions)

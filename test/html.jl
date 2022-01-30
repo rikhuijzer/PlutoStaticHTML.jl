@@ -133,3 +133,15 @@ end
     @test PlutoStaticHTML._var(nb.cells[2]) == :b
 end
 
+@testset "pluto-docs-binding" begin
+    text = """
+        "This is a docstring"
+        foo(x) = x
+        """
+    nb = Notebook([
+        Cell(text),
+    ])
+    html = notebook2html_helper(nb)
+
+    @test !contains(html, "pluto-docs-binding")
+end

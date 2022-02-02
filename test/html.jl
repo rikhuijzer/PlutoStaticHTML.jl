@@ -95,13 +95,13 @@ end
 end
 
 @testset "run_notebook!_errors" begin
-    session = ServerSession()
-
-    nb = Notebook([Cell("@assert true")])
-    PlutoStaticHTML.run_notebook!(nb, session)
-
-    nb = Notebook([Cell("@assert false")])
-    @test_throws Exception PlutoStaticHTML.run_notebook!(nb, session)
+    mktempdir() do dir
+        text = pluto_notebook_content("@assert false")
+        path = joinpath(dir, "notebook.jl")
+        write(path, text)
+        session = ServerSession()
+        @test_throws Exception PlutoStaticHTML.run_notebook!(path, session)
+    end
 end
 
 @testset "_var" begin

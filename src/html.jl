@@ -364,6 +364,24 @@ end
 
 const TMP_COPY_PREFIX = "_tmp_"
 
+function _throw_if_error(nb::Notebook)
+    cells = [nb.cells_dict[cell_uuid] for cell_uuid in nb.cell_order]
+    for cell in cells
+        if cell.errored
+            body = cell.output.body
+            msg = body[:msg]
+            stacktrace = body[:stacktrace]
+            msg = """
+                $msg
+                Details:
+                $stacktrace
+                """
+            error(msg)
+        end
+    end
+    return nothing
+end
+
 function run_notebook!(
         path::AbstractString,
         session;
@@ -373,6 +391,9 @@ function run_notebook!(
     session.options.server.disable_writing_notebook_files = true
     compiler_options = hopts.compiler_options
     nb = SessionActions.open(session, path; compiler_options, run_async)
+    if !run_async
+        _throw_if_error(nb)
+    end
     return nb
 end
 

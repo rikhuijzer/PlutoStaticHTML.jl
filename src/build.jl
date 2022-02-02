@@ -227,18 +227,15 @@ function parallel_build(
             return previous
         else
             @info "Starting evaluation of Pluto notebook $in_file"
-            compiler_options = hopts.compiler_options
             if bopts.use_distributed
-                tmp_path = _tmp_copy(in_path)
-                nb = SessionActions.open(session, tmp_path; compiler_options, run_async=true)
-                return nb
+                run_async = true
             else
-                nb = _load_notebook(in_path; compiler_options)
+                run_async = false
+                # `use_distributed` means mostly "whether to run in a new process".
                 session.options.evaluation.workspace_use_distributed = false
-                session.options.server.disable_writing_notebook_files = true
-                run_notebook!(nb, session)
-                return nb
             end
+            nb = run_notebook!(in_path, session; hopts, run_async)
+            return nb
         end
     end
 

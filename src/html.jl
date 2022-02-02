@@ -150,10 +150,6 @@ function _output2html(cell::Cell, T::IMAGEMIME, hopts)
     return """<img src="$uri">"""
 end
 
-function _output2html(cell::Cell, ::MIME"application/vnd.pluto.stacktrace+object", hopts)
-    return error(cell.output.body)
-end
-
 function _tr_wrap(elements::Vector)
     joined = join(elements, '\n')
     return "<tr>\n$joined\n</tr>"
@@ -276,6 +272,20 @@ function _var(cell::Cell)::Symbol
     end
 end
 
+"When this cell is added to a notebook, it will disable Pluto's tree viewer."
+function disable_tree_viewer_cell()::Cell
+    code = """
+        begin
+            if false
+                # To ensure that this cell runs first.
+                import Pkg
+            end
+            PlutoRunner.use_tree_viewer_for_struct(x) = true
+        end
+        """
+    return Cell(code)
+end
+
 function _output2html(cell::Cell, ::MIME"application/vnd.pluto.tree+object", hopts)
     body = cell.output.body
     T = symbol2type(body[:type])
@@ -304,6 +314,11 @@ function _output2html(cell::Cell, ::MIME"text/html", hopts)
         return body
     end
 end
+
+function _output2html(cell::Cell, ::MIME"application/vnd.pluto.stacktrace+object", hopts)
+    return error(cell.output.body)
+end
+
 _output2html(cell::Cell, T::MIME, hopts) = error("Unknown type: $T")
 
 function _cell2html(cell::Cell, hopts::HTMLOptions)
@@ -330,32 +345,6 @@ end
 function _append_cell!(notebook::Notebook, cells::AbstractVector{Cell})
     foreach(c -> _append_cell!(notebook, c), cells)
     return notebook
-end
-
-"""
-    run_notebook!(nb::Notebook, session)
-
-Run all cells in `nb`.
-Throws an error as soon as a cell fails.
-"""
-function run_notebook!(nb::Notebook, session)
-    cells = [nb.cells_dict[cell_uuid] for cell_uuid in nb.cell_order]
-    for cell in cells
-        update_save_run!(session, nb, cell; run_async=false, save=false)
-        if cell.errored
-            body = cell.output.body
-            msg = body[:msg]
-            stacktrace = body[:stacktrace]
-            msg = """
-                $msg
-
-                Details:
-                $stacktrace
-                """
-            error(msg)
-        end
-    end
-    return nothing
 end
 
 const BEGIN_IDENTIFIER = "<!-- PlutoStaticHTML.Begin -->"
@@ -389,36 +378,15 @@ end
 
 const TMP_COPY_PREFIX = "_tmp_"
 
-"""
-    _tmp_copy(path::AbstractString)
-
-Return the path of a temp copy of the file at `path`.
-This avoids Pluto making changes to the original notebook.
-"""
-function _tmp_copy(path::AbstractString)::String
-    dir = dirname(path)
-    file = basename(path)
-    tmp_path = joinpath(dir, TMP_COPY_PREFIX * file)
-    cp(path, tmp_path; force=true)
-    return tmp_path
-end
-
-"""
-    _load_notebook(
+function run_notebook!(
         path::AbstractString,
-        compiler_options::Union{Nothing,CompilerOptions}=nothing
-    ) -> Notebook
-
-Return the notebook at `path` while ensuring that the file at `path` will not be modified.
-This method only loads the notebook; it doesn't evaluate cells.
-"""
-function _load_notebook(
-        path::AbstractString;
-        compiler_options::Union{Nothing,CompilerOptions}=nothing
-    )::Notebook
-    tmp_path = _tmp_copy(path)
-    nb = load_notebook_nobackup(tmp_path)
-    nb.compiler_options = compiler_options
+        session;
+        hopts::HTMLOptions=HTMLOptions(),
+        run_async=false
+    )
+    session.options.server.disable_writing_notebook_files = true
+    compiler_options = hopts.compiler_options
+    nb = SessionActions.open(session, path; compiler_options, run_async)
     return nb
 end
 
@@ -436,17 +404,14 @@ This makes a copy of the notebook at `path` and runs it.
 Keyword arguments:
 
 - `append_cells`: Specify one or more `Pluto.Cell`s to be appended at the end of the notebook.
-    Be careful when adding new packages via this method because it may disable Pluto.jl's built-in package management.
 """
 function notebook2html(
         path::AbstractString,
-        opts::HTMLOptions=HTMLOptions();
+        hopts::HTMLOptions=HTMLOptions();
         session=ServerSession(),
         append_cells=Cell[],
     )::String
-    nb = _load_notebook(path)
-    PlutoStaticHTML._append_cell!(nb, append_cells)
-    run_notebook!(nb, session)
-    html = notebook2html(nb, path, opts)
+    nb = run_notebook!(path, session; run_async=false, hopts)
+    html = notebook2html(nb, path, hopts)
     return html
 end

@@ -45,7 +45,8 @@ end
         Cell("""["pluto", "tree", "object"]"""),
         Cell("""[1, (2, (3, 4))]""")
     ])
-    html = notebook2html_helper(notebook)
+    append_cells = [PlutoStaticHTML.disable_tree_viewer_cell()]
+    html = notebook2html_helper(notebook; append_cells)
     lines = split(html, '\n')
     @test contains(lines[2], "(\"pluto\", \"tree\", \"object\")")
     @test contains(lines[2], "<pre")

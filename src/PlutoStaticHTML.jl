@@ -36,7 +36,7 @@ include("html.jl")
 include("build.jl")
 
 export HTMLOptions, notebook2html
-export franklin_output, html_output
+export documenter_output, franklin_output, html_output
 export BuildOptions, parallel_build
 export cell2uuid
 

@@ -272,20 +272,6 @@ function _var(cell::Cell)::Symbol
     end
 end
 
-"When this cell is added to a notebook, it will disable Pluto's tree viewer."
-function disable_tree_viewer_cell()::Cell
-    code = """
-        begin
-            if false
-                # To ensure that this cell runs first.
-                import Pkg
-            end
-            PlutoRunner.use_tree_viewer_for_struct(x) = true
-        end
-        """
-    return Cell(code)
-end
-
 function _output2html(cell::Cell, ::MIME"application/vnd.pluto.tree+object", hopts)
     body = cell.output.body
     T = symbol2type(body[:type])

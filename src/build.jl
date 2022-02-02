@@ -11,6 +11,7 @@ function nothingstring(x::Union{Nothing,AbstractString})::Union{Nothing,String}
 end
 
 @enum OutputFormat begin
+    documenter_output
     franklin_output
     html_output
 end
@@ -40,7 +41,7 @@ Options for `parallel_build`:
 -  `output_format`:
     What file to write the output to.
     By default this is `html_output::OutputFormat` meaning that the output of the HTML method is pure HTML.
-    To generate Franklin or files, use `franklin_output`.
+    To generate Franklin or Documenter files, use respectively `franklin_output` or `documenter_output`.
     When `BuildOptions.write_files == true` and `output_format != html_output`, the output file has a ".md" extension instead of ".html".
 - `use_distributed`:
     Whether to build the notebooks in different processes.
@@ -178,6 +179,26 @@ function _inject_script(html, script)
     return string(without_end, '\n', script, '\n', END_IDENTIFIER)
 end
 
+"Add some style overrides to make things a bit prettier and more consistent with Pluto."
+function _add_documenter_style(html)
+    style = """
+        <style>
+            table {
+                display: table !important;
+                margin: 2rem auto !important;
+                border-top: 2pt solid rgba(0,0,0,0.2);
+                border-bottom: 2pt solid rgba(0,0,0,0.2);
+            }
+
+            pre {
+                margin-top: 1.4rem !important;
+                margin-bottom: 1.4rem !important;
+            }
+        </style>
+        """
+    return string(style, '\n', html)
+end
+
 function _outcome2text(session, nb::Notebook, in_path, bopts, hopts)::String
     while !_notebook_done(nb)
         sleep(0.1)
@@ -193,6 +214,11 @@ function _outcome2text(session, nb::Notebook, in_path, bopts, hopts)::String
 
     if bopts.output_format == franklin_output
         html = "~~~\n$(html)\n~~~"
+    end
+
+    if bopts.output_format == documenter_output
+        html = _add_documenter_style(html)
+        html = "```@raw html\n$(html)\n```"
     end
 
     _write_main_output(in_path, html, bopts, hopts)

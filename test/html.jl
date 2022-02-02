@@ -111,8 +111,8 @@ end
         Cell("a = 1"),
         Cell("b = a + 1")
     ])
-    # This is required for _var.
-    PlutoStaticHTML.run_notebook!(nb, session)
+    # Running the notebook is required for _var.
+    notebook2html_helper(nb)
 
     @test PlutoStaticHTML._var(nb.cells[1]) == :a
     @test PlutoStaticHTML._var(nb.cells[2]) == :b

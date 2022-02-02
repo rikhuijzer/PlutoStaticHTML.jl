@@ -39,17 +39,20 @@ function drop_begin_end(html::AbstractString)
     return join(lines[2:end-1], sep)
 end
 
+"Helper function to simply pass a `nb::Notebook` and run it."
 function notebook2html_helper(
-        notebook::Notebook,
+        nb::Notebook,
         opts=HTMLOptions();
         append_cells=Cell[]
     )
     session = ServerSession()
-    PlutoStaticHTML._append_cell!(notebook, append_cells)
-    run_notebook!(notebook, session)
+    PlutoStaticHTML._append_cell!(nb, append_cells)
+    session.notebooks[nb.notebook_id] = nb
+    Pluto.update_save_run!(session, nb, nb.cells)
     path = nothing
-    html = notebook2html(notebook, path, opts)
+    html = notebook2html(nb, path, opts)
 
+    # Remove the caching information because it's not important for most tests.
     has_cache = contains(html, PlutoStaticHTML.STATE_IDENTIFIER)
     without_cache = has_cache ? drop_cache_info(html) : html
 

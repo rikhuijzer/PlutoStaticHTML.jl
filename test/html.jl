@@ -1,18 +1,3 @@
-@testset "tmp_copy" begin
-    dir = mktempdir()
-    cd(dir) do
-        path = joinpath(dir, "notebook.jl")
-        touch(path)
-        @test isfile(path)
-        cp_path = PlutoStaticHTML._tmp_copy(path)
-        @test isfile(cp_path)
-        # Ensure that `@__DIR__` can be used.
-        # https://github.com/rikhuijzer/PlutoStaticHTML.jl/issues/31
-        @test dirname(cp_path) == dir
-        @test basename(cp_path) == "_tmp_notebook.jl"
-    end
-end
-
 @testset "contains" begin
     html = "<b>foo</b>"
     block = PlutoStaticHTML.code_block(html)
@@ -110,13 +95,13 @@ end
 end
 
 @testset "run_notebook!_errors" begin
-    session = ServerSession()
-
-    nb = Notebook([Cell("@assert true")])
-    run_notebook!(nb, session)
-
-    nb = Notebook([Cell("@assert false")])
-    @test_throws Exception run_notebook!(nb, session)
+    mktempdir() do dir
+        text = pluto_notebook_content("@assert false")
+        path = joinpath(dir, "notebook.jl")
+        write(path, text)
+        session = ServerSession()
+        @test_throws Exception PlutoStaticHTML.run_notebook!(path, session)
+    end
 end
 
 @testset "_var" begin
@@ -126,8 +111,8 @@ end
         Cell("a = 1"),
         Cell("b = a + 1")
     ])
-    # This is required for _var.
-    run_notebook!(nb, session)
+    # Running the notebook is required for _var.
+    notebook2html_helper(nb)
 
     @test PlutoStaticHTML._var(nb.cells[1]) == :a
     @test PlutoStaticHTML._var(nb.cells[2]) == :b

@@ -190,7 +190,7 @@ function _add_documenter_style(html)
                 border-bottom: 2pt solid rgba(0,0,0,0.2);
             }
 
-            pre {
+            pre, div {
                 margin-top: 1.4rem !important;
                 margin-bottom: 1.4rem !important;
             }

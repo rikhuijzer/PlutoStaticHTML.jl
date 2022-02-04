@@ -368,6 +368,7 @@ function _throw_if_error(nb::Notebook)
     cells = [nb.cells_dict[cell_uuid] for cell_uuid in nb.cell_order]
     for cell in cells
         if cell.errored
+            @show cell.code
             body = cell.output.body
             msg = body[:msg]
             stacktrace = body[:stacktrace]

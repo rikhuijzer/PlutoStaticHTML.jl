@@ -130,3 +130,16 @@ end
 
     @test !contains(html, "pluto-docs-binding")
 end
+
+@testset "benchmark-hack" begin
+    mktempdir() do dir
+        file = joinpath(dir, "tmp.jl")
+        code1 = "using BenchmarkTools"
+        code2 = "@benchmark sum(x)"
+        code3 = "x = [1, 2]"
+        content = pluto_more_cell_content(code1, code2, code3)
+        write(file, content)
+        html = notebook2html(file)
+        @test contains(html, "3")
+    end
+end

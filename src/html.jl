@@ -364,11 +364,22 @@ end
 
 const TMP_COPY_PREFIX = "_tmp_"
 
-function _throw_if_error(nb::Notebook)
+function _retry_run(session, nb, cell::Cell)
+    Pluto.update_save_run!(session, nb, [cell])
+end
+
+function _throw_if_error(session::ServerSession, nb::Notebook)
     cells = [nb.cells_dict[cell_uuid] for cell_uuid in nb.cell_order]
     for cell in cells
         if cell.errored
-            @show cell.code
+            # Re-try running macro cells.
+            # Hack for Pluto.jl/issues/1664.
+            if startswith(cell.code, '@')
+                _retry_run(session, nb, cell)
+                if !cell.errored
+                    continue
+                end
+            end
             body = cell.output.body
             msg = body[:msg]
             stacktrace = body[:stacktrace]
@@ -393,7 +404,7 @@ function run_notebook!(
     compiler_options = hopts.compiler_options
     nb = SessionActions.open(session, path; compiler_options, run_async)
     if !run_async
-        _throw_if_error(nb)
+        _throw_if_error(session, nb)
     end
     return nb
 end

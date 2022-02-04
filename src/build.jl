@@ -204,7 +204,7 @@ function _outcome2text(session, nb::Notebook, in_path, bopts, hopts)::String
         sleep(0.1)
     end
 
-    _throw_if_error(nb)
+    _throw_if_error(session, nb)
 
     # Grab output before changing binds via `_run_dynamic!`.
     # Otherwise, the outputs look wrong when opening a page for the first time.

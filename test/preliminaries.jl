@@ -7,8 +7,7 @@ using Pluto:
 using Test
 
 const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
-const NOTEBOOK_DIR = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
-const NOTEBOOK_PATH = joinpath(NOTEBOOK_DIR, "notebook.jl")
+const NOTEBOOK_DIR = joinpath(PKGDIR, "docs", "src", "notebooks")
 
 function pluto_notebook_content(code)
     return """

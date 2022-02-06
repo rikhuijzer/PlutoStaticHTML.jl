@@ -1,7 +1,7 @@
 @testset "context" begin
     hopts = HTMLOptions(; append_build_context=true)
-    files = ["notebook.jl"]
-    bopts = BuildOptions(dirname(NOTEBOOK_PATH))
+    bopts = BuildOptions(NOTEBOOK_DIR)
+    files = ["example.jl"]
 
     html = only(parallel_build(bopts, files, hopts))
     @test contains(html, r"Built with Julia 1.*")

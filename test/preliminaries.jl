@@ -7,8 +7,7 @@ using Pluto:
 using Test
 
 const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
-const NOTEBOOK_DIR = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
-const NOTEBOOK_PATH = joinpath(NOTEBOOK_DIR, "notebook.jl")
+const NOTEBOOK_DIR = joinpath(PKGDIR, "docs", "src", "notebooks")
 
 function pluto_notebook_content(code)
     return """
@@ -23,30 +22,6 @@ function pluto_notebook_content(code)
 
         # ╔═╡ Cell order:
         # ╠═a6dda572-3f2c-11ec-0eeb-69e2323a92de
-        """
-end
-
-function pluto_more_cell_content(code1, code2, code3)
-    return """
-        ### A Pluto.jl notebook ###
-        # v0.17.4
-
-        using Markdown
-        using InteractiveUtils
-
-        # ╔═╡ a6dda572-3f2c-11ec-0eeb-000000000001
-        $(code1)
-
-        # ╔═╡ a6dda572-3f2c-11ec-0eeb-000000000002
-        $(code2)
-
-        # ╔═╡ a6dda572-3f2c-11ec-0eeb-000000000003
-        $(code3)
-
-        # ╔═╡ Cell order:
-        # ╠═a6dda572-3f2c-11ec-0eeb-000000000001
-        # ╠═a6dda572-3f2c-11ec-0eeb-000000000002
-        # ╠═a6dda572-3f2c-11ec-0eeb-000000000003
         """
 end
 
@@ -69,20 +44,21 @@ function notebook2html_helper(
         opts=HTMLOptions();
         append_cells=Cell[]
     )
-    session = ServerSession()
     PlutoStaticHTML._append_cell!(nb, append_cells)
-    session.notebooks[nb.notebook_id] = nb
-    Pluto.update_save_run!(session, nb, nb.cells)
-    path = nothing
-    html = notebook2html(nb, path, opts)
-
-    # Remove the caching information because it's not important for most tests.
-    has_cache = contains(html, PlutoStaticHTML.STATE_IDENTIFIER)
-    without_cache = has_cache ? drop_cache_info(html) : html
+    tmpdir = mktempdir()
+    tmppath = joinpath(tmpdir, "notebook.jl")
+    Pluto.save_notebook(nb, tmppath)
+    session = ServerSession()
+    nb = PlutoStaticHTML.run_notebook!(tmppath, session)
+    html = notebook2html(nb, tmppath, opts)
 
     has_begin_end = contains(html, PlutoStaticHTML.BEGIN_IDENTIFIER)
     without_begin_end = has_begin_end ? drop_begin_end(html) : html
 
-    return without_begin_end
+    # Remove the caching information because it's not important for most tests.
+    has_cache = contains(html, PlutoStaticHTML.STATE_IDENTIFIER)
+    without_cache = has_cache ? drop_cache_info(without_begin_end) : html
+
+    return without_cache
 end
 

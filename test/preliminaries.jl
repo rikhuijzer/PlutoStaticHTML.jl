@@ -69,11 +69,11 @@ function notebook2html_helper(
         opts=HTMLOptions();
         append_cells=Cell[]
     )
-    session = ServerSession()
     PlutoStaticHTML._append_cell!(nb, append_cells)
-    session.notebooks[nb.notebook_id] = nb
-    Pluto.update_save_run!(session, nb, nb.cells)
-    path = nothing
+    path = tempname()
+    Pluto.save_notebook(nb, path)
+    _run
+    run_notebook!(
     html = notebook2html(nb, path, opts)
 
     # Remove the caching information because it's not important for most tests.

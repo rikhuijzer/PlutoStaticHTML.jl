@@ -7,7 +7,7 @@ using Documenter:
     makedocs
 using PlutoStaticHTML
 
-const NOTEBOOK_DIR = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
+const NOTEBOOK_DIR = joinpath(@__DIR__, "src", "notebooks")
 
 """
     build_notebooks()
@@ -30,7 +30,7 @@ end
 sitename = "PlutoStaticHTML.jl"
 pages = [
     "PlutoStaticHTML" => "index.md",
-    "Example notebook" => "notebook.md"
+    "Example notebook" => "notebooks/example.md"
 ]
 
 # Using MathJax3 since Pluto uses that engine too.

@@ -12,8 +12,7 @@ end
 
 # ╔═╡ 751853f6-626f-4040-86b2-088339ef9a3c
 md"""
-The web page that you're looking is a Pluto notebook, see
-[notebook.jl](https://rikhuijzer.github.io/PlutoStaticHTML.jl/dev/notebook.jl).
+The web page that you're looking is generated from a Pluto notebook.
 """
 
 # ╔═╡ 7ca85dab-6066-4b2a-b61c-9d9607b8756c

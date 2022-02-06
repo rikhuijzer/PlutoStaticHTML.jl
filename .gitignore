@@ -4,8 +4,7 @@
 /build
 **/*.html
 /docs/build/
-/docs/src/notebook.md
-/docs/src/dynamic.md
+/docs/src/notebooks/*.md
 **/_tmp_*
 docs/src/dynamic/
 **/*backup*.jl

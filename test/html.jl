@@ -104,20 +104,6 @@ end
     end
 end
 
-@testset "_var" begin
-    session = ServerSession()
-
-    nb = Notebook([
-        Cell("a = 1"),
-        Cell("b = a + 1")
-    ])
-    # Running the notebook is required for _var.
-    notebook2html_helper(nb)
-
-    @test PlutoStaticHTML._var(nb.cells[1]) == :a
-    @test PlutoStaticHTML._var(nb.cells[2]) == :b
-end
-
 @testset "pluto-docs-binding" begin
     text = """
         "This is a docstring"
@@ -132,14 +118,11 @@ end
 end
 
 @testset "benchmark-hack" begin
-    mktempdir() do dir
-        file = joinpath(dir, "tmp.jl")
-        code1 = "using BenchmarkTools"
-        code2 = "@benchmark sum(x)"
-        code3 = "x = [1, 2]"
-        content = pluto_more_cell_content(code1, code2, code3)
-        write(file, content)
-        html = notebook2html(file)
-        @test contains(html, "3")
-    end
+    nb = Notebook([
+        Cell("using BenchmarkTools"),
+        Cell("@benchmark sum(x)"),
+        Cell("x = [1, 2]")
+    ])
+    html = notebook2html_helper(nb)
+    @test contains(html, "3")
 end

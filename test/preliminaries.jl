@@ -26,30 +26,6 @@ function pluto_notebook_content(code)
         """
 end
 
-function pluto_more_cell_content(code1, code2, code3)
-    return """
-        ### A Pluto.jl notebook ###
-        # v0.17.4
-
-        using Markdown
-        using InteractiveUtils
-
-        # ╔═╡ a6dda572-3f2c-11ec-0eeb-000000000001
-        $(code1)
-
-        # ╔═╡ a6dda572-3f2c-11ec-0eeb-000000000002
-        $(code2)
-
-        # ╔═╡ a6dda572-3f2c-11ec-0eeb-000000000003
-        $(code3)
-
-        # ╔═╡ Cell order:
-        # ╠═a6dda572-3f2c-11ec-0eeb-000000000001
-        # ╠═a6dda572-3f2c-11ec-0eeb-000000000002
-        # ╠═a6dda572-3f2c-11ec-0eeb-000000000003
-        """
-end
-
 function drop_cache_info(html::AbstractString)
     n = PlutoStaticHTML.n_cache_lines()
     sep = '\n'

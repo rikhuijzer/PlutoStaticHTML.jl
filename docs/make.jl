@@ -8,39 +8,23 @@ using Documenter:
 using PlutoStaticHTML
 
 const NOTEBOOK_DIR = joinpath(pkgdir(PlutoStaticHTML), "docs", "src")
-const NOTEBOOK_PATH = joinpath(NOTEBOOK_DIR, "notebook.jl")
 
 """
-    write_notebook()
+    build_notebooks()
 
-Write Pluto output to a HTML file.
-This avoidings running via the Documenter.jl evaluation, which appears to just hang.
-Probably similar cause as https://github.com/JuliaDocs/Documenter.jl/issues/1514.
+Run all Pluto notebooks (".jl" files) in `NOTEBOOK_DIR`.
 """
-function write_notebook()
-    @info "Running notebook at $NOTEBOOK_PATH"
-    opts = HTMLOptions(; append_build_context=true)
-    html = notebook2html(NOTEBOOK_PATH, opts)
-    md_path = joinpath(NOTEBOOK_DIR, "notebook.md")
-    md = """
-        ```@eval
-        # Auto generated file. Do not modify.
-        ```
-
-        # Example notebook
-
-        The Julia version and package information below is added after running the notebook by setting `append_build_context=true`.
-
-        ```@raw html
-        $html
-        ```
-        """
-    write(md_path, md)
+function build_notebooks()
+    println("Building notebooks")
+    hopts = HTMLOptions(; append_build_context=true)
+    output_format = documenter_output
+    bopts = BuildOptions(NOTEBOOK_DIR; output_format)
+    parallel_build(bopts, hopts)
     return nothing
 end
 
 if !("DISABLE_NOTEBOOK_BUILD" in keys(ENV))
-    write_notebook()
+    build_notebooks()
 end
 
 sitename = "PlutoStaticHTML.jl"

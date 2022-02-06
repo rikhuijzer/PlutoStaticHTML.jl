@@ -8,3 +8,4 @@
 /docs/src/dynamic.md
 **/_tmp_*
 docs/src/dynamic/
+**/*backup*.jl

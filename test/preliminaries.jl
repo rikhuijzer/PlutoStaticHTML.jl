@@ -70,19 +70,20 @@ function notebook2html_helper(
         append_cells=Cell[]
     )
     PlutoStaticHTML._append_cell!(nb, append_cells)
-    path = tempname()
-    Pluto.save_notebook(nb, path)
-    _run
-    run_notebook!(
-    html = notebook2html(nb, path, opts)
-
-    # Remove the caching information because it's not important for most tests.
-    has_cache = contains(html, PlutoStaticHTML.STATE_IDENTIFIER)
-    without_cache = has_cache ? drop_cache_info(html) : html
+    tmpdir = mktempdir()
+    tmppath = joinpath(tmpdir, "notebook.jl")
+    Pluto.save_notebook(nb, tmppath)
+    session = ServerSession()
+    nb = PlutoStaticHTML.run_notebook!(tmppath, session)
+    html = notebook2html(nb, tmppath, opts)
 
     has_begin_end = contains(html, PlutoStaticHTML.BEGIN_IDENTIFIER)
     without_begin_end = has_begin_end ? drop_begin_end(html) : html
 
-    return without_begin_end
+    # Remove the caching information because it's not important for most tests.
+    has_cache = contains(html, PlutoStaticHTML.STATE_IDENTIFIER)
+    without_cache = has_cache ? drop_cache_info(without_begin_end) : html
+
+    return without_cache
 end
 

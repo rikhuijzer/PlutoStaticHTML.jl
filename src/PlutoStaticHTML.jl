@@ -3,6 +3,9 @@ module PlutoStaticHTML
 import Base:
     show,
     string
+import Pluto:
+    PlutoRunner,
+    WorkspaceManager
 
 using Base64: base64encode
 using Pkg:

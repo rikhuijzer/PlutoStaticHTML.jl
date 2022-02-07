@@ -3,7 +3,8 @@ using Pluto:
     Cell,
     Notebook,
     Pluto,
-    ServerSession
+    ServerSession,
+    SessionActions
 using Test
 
 const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
@@ -59,6 +60,6 @@ function notebook2html_helper(
     has_cache = contains(html, PlutoStaticHTML.STATE_IDENTIFIER)
     without_cache = has_cache ? drop_cache_info(without_begin_end) : html
 
-    return without_cache
+    return (without_cache, nb)
 end
 

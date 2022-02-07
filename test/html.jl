@@ -35,9 +35,11 @@
     lines = split(html, '\n')
     @test contains(lines[2], "(\"pluto\", \"tree\", \"object\")")
     @test contains(lines[2], "<pre")
-    @test contains(lines[5], "[\"pluto\", \"tree\", \"object\"]")
-    @test contains(lines[8], "[1, (2, (3, 4))]")
-    @test contains(lines[11], "(a = (1, 2), b = (3, 4))")
+    @test contains(lines[6], "pluto")
+    @test contains(lines[7], "tree")
+    @test contains(lines[8], "object")
+    @test contains(lines[11], "2-element Vector")
+    @test contains(lines[16], "(a = (1, 2), b = (3, 4))")
 
     notebook = Notebook([
         Cell("struct A end"),
@@ -119,6 +121,7 @@ end
 end
 
 @testset "benchmark-hack" begin
+    # Related to https://github.com/fonsp/Pluto.jl/issues/1664
     nb = Notebook([
         Cell("using BenchmarkTools"),
         Cell("@benchmark sum(x)"),

@@ -135,6 +135,36 @@ WorkspaceManager.process_preamble() = quote
     end
 end
 
+function PlutoRunner.show_richest(io::IO, @nospecialize(x))::Tuple{<:Any,MIME}
+    nonplutomimes = filter(m -> !occursin("pluto.tree", string(m)), PlutoRunner.allmimes)
+    # ugly code to fix an ugly performance problem
+    local mime = nothing
+    for m in nonplutomimes
+        if PlutoRunner.pluto_showable(m, x)
+            mime = m
+            break
+        end
+    end
+
+    if mime ∈ PlutoRunner.imagemimes
+        show(io, mime, x)
+        nothing, mime
+    elseif mime isa MIME"application/vnd.pluto.table+object"
+        PlutoRunner.table_data(x, IOContext(io, :compact => true)), mime
+    elseif mime isa MIME"text/latex"
+        # Some reprs include $ at the start and end.
+        # We strip those, since Markdown.LaTeX should contain the math content.
+        # (It will be rendered by MathJax, which is math-first, not text-first.)
+        texed = repr(mime, x)
+        Markdown.html(io, Markdown.LaTeX(strip(texed, ('$', '\n', ' '))))
+        nothing, MIME"text/html"()
+    else
+        # the classic:
+        show(io, mime, x)
+        nothing, mime
+    end
+end
+
 """
     _escape_html(s::AbstractString)
 

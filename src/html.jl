@@ -135,6 +135,8 @@ WorkspaceManager.process_preamble() = quote
     end
 end
 
+# Yes. Two overrides are necessary. This one is used during testing.
+# Override the full method because allmimes was replaced by the compiler.
 function PlutoRunner.show_richest(io::IO, @nospecialize(x))::Tuple{<:Any,MIME}
     nonplutomimes = filter(m -> !occursin("pluto.tree", string(m)), PlutoRunner.allmimes)
     # ugly code to fix an ugly performance problem

@@ -130,3 +130,4 @@ end
     html, nb = notebook2html_helper(nb)
     @test contains(html, "3")
 end
+

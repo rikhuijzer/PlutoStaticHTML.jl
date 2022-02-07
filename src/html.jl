@@ -13,6 +13,22 @@ const IMAGEMIME = Union{
     MIME"image/gif"
 }
 
+# Override the preamble to disable Pluto's pretty printing.
+WorkspaceManager.process_preamble() = quote
+    # Copy pasted from Pluto's source.
+    ccall(:jl_exit_on_sigint, Cvoid, (Cint,), 0)
+    include($(
+        joinpath(pkgdir(Pluto), "src", "runner", "Loader.jl")
+    ))
+    ENV["GKSwstype"] = "nul"
+    ENV["JULIA_REVISE_WORKER_ONLY"] = "1"
+
+    # Extra overrides.
+    # This fixes the individual elements, but not the top level mime.
+    PlutoRunner.use_tree_viewer_for_struct(x) = false
+    filter!(m -> !occursin("pluto", string(m)), PlutoRunner.allmimes)
+end
+
 """
     HTMLOptions(;
         code_class::AbstractString="language-julia",
@@ -245,7 +261,17 @@ end
 
 # Fallback. This shouldn't happen. Convert to string to avoid failure.
 function _clean_tree(parent, elements, T)
-    @warn "Couldn't convert $parent"
+    @warn """
+        Couldn't convert
+
+        parent::$(typeof(parent)) = $parent
+
+        elements::$(typeof(elements)) = $elements
+
+        T = $T
+
+        Falling back to `string(elements)`
+        """
     return string(elements)::String
 end
 
@@ -285,12 +311,14 @@ end
 function _output2html(cell::Cell, ::MIME"text/plain", hopts)
     var = _var(cell)
     body = cell.output.body
+    # `+++` means that it is a cell with Franklin definitions.
     if hopts.hide_md_def_code && startswith(body, "+++")
         # Go back into Markdown mode instead of HTML
         return string("~~~\n", body, "\n~~~")
     end
     output_block(body; var)
 end
+
 function _output2html(cell::Cell, ::MIME"text/html", hopts)
     body = cell.output.body
     # The docstring is already visible in Markdown and shouldn't be shown below the code.

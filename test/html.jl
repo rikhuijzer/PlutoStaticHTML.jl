@@ -10,7 +10,7 @@
         Cell("""im_file(ext) = joinpath(PKGDIR, "test", "im", "im.\$ext")"""),
         Cell("""load(im_file("png"))""")
     ])
-    html = notebook2html_helper(notebook)
+    html, nb = notebook2html_helper(notebook)
     lines = split(html, '\n')
 
     @test contains(lines[1], "1 + 1")
@@ -21,16 +21,17 @@
     notebook = Notebook([
         Cell("md\"This is **markdown**\"")
     ])
-    html = notebook2html_helper(notebook)
+    html, nb = notebook2html_helper(notebook)
     lines = split(html, '\n')
     @test contains(lines[2], "<strong>")
 
     notebook = Notebook([
         Cell("""("pluto", "tree", "object")"""),
         Cell("""["pluto", "tree", "object"]"""),
-        Cell("""[1, (2, (3, 4))]""")
+        Cell("""[1, (2, (3, 4))]"""),
+        Cell("(; a=(1, 2), b=(3, 4))")
     ])
-    html = notebook2html_helper(notebook)
+    html, nb = notebook2html_helper(notebook);
     lines = split(html, '\n')
     @test contains(lines[2], "(\"pluto\", \"tree\", \"object\")")
     @test contains(lines[2], "<pre")
@@ -49,23 +50,23 @@
             ),
         Cell("B(1, A())")
     ])
-    html = notebook2html_helper(notebook)
+    html, nb = notebook2html_helper(notebook)
     lines = split(html, '\n')
     @test contains(lines[end-1], "B(1, A())")
 
     notebook = Notebook([
         Cell("md\"my text\"")
     ])
-    html = notebook2html_helper(notebook, HTMLOptions(; hide_md_code=true))
+    html, nb = notebook2html_helper(notebook, HTMLOptions(; hide_md_code=true))
     lines = split(html, '\n')
     @test lines[1] == ""
 
-    html = notebook2html_helper(notebook, HTMLOptions(; hide_md_code=false))
+    html, nb = notebook2html_helper(notebook, HTMLOptions(; hide_md_code=false))
     lines = split(html, '\n')
     @test lines[1] != ""
 
     opts = HTMLOptions(; hide_md_code=false, hide_code=true)
-    html = notebook2html_helper(notebook, opts)
+    html, nb = notebook2html_helper(notebook, opts);
     lines = split(html, '\n')
     @test lines[1] == ""
 end
@@ -88,7 +89,7 @@ end
     c2 = Cell("c = 600 + 3")
     PlutoStaticHTML._append_cell!(notebook, [c1, c2])
     c3 = Cell("d = 600 + 4")
-    html = notebook2html_helper(notebook; append_cells=[c3])
+    html, nb = notebook2html_helper(notebook; append_cells=[c3])
     for i in 1:4
         @test contains(html, "60$i")
     end
@@ -112,7 +113,7 @@ end
     nb = Notebook([
         Cell(text),
     ])
-    html = notebook2html_helper(nb)
+    html, nb = notebook2html_helper(nb)
 
     @test !contains(html, "pluto-docs-binding")
 end
@@ -123,6 +124,6 @@ end
         Cell("@benchmark sum(x)"),
         Cell("x = [1, 2]")
     ])
-    html = notebook2html_helper(nb)
+    html, nb = notebook2html_helper(nb)
     @test contains(html, "3")
 end

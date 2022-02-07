@@ -36,7 +36,6 @@
     @test contains(lines[2], "(\"pluto\", \"tree\", \"object\")")
     @test contains(lines[2], "<pre")
     @test contains(lines[5], "[\"pluto\", \"tree\", \"object\"]")
-
     @test contains(lines[8], "[1, (2, (3, 4))]")
     @test contains(lines[11], "(a = (1, 2), b = (3, 4))")
 

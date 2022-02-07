@@ -13,22 +13,6 @@ const IMAGEMIME = Union{
     MIME"image/gif"
 }
 
-# Override the preamble to disable Pluto's pretty printing.
-WorkspaceManager.process_preamble() = quote
-    # Copy pasted from Pluto's source.
-    ccall(:jl_exit_on_sigint, Cvoid, (Cint,), 0)
-    include($(
-        joinpath(pkgdir(Pluto), "src", "runner", "Loader.jl")
-    ))
-    ENV["GKSwstype"] = "nul"
-    ENV["JULIA_REVISE_WORKER_ONLY"] = "1"
-
-    # Extra overrides.
-    # This fixes the individual elements, but not the top level mime.
-    PlutoRunner.use_tree_viewer_for_struct(x) = false
-    filter!(m -> !occursin("pluto", string(m)), PlutoRunner.allmimes)
-end
-
 """
     HTMLOptions(;
         code_class::AbstractString="language-julia",
@@ -105,6 +89,80 @@ struct HTMLOptions
             append_build_context,
             compiler_options
         )
+    end
+end
+
+# Override the full method because allmimes was replaced by the compiler.
+function PlutoRunner.show_richest(io::IO, @nospecialize(x))::Tuple{<:Any,MIME}
+    nonplutomimes = filter(m -> !occursin("pluto.tree", string(m)), PlutoRunner.allmimes)
+    # ugly code to fix an ugly performance problem
+    local mime = nothing
+    for m in nonplutomimes
+        if PlutoRunner.pluto_showable(m, x)
+            mime = m
+            break
+        end
+    end
+
+    if mime ∈ PlutoRunner.imagemimes
+        show(io, mime, x)
+        nothing, mime
+    elseif mime isa MIME"application/vnd.pluto.table+object"
+        table_data(x, IOContext(io, :compact => true)), mime
+    elseif mime isa MIME"text/latex"
+        # Some reprs include $ at the start and end.
+        # We strip those, since Markdown.LaTeX should contain the math content.
+        # (It will be rendered by MathJax, which is math-first, not text-first.)
+        texed = repr(mime, x)
+        Markdown.html(io, Markdown.LaTeX(strip(texed, ('$', '\n', ' '))))
+        nothing, MIME"text/html"()
+    else
+        # the classic:
+        show(io, mime, x)
+        nothing, mime
+    end
+end
+
+# Override the preamble to disable Pluto's pretty printing.
+WorkspaceManager.process_preamble() = quote
+    # Copy pasted from Pluto's source.
+    ccall(:jl_exit_on_sigint, Cvoid, (Cint,), 0)
+    include($(
+        joinpath(pkgdir(Pluto), "src", "runner", "Loader.jl")
+    ))
+    ENV["GKSwstype"] = "nul"
+    ENV["JULIA_REVISE_WORKER_ONLY"] = "1"
+
+    # Extra overrides.
+    # We need to override it twice for some reason.
+    function PlutoRunner.show_richest(io::IO, @nospecialize(x))::Tuple{<:Any,MIME}
+        nonplutomimes = filter(m -> !occursin("pluto.tree", string(m)), PlutoRunner.allmimes)
+        # ugly code to fix an ugly performance problem
+        local mime = nothing
+        for m in nonplutomimes
+            if PlutoRunner.pluto_showable(m, x)
+                mime = m
+                break
+            end
+        end
+
+        if mime ∈ PlutoRunner.imagemimes
+            show(io, mime, x)
+            nothing, mime
+        elseif mime isa MIME"application/vnd.pluto.table+object"
+            table_data(x, IOContext(io, :compact => true)), mime
+        elseif mime isa MIME"text/latex"
+            # Some reprs include $ at the start and end.
+            # We strip those, since Markdown.LaTeX should contain the math content.
+            # (It will be rendered by MathJax, which is math-first, not text-first.)
+            texed = repr(mime, x)
+            Markdown.html(io, Markdown.LaTeX(strip(texed, ('$', '\n', ' '))))
+            nothing, MIME"text/html"()
+        else
+            # the classic:
+            show(io, mime, x)
+            nothing, mime
+        end
     end
 end
 
@@ -214,68 +272,6 @@ function symbol2type(s::Symbol)
 end
 
 """
-    _clean_tree(parent, element::Tuple{Any, Tuple{String, MIME}}, T)
-
-Drop metadata.
-For example, `(1, ("\"text\"", MIME type text/plain))` becomes "text".
-"""
-function _clean_tree(parent, element::Tuple{Any, Tuple{String, MIME}}, T)
-    return first(last(element))
-end
-
-function _clean_tree(parent, element::Tuple{Any, Any}, T)
-    embedded = first(last(element))
-    if embedded isa String
-        return embedded
-    end
-    struct_name = embedded[:prefix]
-    elements = embedded[:elements]
-    subelements = [_clean_tree(parent, e, Nothing) for e in elements]
-    joined = join(subelements, ", ")
-    return struct_name * '(' * joined * ')'
-end
-
-function _clean_tree(parent, elements::Tuple{Any, Tuple}, T)
-    body = first(last(elements))
-    T = symbol2type(body[:type])
-    return _clean_tree(body, body[:elements], T)
-end
-
-function _clean_tree(parent, elements::AbstractVector, T::Type{Tuple})
-    cleaned = [_clean_tree(parent, e, Nothing) for e in elements]
-    joined = join(cleaned, ", ")
-    return "($joined)"
-end
-
-function _clean_tree(parent, elements::AbstractVector, T::Type{Array})
-    cleaned = [_clean_tree(parent, e, Nothing) for e in elements]
-    joined = join(cleaned, ", ")
-    return "[$joined]"
-end
-
-function _clean_tree(parent, elements::AbstractVector, T::Type{Struct})
-    cleaned = [_clean_tree(parent, e, Nothing) for e in elements]
-    joined = join(cleaned, ", ")
-    return parent[:prefix] * '(' * joined * ')'
-end
-
-# Fallback. This shouldn't happen. Convert to string to avoid failure.
-function _clean_tree(parent, elements, T)
-    @warn """
-        Couldn't convert
-
-        parent::$(typeof(parent)) = $parent
-
-        elements::$(typeof(elements)) = $elements
-
-        T = $T
-
-        Falling back to `string(elements)`
-        """
-    return string(elements)::String
-end
-
-"""
     _var(cell::Cell)::Symbol
 
 Return the variable which is set by `cell`.
@@ -296,16 +292,6 @@ function _var(cell::Cell)::Symbol
     else
         return ra
     end
-end
-
-function _output2html(cell::Cell, ::MIME"application/vnd.pluto.tree+object", hopts)
-    body = cell.output.body
-    T = symbol2type(body[:type])
-    cleaned = _clean_tree(body, body[:elements], T)
-    pre_class = hopts.output_pre_class
-    class = hopts.output_class
-    var = _var(cell)
-    return output_block(cleaned; class, pre_class, var)
 end
 
 function _output2html(cell::Cell, ::MIME"text/plain", hopts)

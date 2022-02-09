@@ -116,7 +116,7 @@ function Previous(text::String)
     state = contains(text, STATE_IDENTIFIER) ?
         extract_state(text) :
         nothing
-    html = contains(text, BEGIN_IDENTIFIER) ?
+    text = contains(text, BEGIN_IDENTIFIER) ?
         extract_previous_output(text) :
         ""
     return Previous(state, text)
@@ -154,7 +154,7 @@ end
 Write to a ".html" or ".md" file depending on `HTMLOptions.output_format`.
 The output file is always a sibling to the file at `in_path`.
 """
-function _write_main_output(in_path, html, bopts::BuildOptions, hopts::HTMLOptions)
+function _write_main_output(in_path, text, bopts::BuildOptions, hopts::HTMLOptions)
     ext = bopts.output_format == html_output ? ".html" : ".md"
     if bopts.write_files
         dir = dirname(in_path)
@@ -162,7 +162,7 @@ function _write_main_output(in_path, html, bopts::BuildOptions, hopts::HTMLOptio
         without_extension, _ = splitext(in_file)
         out_file = "$(without_extension)$(ext)"
         out_path = joinpath(dir, out_file)
-        write(out_path, html)
+        write(out_path, text)
     end
     return nothing
 end

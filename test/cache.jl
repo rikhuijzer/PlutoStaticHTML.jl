@@ -82,3 +82,47 @@ end
         end
     end
 end
+
+@testset "extract_previous" begin
+    text = """
+            prefix
+
+            <!-- PlutoStaticHTML.Begin -->
+            <!-- PlutoStaticHTML.End -->
+            suffix
+            """
+    prev = PlutoStaticHTML.Previous(text::String)
+    @test startswith(prev.text, PlutoStaticHTML.BEGIN_IDENTIFIER)
+    @test endswith(prev.text, PlutoStaticHTML.END_IDENTIFIER)
+end
+
+@testset "html_cache_output" begin
+    # Test whether the HTML copied from the cache doesn't contain anything outside PlutoStaticHTML.Begin and End.
+    dir = mktempdir()
+
+    cd(dir) do
+        path = joinpath(dir, "notebook.jl")
+        code = pluto_notebook_content("x = 1")
+        write(path, code)
+
+        output_format = html_output
+        use_distributed = false
+        bo = BuildOptions(dir; output_format, use_distributed)
+        parallel_build(bo)
+
+        output_path = joinpath(dir, "notebook.html")
+        output = read(output_path, String)
+
+        # This is similar to how Franklin, for example, adds a prefix and suffix.
+        write(output_path, "prefix\n" * output * "\nsuffix")
+
+        previous_dir = dir
+        bo = BuildOptions(dir; output_format, use_distributed, previous_dir)
+        parallel_build(bo)
+
+        output2 = read(output_path, String)
+
+        @test output == output2
+    end
+end
+

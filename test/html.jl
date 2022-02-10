@@ -76,11 +76,21 @@ end
 
 @testset "run_notebook!_errors" begin
     mktempdir() do dir
-        text = pluto_notebook_content("@assert false")
+        text = pluto_notebook_content("sum(1, :b)")
         path = joinpath(dir, "notebook.jl")
         write(path, text)
         session = ServerSession()
-        @test_throws Exception PlutoStaticHTML.run_notebook!(path, session)
+        err = nothing
+        try
+            nb = PlutoStaticHTML.run_notebook!(path, session)
+        catch err
+        end
+
+        @test err isa Exception
+        msg = sprint(showerror, err)
+        @test contains(msg, "notebook failed")
+        @test contains(msg, "Closest candidates are")
+        @test contains(msg, "_foldl_impl")
     end
 end
 

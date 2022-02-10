@@ -35,7 +35,7 @@ const show_richest_override = :(
 )
 
 # Giving `val` back so that the stacktrace can be printed easily.
-format_output_exception_override = :(
+const format_output_exception_override = :(
     function PlutoRunner.format_output(val::CapturedException; context=default_iocontext)
         msg = sprint(PlutoRunner.try_showerror, val.ex)
         mime = MIME"application/vnd.pluto.stacktrace+object"()

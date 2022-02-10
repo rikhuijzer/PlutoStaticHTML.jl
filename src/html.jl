@@ -31,7 +31,7 @@ Options for `notebook2html`:
 - `code_class`:
     HTML class for code.
     This is used by CSS and/or the syntax highlighter.
-` `output_pre_class`:
+- `output_pre_class`:
     HTML class for `<pre>`.
 - `output_class`:
     HTML class for output.
@@ -364,7 +364,6 @@ end
     ) -> String
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
-This makes a copy of the notebook at `path` and runs it.
 
 Keyword arguments:
 

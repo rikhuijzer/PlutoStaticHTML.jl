@@ -50,6 +50,21 @@
     @test lines[1] == ""
 end
 
+@testset "hide" begin
+    nb = Notebook([
+        Cell("x = 1 + 1 # hide"),
+        Cell("""
+            # hideall
+            y = 3 + 3
+            """)
+        ])
+    html, nb = notebook2html_helper(nb)
+    @test contains(html, ">2<")
+    @test !contains(html, "1 + 1")
+    @test contains(html, ">6<")
+    @test !contains(html, "3 + 3")
+end
+
 @testset "from_file" begin
     mktempdir() do dir
         file = joinpath(dir, "tmp.jl")
@@ -117,4 +132,3 @@ end
     html, nb = notebook2html_helper(nb)
     @test contains(html, "3")
 end
-

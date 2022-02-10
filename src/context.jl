@@ -10,11 +10,7 @@ function _direct_dependencies(notebook::Notebook)::String
     filter!(p -> !isnothing(p.version), deps)
     list = ["$(p.name) $(p.version)" for p in deps]
     sort!(list)
-    return join(list, "<br>\n")
-end
-
-function _direct_dependencies(notebook::AbstractString)
-    return _direct_dependencies(_load_notebook(notebook))
+    return join(list, "<br>\n")::String
 end
 
 """

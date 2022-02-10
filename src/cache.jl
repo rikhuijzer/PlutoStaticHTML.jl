@@ -45,7 +45,7 @@ end
 function extract_state(html::AbstractString)::State
     sep = '\n'
     lines = split(html, sep)
-    start = findfirst(contains(STATE_IDENTIFIER), lines)
+    start = findfirst(contains(STATE_IDENTIFIER), lines)::Int
     stop = start + 2
     info = join(lines[start:stop], sep)
     entries = parsetoml(info)["PlutoStaticHTML"]["State"]

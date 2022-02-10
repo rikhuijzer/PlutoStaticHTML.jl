@@ -167,7 +167,7 @@ function _write_main_output(in_path, text, bopts::BuildOptions, hopts::HTMLOptio
     return nothing
 end
 
-function _outcome2text(session, prev::Previous, in_path, bopts, hopts)::String
+function _outcome2text(session, prev::Previous, in_path::String, bopts, hopts)::String
     text = prev.text
     _write_main_output(in_path, text, bopts, hopts)
     return text
@@ -199,7 +199,7 @@ function _add_documenter_style(html)
     return string(style, '\n', html)
 end
 
-function _outcome2text(session, nb::Notebook, in_path, bopts, hopts)::String
+function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::String
     while !_notebook_done(nb)
         sleep(0.1)
     end
@@ -246,7 +246,7 @@ function parallel_build(
 
     # Start all the notebooks in parallel with async enabled if `use_distributed`.
     X = map(files) do in_file
-        in_path = joinpath(dir, in_file)
+        in_path = joinpath(dir, in_file)::String
         @assert isfile(in_path) "Expected .jl file at $in_path"
 
         previous = Previous(bopts, in_file)

@@ -242,7 +242,7 @@ function _output2html(cell::Cell, ::MIME"text/html", hopts)
 end
 
 function _output2html(cell::Cell, ::MIME"application/vnd.pluto.stacktrace+object", hopts)
-    return error(cell.output.body)
+    return error(string(cell.output.body)::String)
 end
 
 _output2html(cell::Cell, T::MIME, hopts) = error("Unknown type: $T")
@@ -320,9 +320,9 @@ function _throw_if_error(session::ServerSession, nb::Notebook)
                     continue
                 end
             end
-            body = cell.output.body
-            msg::String = body[:msg]
-            val::CapturedException = body[:stacktrace]
+            body = cell.output.body::Dict{Symbol,Any}
+            msg = body[:msg]::String
+            val = body[:stacktrace]::CapturedException
             io = IOBuffer()
             ioc = IOContext(io, :color => Base.get_have_color())
             showerror(ioc, val)

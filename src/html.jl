@@ -321,12 +321,18 @@ function _throw_if_error(session::ServerSession, nb::Notebook)
                 end
             end
             body = cell.output.body
-            msg = body[:msg]
-            stacktrace = body[:stacktrace]
+            msg::String = body[:msg]
+            val::CapturedException = body[:stacktrace]
+            io = IOBuffer()
+            ioc = IOContext(io, :color => Base.get_have_color())
+            showerror(ioc, val)
+            error_text = String(take!(io))
             msg = """
-                $msg
+                Execution of the notebook failed.
+                Does the notebook show any errors when opening it in Pluto?
+
                 Details:
-                $stacktrace
+                $error_text
                 """
             error(msg)
         end

@@ -1,15 +1,15 @@
 # PlutoStaticHTML
 
 Convert Pluto notebooks to pure HTML (without Javascript).
-The benefit of this is that it can easily be styled via CSS.
-Also, it is possible to zero or more code blocks making it easy to show Julia generated output without showing code.
+This allows Pluto notebooks to be embedded in Documenter, Franklin and (optionally) to be styled manually via CSS.
+Also, it is possible to hide code blocks making it easy to show Julia generated output without showing code.
 Typically, converting Pluto notebooks to HTML is useful for things like
 
 - tutorials (a ready-to-use template can be found at <https://rikhuijzer.github.io/JuliaTutorialsTemplate/>)
 - blogs
 - documentation
 
-This package is used for the tutorials at [TuringGLM.jl](https://turinglang.github.io/TuringGLM.jl/dev/tutorials/linear_regression/).
+For a quick preview, this package is used for the tutorials at [TuringGLM.jl](https://turinglang.github.io/TuringGLM.jl/dev/tutorials/linear_regression/).
 Also, I'm using this package for my own blog, for example: <https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/>.
 
 ## API overview
@@ -21,11 +21,22 @@ The most important method is `parallel_build` ([API](@ref)).
 
 In general, the idea is to
 
-1. Get the name of the directory `dir` which contains your notebooks.
+1. Create a bunch of Pluto notebooks.
+1. Get the name of the directory `dir` which contains your Pluto notebooks.
 1. Choose an appropriate `output_format` depending on how the output will be used.
     The output format can be `html_output`, `documenter_output` or `franklin_output`.
 1. Pass the paths to [`parallel_build`](@ref) which, depending on `output_format`, writes HTML or Markdown outputs to files.
 1. Read the output from the files and show them on a website via either your own logic or Documenter or Franklin.
+
+Note that this is a very nice development workflow because developing in Pluto notebooks is easy and allows for quick debugging.
+Also, Pluto has a lot of conversions built-in.
+This package will take the converted outputs, such as plots or tables, from Pluto which ensures that what you see in Pluto is what you see in the HTML output.
+
+As an extension of Pluto, this package provides `# hide` and `# hideall` comments like Franklin and Documenter.
+A `# hideall` somewhere in a Pluto code block will hide the code (but not the output).
+A `# hide` behind a line in a code block will hide the line.
+Also, by default, this package hides all Markdown code blocks since readers are probably only interested in reading the output of the Markdown code block.
+This and more options can be tuned via [`HTMLOptions`](@ref).
 
 See below for more specific instructions on
 

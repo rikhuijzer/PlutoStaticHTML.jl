@@ -70,7 +70,7 @@ end
         file = joinpath(dir, "tmp.jl")
         content = pluto_notebook_content("x = 1 + 2")
         write(file, content)
-        html = notebook2html(file)
+        html = PlutoStaticHTML.notebook2html(file)
         @test contains(html, "3")
     end
 end

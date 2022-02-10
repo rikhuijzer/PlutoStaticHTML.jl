@@ -51,7 +51,7 @@ function notebook2html_helper(
     Pluto.save_notebook(nb, tmppath)
     session = ServerSession()
     nb = PlutoStaticHTML.run_notebook!(tmppath, session)
-    html = notebook2html(nb, tmppath, opts)
+    html = PlutoStaticHTML.notebook2html(nb, tmppath, opts)
 
     has_begin_end = contains(html, PlutoStaticHTML.BEGIN_IDENTIFIER)
     without_begin_end = has_begin_end ? drop_begin_end(html) : html

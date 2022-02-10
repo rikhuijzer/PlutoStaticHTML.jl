@@ -328,7 +328,8 @@ function _throw_if_error(session::ServerSession, nb::Notebook)
             showerror(ioc, val)
             error_text = String(take!(io))
             msg = """
-                Execution of the notebook failed. Does the notebook show any errors when opening it in Pluto?
+                Execution of the notebook failed.
+                Does the notebook show any errors when opening it in Pluto?
 
                 Details:
                 $error_text

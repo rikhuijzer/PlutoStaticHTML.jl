@@ -308,6 +308,11 @@ function _retry_run(session, nb, cell::Cell)
     Pluto.update_save_run!(session, nb, [cell])
 end
 
+"Indent each line by two spaces."
+function _indent(s::AbstractString)::String
+    return replace(s, '\n' => "\n  ")::String
+end
+
 function _throw_if_error(session::ServerSession, nb::Notebook)
     cells = [nb.cells_dict[cell_uuid] for cell_uuid in nb.cell_order]
     for cell in cells
@@ -326,13 +331,21 @@ function _throw_if_error(session::ServerSession, nb::Notebook)
             io = IOBuffer()
             ioc = IOContext(io, :color => Base.get_have_color())
             showerror(ioc, val)
-            error_text = String(take!(io))
+            error_text = _indent(String(take!(io)))
+            code = _indent(cell.code)
+            filename = _indent(nb.path)
             msg = """
-                Execution of the notebook failed.
+                Execution of notebook failed.
                 Does the notebook show any errors when opening it in Pluto?
 
-                Details:
-                $error_text
+                Notebook:
+                  $filename
+
+                Code:
+                  $code
+
+                Error:
+                  $error_text
                 """
             error(msg)
         end

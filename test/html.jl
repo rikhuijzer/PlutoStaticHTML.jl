@@ -104,6 +104,8 @@ end
         @test err isa Exception
         msg = sprint(showerror, err)
         @test contains(msg, "notebook failed")
+        @test contains(msg, "notebook.jl")
+        @test contains(msg, "sum(1, :b)")
         @test contains(msg, "Closest candidates are")
         @test contains(msg, "_foldl_impl")
     end

@@ -35,6 +35,7 @@ using TOML: parse as parsetoml
 include("module_doc.jl")
 include("context.jl")
 include("cache.jl")
+include("mimeoverride.jl")
 include("html.jl")
 include("build.jl")
 

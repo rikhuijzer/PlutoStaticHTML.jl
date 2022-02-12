@@ -1,10 +1,9 @@
 # PlutoStaticHTML.jl
 
-[![CI][ci-img]][ci-url]
-[![Code Style Blue][blue-img]][blue-url]
-[![Contributor's Guide on Collaborative Practices][colprac-img]][colprac-url]
 [![Docs stable][docs-stable-img]][docs-stable-url]
 [![Docs dev][docs-dev-img]][docs-dev-url]
+[![Code Style Blue][blue-img]][blue-url]
+[![Contributor's Guide on Collaborative Practices][colprac-img]][colprac-url]
 
 A [Julia package](https://julialang.org/) to convert [Pluto notebooks](https://github.com/fonsp/Pluto.jl) to static HTML.
 Unlike [PlutoSliderServer](https://github.com/JuliaPluto/PlutoSliderServer.jl), the HTML files generated using PlutoStaticHTML are very minimal, and do not require JavaScript on the user side to render.

@@ -132,5 +132,5 @@ end
         Cell("x = [1, 2]")
     ])
     html, nb = notebook2html_helper(nb)
-    @test contains(html, "3")
+    @test contains(html, "BenchmarkTools.Trial")
 end

@@ -169,6 +169,9 @@ end
 
 function _outcome2text(session, prev::Previous, in_path::String, bopts, hopts)::String
     text = prev.text
+    if bopts.output_format == franklin_output
+        text = "~~~\n$(text)\n~~~"
+    end
     _write_main_output(in_path, text, bopts, hopts)
     return text
 end

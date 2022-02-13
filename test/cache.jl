@@ -126,3 +126,35 @@ end
     end
 end
 
+@testset "franklin_markdown_cache_output" begin
+    # Test whether the Franklin Markdown copied from the cache is correct.
+    dir = mktempdir()
+
+    cd(dir) do
+        path = joinpath(dir, "notebook.jl")
+        code = pluto_notebook_content("""
+            md\"\"\"
+            +++
+            title = \"foo\"
+            +++
+            \"\"\"
+            """)
+        write(path, code)
+
+        output_format = franklin_output
+        use_distributed = false
+        bo = BuildOptions(dir; output_format, use_distributed)
+        parallel_build(bo)
+
+        output_path = joinpath(dir, "notebook.md")
+        output = read(output_path, String)
+
+        previous_dir = dir
+        bo = BuildOptions(dir; output_format, use_distributed, previous_dir)
+        parallel_build(bo)
+
+        output2 = read(output_path, String)
+
+        @test output == output2
+    end
+end

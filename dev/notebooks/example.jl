@@ -5,15 +5,15 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 3dd303b0-373e-11ec-18e4-69bfc20b5e29
-begin
-    using CairoMakie: lines
-    using DataFrames: DataFrame
-end
+using CairoMakie, DataFrames
 
 # ╔═╡ 751853f6-626f-4040-86b2-088339ef9a3c
 md"""
 The web page that you're looking is generated from a Pluto notebook.
 """
+
+# ╔═╡ 058a7f63-7058-4229-b40c-2e98264bd77f
+1 + 1
 
 # ╔═╡ 7ca85dab-6066-4b2a-b61c-9d9607b8756c
 lines(1:10, 1:10)
@@ -48,7 +48,7 @@ DataFrames = "~1.3.2"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.7.1"
+julia_version = "1.7.2"
 manifest_format = "2.0"
 
 [[deps.AbstractFFTs]]
@@ -1177,6 +1177,7 @@ version = "3.5.0+0"
 
 # ╔═╡ Cell order:
 # ╠═751853f6-626f-4040-86b2-088339ef9a3c
+# ╠═058a7f63-7058-4229-b40c-2e98264bd77f
 # ╠═3dd303b0-373e-11ec-18e4-69bfc20b5e29
 # ╠═7ca85dab-6066-4b2a-b61c-9d9607b8756c
 # ╠═4ca09326-c8d8-44fb-8582-8dcc071bc76a

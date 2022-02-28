@@ -42,10 +42,8 @@ end
 "Helper function to simply pass a `nb::Notebook` and run it."
 function notebook2html_helper(
         nb::Notebook,
-        opts=HTMLOptions();
-        append_cells=Cell[]
+        opts=HTMLOptions()
     )
-    PlutoStaticHTML._append_cell!(nb, append_cells)
     tmpdir = mktempdir()
     tmppath = joinpath(tmpdir, "notebook.jl")
     Pluto.save_notebook(nb, tmppath)

@@ -75,20 +75,6 @@ end
     end
 end
 
-@testset "append_cell" begin
-    notebook = Notebook([
-        Cell("a = 600 + 1"),
-    ])
-    c1 = Cell("b = 600 + 2")
-    c2 = Cell("c = 600 + 3")
-    PlutoStaticHTML._append_cell!(notebook, [c1, c2])
-    c3 = Cell("d = 600 + 4")
-    html, nb = notebook2html_helper(notebook; append_cells=[c3])
-    for i in 1:4
-        @test contains(html, "60$i")
-    end
-end
-
 @testset "run_notebook!_errors" begin
     mktempdir() do dir
         text = pluto_notebook_content("sum(1, :b)")

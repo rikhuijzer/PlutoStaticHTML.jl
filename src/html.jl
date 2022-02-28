@@ -256,23 +256,6 @@ function _cell2html(cell::Cell, hopts::HTMLOptions)
         """
 end
 
-"""
-    _append_cell!(notebook::Notebook, cell::Cell)
-
-Add one `cell` to the end of the `notebook`.
-This is based on `add_remote_cell` in Pluto's `Editor.js`.
-"""
-function _append_cell!(notebook::Notebook, cell::Cell)
-    push!(notebook.cell_order, cell.cell_id)
-    notebook.cells_dict[cell.cell_id] = cell
-    return notebook
-end
-
-function _append_cell!(notebook::Notebook, cells::AbstractVector{Cell})
-    foreach(c -> _append_cell!(notebook, c), cells)
-    return notebook
-end
-
 const BEGIN_IDENTIFIER = "<!-- PlutoStaticHTML.Begin -->"
 const END_IDENTIFIER = "<!-- PlutoStaticHTML.End -->"
 
@@ -373,20 +356,14 @@ end
         path::AbstractString,
         opts::HTMLOptions=HTMLOptions();
         session=ServerSession(),
-        append_cells=Cell[],
     ) -> String
 
 Run the Pluto notebook at `path` and return the code and output as HTML.
-
-Keyword arguments:
-
-- `append_cells`: Specify one or more `Pluto.Cell`s to be appended at the end of the notebook.
 """
 function notebook2html(
         path::AbstractString,
         hopts::HTMLOptions=HTMLOptions();
-        session=ServerSession(),
-        append_cells=Cell[],
+        session=ServerSession()
     )::String
     nb = run_notebook!(path, session; run_async=false, hopts)
     html = notebook2html(nb, path, hopts)

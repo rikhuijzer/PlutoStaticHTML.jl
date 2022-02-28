@@ -228,7 +228,8 @@ function _output2html(cell::Cell, ::MIME"text/plain", hopts)
         # Go back into Markdown mode instead of HTML
         return string("~~~\n", body, "\n~~~")
     end
-    output_block(body; var)
+    pre_class = hopts.output_pre_class
+    output_block(body; pre_class, var)
 end
 
 function _output2html(cell::Cell, ::MIME"text/html", hopts)

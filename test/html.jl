@@ -15,6 +15,7 @@
 
     @test contains(lines[1], "1 + 1")
     @test contains(lines[2], "2")
+    @test contains(lines[2], "class='documenter-example-output'")
 
     @test contains(lines[end-1], """<img src=\"data:image/png;base64,""")
 

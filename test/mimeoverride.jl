@@ -1,7 +1,7 @@
 notebook = Notebook([
     Cell("md\"This is **markdown**\"")
 ])
-html, nb = notebook2html_helper(notebook)
+html, nb = notebook2html_helper(notebook; use_distributed=false)
 lines = split(html, '\n')
 @test contains(lines[2], "<strong>")
 
@@ -11,7 +11,7 @@ notebook = Notebook([
     Cell("""[1, (2, (3, 4))]"""),
     Cell("(; a=(1, 2), b=(3, 4))")
 ])
-html, nb = notebook2html_helper(notebook);
+html, nb = notebook2html_helper(notebook; use_distributed=false);
 lines = split(html, '\n')
 @test contains(lines[2], "(\"pluto\", \"tree\", \"object\")")
 @test contains(lines[2], "<pre")

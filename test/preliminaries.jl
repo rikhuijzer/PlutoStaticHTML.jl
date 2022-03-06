@@ -43,12 +43,14 @@ end
 "Helper function to simply pass a `nb::Notebook` and run it."
 function notebook2html_helper(
         nb::Notebook,
-        opts=HTMLOptions()
+        opts=HTMLOptions();
+        use_distributed::Bool=true
     )
     tmpdir = mktempdir()
     tmppath = joinpath(tmpdir, "notebook.jl")
     Pluto.save_notebook(nb, tmppath)
     session = ServerSession()
+    session.options.evaluation.workspace_use_distributed = use_distributed
     nb = PlutoStaticHTML.run_notebook!(tmppath, session)
     html = PlutoStaticHTML.notebook2html(nb, tmppath, opts)
 
@@ -72,4 +74,3 @@ macro timed_testset(str, block)
         end
     end
 end
-

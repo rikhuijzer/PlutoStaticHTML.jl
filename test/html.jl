@@ -30,25 +30,33 @@
             ),
         Cell("B(1, A())")
     ])
-    html, nb = notebook2html_helper(notebook)
+    use_distributed = false
+    html, nb = notebook2html_helper(notebook; use_distributed)
     lines = split(html, '\n')
     @test contains(lines[end-1], "B(1, A())")
 
     notebook = Notebook([
         Cell("md\"my text\"")
     ])
-    html, nb = notebook2html_helper(notebook, HTMLOptions(; hide_md_code=true))
+    html, nb = notebook2html_helper(notebook, HTMLOptions(; hide_md_code=true); use_distributed)
     lines = split(html, '\n')
     @test lines[1] == ""
 
-    html, nb = notebook2html_helper(notebook, HTMLOptions(; hide_md_code=false))
+    html, nb = notebook2html_helper(notebook, HTMLOptions(; hide_md_code=false); use_distributed)
     lines = split(html, '\n')
     @test lines[1] != ""
 
     opts = HTMLOptions(; hide_md_code=false, hide_code=true)
-    html, nb = notebook2html_helper(notebook, opts);
+    html, nb = notebook2html_helper(notebook, opts; use_distributed)
     lines = split(html, '\n')
     @test lines[1] == ""
+end
+
+@testset "use_distributed=false and pwd" begin
+    dir = pwd()
+    nb = Notebook([Cell("1 + 1")])
+    _, _ = notebook2html_helper(nb, HTMLOptions(; hide_md_code=true); use_distributed=false)
+    @test pwd() == dir
 end
 
 @testset "hide" begin
@@ -59,7 +67,7 @@ end
             y = 3 + 3
             """)
         ])
-    html, nb = notebook2html_helper(nb)
+    html, nb = notebook2html_helper(nb; use_distributed=false)
     @test contains(html, ">2<")
     @test !contains(html, "1 + 1")
     @test contains(html, ">6<")
@@ -77,24 +85,29 @@ end
 end
 
 @testset "run_notebook!_errors" begin
-    mktempdir() do dir
-        text = pluto_notebook_content("sum(1, :b)")
-        path = joinpath(dir, "notebook.jl")
-        write(path, text)
-        session = ServerSession()
-        err = nothing
-        try
-            nb = PlutoStaticHTML.run_notebook!(path, session)
-        catch err
-        end
+    # To avoid changing the current working directory; I don't know what causes it to change
+    # exactly.
+    cd(pwd()) do
+        mktempdir() do dir
+            text = pluto_notebook_content("sum(1, :b)")
+            path = joinpath(dir, "notebook.jl")
+            write(path, text)
+            session = ServerSession()
+            session.options.evaluation.workspace_use_distributed = false
+            err = nothing
+            try
+                nb = PlutoStaticHTML.run_notebook!(path, session)
+            catch err
+            end
 
-        @test err isa Exception
-        msg = sprint(showerror, err)
-        @test contains(msg, "notebook failed")
-        @test contains(msg, "notebook.jl")
-        @test contains(msg, "sum(1, :b)")
-        @test contains(msg, "Closest candidates are")
-        @test contains(msg, "_foldl_impl")
+            @test err isa Exception
+            msg = sprint(showerror, err)
+            @test contains(msg, "notebook failed")
+            @test contains(msg, "notebook.jl")
+            @test contains(msg, "sum(1, :b)")
+            @test contains(msg, "Closest candidates are")
+            @test contains(msg, "_foldl_impl")
+        end
     end
 end
 
@@ -106,7 +119,7 @@ end
     nb = Notebook([
         Cell(text),
     ])
-    html, nb = notebook2html_helper(nb)
+    html, nb = notebook2html_helper(nb; use_distributed=false)
 
     @test !contains(html, "pluto-docs-binding")
 end

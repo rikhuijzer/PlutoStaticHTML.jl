@@ -343,12 +343,15 @@ function run_notebook!(
         hopts::HTMLOptions=HTMLOptions(),
         run_async=false
     )
+    # Avoid changing pwd.
+    previous_dir = pwd()
     session.options.server.disable_writing_notebook_files = true
     compiler_options = hopts.compiler_options
     nb = SessionActions.open(session, path; compiler_options, run_async)
     if !run_async
         _throw_if_error(session, nb)
     end
+    cd(previous_dir)
     return nb
 end
 

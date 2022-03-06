@@ -1,4 +1,3 @@
-
 notebook = Notebook([
     Cell("md\"This is **markdown**\"")
 ])
@@ -21,4 +20,3 @@ lines = split(html, '\n')
 @test contains(lines[8], "object")
 @test contains(lines[11], "2-element Vector")
 @test contains(lines[16], "(a = (1, 2), b = (3, 4))")
-

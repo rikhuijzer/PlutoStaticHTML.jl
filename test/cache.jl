@@ -33,6 +33,7 @@ end
 
 @testset "caching" begin
     dir = mktempdir()
+    use_distributed = false
 
     cd(dir) do
         path(name) = joinpath(dir, "$name.txt")
@@ -48,7 +49,7 @@ end
         code = pluto_notebook_content("""write("$(path('b'))", "b")""")
         write("b.jl", code)
 
-        bo = BuildOptions(dir)
+        bo = BuildOptions(dir; use_distributed)
         parallel_build(bo)
 
         # Without try_read, Pluto in another process may still have a lock on a txt file.
@@ -68,7 +69,7 @@ end
             cp(joinpath(previous_dir, "a.jl"), joinpath(dir, "a.jl"))
             cp(joinpath(previous_dir, "b.jl"), joinpath(dir, "b.jl"))
 
-            bo = BuildOptions(dir; previous_dir)
+            bo = BuildOptions(dir; use_distributed, previous_dir)
             parallel_build(bo)
 
             # a was evaluated because "a.html" was removed.
@@ -141,9 +142,9 @@ end
             """)
         write(path, code)
 
-        output_format = franklin_output
         use_distributed = false
-        bo = BuildOptions(dir; output_format, use_distributed)
+        output_format = franklin_output
+        bo = BuildOptions(dir; use_distributed, output_format)
         parallel_build(bo)
 
         output_path = joinpath(dir, "notebook.md")

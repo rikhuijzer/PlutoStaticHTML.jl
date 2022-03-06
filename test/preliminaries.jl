@@ -6,6 +6,7 @@ using Pluto:
     ServerSession,
     SessionActions
 using Test
+using TimerOutputs: TimerOutput, @timeit
 
 const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
 const NOTEBOOK_DIR = joinpath(PKGDIR, "docs", "src", "notebooks")
@@ -13,7 +14,7 @@ const NOTEBOOK_DIR = joinpath(PKGDIR, "docs", "src", "notebooks")
 function pluto_notebook_content(code)
     return """
         ### A Pluto.jl notebook ###
-        # v0.17.4
+        # v0.18.1
 
         using Markdown
         using InteractiveUtils
@@ -59,5 +60,16 @@ function notebook2html_helper(
     without_cache = has_cache ? drop_cache_info(without_begin_end) : html
 
     return (without_cache, nb)
+end
+
+# Credits to Tensors.jl/test/runtests.jl
+macro timed_testset(str, block)
+    return quote
+        @timeit TIMEROUTPUT "$($(esc(str)))" begin
+            @testset "$($(esc(str)))" begin
+                $(esc(block))
+            end
+        end
+    end
 end
 

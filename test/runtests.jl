@@ -1,15 +1,25 @@
 include("preliminaries.jl")
 
-include("context.jl")
-include("cache.jl")
+const TIMEROUTPUT = TimerOutput()
 
-@testset "mimeoverride" begin
+@timed_testset "context" begin
+    include("context.jl")
+end
+
+@timed_testset "cache" begin
+    include("cache.jl")
+end
+
+@timed_testset "mimeoverride" begin
     include("mimeoverride.jl")
 end
 
-@testset "html" begin
+@timed_testset "html" begin
     include("html.jl")
 end
 
-include("build.jl")
+@timed_testset "build" begin
+    include("build.jl")
+end
 
+show(TIMEROUTPUT; compact=true, sortby=:firstexec)

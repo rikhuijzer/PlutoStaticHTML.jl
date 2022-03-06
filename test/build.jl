@@ -13,7 +13,7 @@
             write(path, content)
             return file
         end
-        parallel_build(BuildOptions(dir))
+        parallel_build(BuildOptions(dir, use_distributed=false))
 
         html_file = joinpath(dir, "file1.html")
         @test contains(read(html_file, String), "3001")
@@ -30,7 +30,7 @@ end
             file = "file.jl"
             path = joinpath(dir, file)
             write(path, content)
-            parallel_build(BuildOptions(dir), [file])
+            parallel_build(BuildOptions(dir), [file], use_distributed=false)
         end
         error("Test should have failed")
     catch AssertionError

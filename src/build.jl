@@ -278,6 +278,7 @@ function parallel_build(
 
     return H
 end
+precompile(parallel_build, (BuildOptions, Vector{Any}, HTMLOptions))
 
 """
     parallel_build(
@@ -296,4 +297,5 @@ function parallel_build(
     end
     return parallel_build(bopts, files, hopts)
 end
+precompile(parallel_build, (BuildOptions, HTMLOptions))
 

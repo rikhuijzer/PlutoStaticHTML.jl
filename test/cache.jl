@@ -50,7 +50,7 @@ end
         write("b.jl", code)
 
         bo = BuildOptions(dir; use_distributed)
-        parallel_build(bo)
+        build_notebooks(bo)
 
         # Without try_read, Pluto in another process may still have a lock on a txt file.
         @test try_read("a.txt") == "a"
@@ -70,7 +70,7 @@ end
             cp(joinpath(previous_dir, "b.jl"), joinpath(dir, "b.jl"))
 
             bo = BuildOptions(dir; use_distributed, previous_dir)
-            parallel_build(bo)
+            build_notebooks(bo)
 
             # a was evaluated because "a.html" was removed.
             # note that pluto always writes txt files to the first dir.
@@ -109,7 +109,7 @@ end
         output_format = html_output
         use_distributed = false
         bo = BuildOptions(dir; output_format, use_distributed)
-        parallel_build(bo)
+        build_notebooks(bo)
 
         output_path = joinpath(dir, "notebook.html")
         output = read(output_path, String)
@@ -119,7 +119,7 @@ end
 
         previous_dir = dir
         bo = BuildOptions(dir; output_format, use_distributed, previous_dir)
-        parallel_build(bo)
+        build_notebooks(bo)
 
         output2 = read(output_path, String)
 
@@ -145,14 +145,14 @@ end
         use_distributed = false
         output_format = franklin_output
         bo = BuildOptions(dir; use_distributed, output_format)
-        parallel_build(bo)
+        build_notebooks(bo)
 
         output_path = joinpath(dir, "notebook.md")
         output = read(output_path, String)
 
         previous_dir = dir
         bo = BuildOptions(dir; output_format, use_distributed, previous_dir)
-        parallel_build(bo)
+        build_notebooks(bo)
 
         output2 = read(output_path, String)
 

@@ -25,7 +25,7 @@ end
         use_distributed::Bool=true
     )
 
-Options for `parallel_build`:
+Options for `build_notebooks`:
 
 - `dir`:
     Directory in which the Pluto notebooks are stored.
@@ -229,7 +229,7 @@ function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::St
 end
 
 """
-    parallel_build(
+    build_notebooks(
         bopts::BuildOptions,
         files,
         hopts::HTMLOptions=HTMLOptions();
@@ -238,7 +238,7 @@ end
 
 Build all `files` in `dir` in parallel.
 """
-function parallel_build(
+function build_notebooks(
         bopts::BuildOptions,
         files,
         hopts::HTMLOptions=HTMLOptions();
@@ -278,24 +278,30 @@ function parallel_build(
 
     return H
 end
-precompile(parallel_build, (BuildOptions, Vector{Any}, HTMLOptions))
+precompile(build_notebooks, (BuildOptions, Vector{Any}, HTMLOptions))
+
+function _is_pluto_file(path::AbstractString)::Bool
+    first(eachline(string(path))) == "### A Pluto.jl notebook ###"
+end
 
 """
-    parallel_build(
+    build_notebooks(
         bopts::BuildOptions,
         hopts::HTMLOptions=HTMLOptions()
     ) -> Vector{String}
 
 Build all ".jl" files in `dir` in parallel.
 """
-function parallel_build(
+function build_notebooks(
         bopts::BuildOptions,
         hopts::HTMLOptions=HTMLOptions()
     )::Vector{String}
-    files = filter(readdir(bopts.dir)) do file
-        endswith(file, ".jl") && !startswith(file, TMP_COPY_PREFIX)
+    dir = bopts.dir
+    files = filter(readdir(dir)) do file
+        path = joinpath(dir, file)
+        endswith(file, ".jl") && _is_pluto_file(path) && !startswith(file, TMP_COPY_PREFIX)
     end
-    return parallel_build(bopts, files, hopts)
+    return build_notebooks(bopts, files, hopts)
 end
-precompile(parallel_build, (BuildOptions, HTMLOptions))
+precompile(build_notebooks, (BuildOptions, HTMLOptions))
 

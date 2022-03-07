@@ -13,13 +13,31 @@
             write(path, content)
             return file
         end
-        parallel_build(BuildOptions(dir, use_distributed=false))
+        build_notebooks(BuildOptions(dir, use_distributed=false))
 
         html_file = joinpath(dir, "file1.html")
         @test contains(read(html_file, String), "3001")
 
         html_file = joinpath(dir, "file2.html")
         @test contains(read(html_file, String), "3002")
+    end
+end
+
+@testset "is_pluto_file" begin
+    cd(mktempdir()) do
+        nb_text = """
+            ### A Pluto.jl notebook ###
+            # v0.14.0
+            """
+        write("true.jl", nb_text)
+        @test PlutoStaticHTML._is_pluto_file("true.jl")
+
+        jl_text = """
+            module Foo
+            end # module
+            """
+        write("false.jl", jl_text)
+        @test !PlutoStaticHTML._is_pluto_file("false.jl")
     end
 end
 
@@ -30,7 +48,7 @@ end
             file = "file.jl"
             path = joinpath(dir, file)
             write(path, content)
-            parallel_build(BuildOptions(dir), [file], use_distributed=false)
+            build_notebooks(BuildOptions(dir), [file], use_distributed=false)
         end
         error("Test should have failed")
     catch AssertionError

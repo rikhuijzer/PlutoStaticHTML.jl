@@ -71,7 +71,7 @@ To speed up the build, this package defines [`build_notebooks`](@ref).
 This function evaluates the notebooks in parallel by default.
 Also, it can use [Caching](@ref) to speed up the build even more.
 
-To use it, pass a `dir` to write HTML files for all notebook files (the files are recognized by the ".jl" extension):
+To use it, pass a `dir` to write HTML files for all notebook files (the files are recognized by the ".jl" extension and that the file starts with `### A Pluto.jl notebook ###`):
 
 ```julia
 julia> using PlutoStaticHTML: build_notebooks

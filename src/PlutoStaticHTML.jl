@@ -41,7 +41,7 @@ include("build.jl")
 
 export HTMLOptions
 export documenter_output, franklin_output, html_output
-export BuildOptions, parallel_build
+export BuildOptions, build_notebooks
 export cell2uuid
 
 # tmp

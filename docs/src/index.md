@@ -14,10 +14,10 @@ Also, I'm using this package for my own blog, for example: <https://huijzer.xyz/
 
 ## API overview
 
-The most important method is `parallel_build` ([API](@ref)).
+The most important method is `build_notebooks` ([API](@ref)).
 
 !!! note
-    `parallel_build` ensures that the original notebook will not be changed.
+    `build_notebooks` ensures that the original notebook will not be changed.
 
 In general, the idea is to
 
@@ -25,7 +25,7 @@ In general, the idea is to
 1. Get the name of the directory `dir` which contains your Pluto notebooks.
 1. Choose an appropriate `output_format` depending on how the output will be used.
     The output format can be `html_output`, `documenter_output` or `franklin_output`.
-1. Pass the paths to [`parallel_build`](@ref) which, depending on `output_format`, writes HTML or Markdown outputs to files.
+1. Pass the paths to [`build_notebooks`](@ref) which, depending on `output_format`, writes HTML or Markdown outputs to files.
 1. Read the output from the files and show them on a website via either your own logic or Documenter or Franklin.
 
 Note that this is a very nice development workflow because developing in Pluto notebooks is easy and allows for quick debugging.
@@ -67,18 +67,18 @@ For `output_format=franklin_output` examples, see
 
 ## Parallel build
 
-To speed up the build, this package defines [`parallel_build`](@ref).
+To speed up the build, this package defines [`build_notebooks`](@ref).
 This function evaluates the notebooks in parallel by default.
 Also, it can use [Caching](@ref) to speed up the build even more.
 
 To use it, pass a `dir` to write HTML files for all notebook files (the files are recognized by the ".jl" extension):
 
 ```julia
-julia> using PlutoStaticHTML: parallel_build
+julia> using PlutoStaticHTML: build_notebooks
 
 julia> dir = joinpath("posts", "notebooks");
 
-julia> parallel_build(BuildOptions(dir));
+julia> build_notebooks(BuildOptions(dir));
 [...]
 ```
 
@@ -87,7 +87,7 @@ To run only specific notebooks, use:
 ```julia
 julia> files = ["notebook1.jl", "notebook2.jl"];
 
-julia> parallel_build(BuildOptions(dir), files)
+julia> build_notebooks(BuildOptions(dir), files)
 [...]
 ```
 
@@ -100,18 +100,18 @@ julia> bopts = BuildOptions(dir);
 
 julia> hopts = HTMLOptions(; append_build_context=true);
 
-julia> parallel_build(bopts, files, hopts)
+julia> build_notebooks(bopts, files, hopts)
 [...]
 ```
 
-See [`parallel_build`](@ref) for more information.
+See [`build_notebooks`](@ref) for more information.
 
 ### Caching
 
 Using caching can greatly speed up running times by avoiding to re-evaluate notebooks.
 Caching can be enabled by passing `previous_dir` via [`BuildOptions`](@ref).
 This `previous_dir` should point to a location where HTML or Markdown files are from the previous build.
-Then, `parallel_build` will, for each input file `file.jl`, check:
+Then, `build_notebooks` will, for each input file `file.jl`, check:
 
 1. Whether `joinpath(previous_dir, "file.html")` exists
 2. Whether the SHA checksum of the current `$file.jl` matches the checksum of the previous `$file.jl`.
@@ -136,7 +136,7 @@ For Documenter, see `docs/make.jl` in this repository.
 ## API
 
 ```@docs
-parallel_build
+build_notebooks
 BuildOptions
 HTMLOptions
 ```

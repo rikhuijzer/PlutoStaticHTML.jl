@@ -19,7 +19,7 @@ function build_notebooks()
     hopts = HTMLOptions(; append_build_context=true)
     output_format = documenter_output
     bopts = BuildOptions(NOTEBOOK_DIR; output_format)
-    parallel_build(bopts, hopts)
+    build_notebooks(bopts, hopts)
     return nothing
 end
 

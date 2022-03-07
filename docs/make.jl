@@ -10,11 +10,11 @@ using PlutoStaticHTML
 const NOTEBOOK_DIR = joinpath(@__DIR__, "src", "notebooks")
 
 """
-    build_notebooks()
+    build()
 
 Run all Pluto notebooks (".jl" files) in `NOTEBOOK_DIR`.
 """
-function build_notebooks()
+function build()
     println("Building notebooks")
     hopts = HTMLOptions(; append_build_context=true)
     output_format = documenter_output
@@ -24,7 +24,7 @@ function build_notebooks()
 end
 
 if !("DISABLE_NOTEBOOK_BUILD" in keys(ENV))
-    build_notebooks()
+    build()
 end
 
 sitename = "PlutoStaticHTML.jl"

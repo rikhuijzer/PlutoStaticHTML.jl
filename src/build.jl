@@ -25,7 +25,7 @@ end
         use_distributed::Bool=true
     )
 
-Options for `build_notebooks`:
+Arguments:
 
 - `dir`:
     Directory in which the Pluto notebooks are stored.

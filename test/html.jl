@@ -134,3 +134,15 @@ end
     html, nb = notebook2html_helper(nb)
     @test contains(html, "BenchmarkTools.Trial")
 end
+
+@testset "show_output_above_code" begin
+    notebook = Notebook([
+        Cell("x = 1 + 1020"),
+    ])
+    hopts = HTMLOptions(; show_output_above_code=true)
+    html, nb = notebook2html_helper(notebook, hopts; use_distributed=false)
+    lines = split(html, '\n')
+
+    @test contains(lines[1], "1021")
+    @test contains(lines[2], "1 + 1020")
+end

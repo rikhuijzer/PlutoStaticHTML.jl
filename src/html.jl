@@ -23,10 +23,11 @@ const IMAGEMIME = Union{
         hide_md_def_code::Bool=true,
         add_state::Bool=true,
         append_build_context::Bool=false,
-        compiler_options::Union{Nothing,CompilerOptions}=nothing
+        compiler_options::Union{Nothing,CompilerOptions}=nothing,
+        show_output_above_code::Bool=false
     )
 
-Options for `notebook2html`:
+Arguments:
 
 - `code_class`:
     HTML class for code.
@@ -55,6 +56,10 @@ Options for `notebook2html`:
 - `compiler_options`:
     `Pluto.Configuration.CompilerOptions` to be passed to Pluto.
     This can, for example, be useful to pass custom system images from `PackageCompiler.jl`.
+- `show_output_above_code`:
+    Whether to show the output from the code above the code.
+    Pluto.jl shows the output above the code by default; this package shows the output below the code by default.
+    To show the output above the code, set `show_output_above_code=true`.
 """
 struct HTMLOptions
     code_class::String
@@ -66,6 +71,7 @@ struct HTMLOptions
     add_state::Bool
     append_build_context::Bool
     compiler_options::Union{Nothing,CompilerOptions}
+    show_output_above_code::Bool
 
     function HTMLOptions(;
         code_class::AbstractString="language-julia",
@@ -76,7 +82,8 @@ struct HTMLOptions
         hide_md_def_code::Bool=true,
         add_state::Bool=true,
         append_build_context::Bool=false,
-        compiler_options::Union{Nothing,CompilerOptions}=nothing
+        compiler_options::Union{Nothing,CompilerOptions}=nothing,
+        show_output_above_code::Bool=false
     )
         return new(
             string(code_class)::String,
@@ -87,7 +94,8 @@ struct HTMLOptions
             hide_md_def_code,
             add_state,
             append_build_context,
-            compiler_options
+            compiler_options,
+            show_output_above_code
         )
     end
 end
@@ -251,10 +259,17 @@ _output2html(cell::Cell, T::MIME, hopts) = error("Unknown type: $T")
 function _cell2html(cell::Cell, hopts::HTMLOptions)
     code = _code2html(cell.code, hopts)
     output = _output2html(cell, cell.output.mime, hopts)
-    return """
-        $code
-        $output
-        """
+    if hopts.show_output_above_code
+        return """
+            $output
+            $code
+            """
+    else
+        return """
+            $code
+            $output
+            """
+    end
 end
 
 const BEGIN_IDENTIFIER = "<!-- PlutoStaticHTML.Begin -->"

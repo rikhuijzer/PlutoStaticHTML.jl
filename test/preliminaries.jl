@@ -43,7 +43,7 @@ end
 "Helper function to simply pass a `nb::Notebook` and run it."
 function notebook2html_helper(
         nb::Notebook,
-        opts=HTMLOptions();
+        hopts=HTMLOptions();
         use_distributed::Bool=true
     )
     tmpdir = mktempdir()
@@ -52,7 +52,7 @@ function notebook2html_helper(
     session = ServerSession()
     session.options.evaluation.workspace_use_distributed = use_distributed
     nb = PlutoStaticHTML.run_notebook!(tmppath, session)
-    html = PlutoStaticHTML.notebook2html(nb, tmppath, opts)
+    html = PlutoStaticHTML.notebook2html(nb, tmppath, hopts)
 
     has_begin_end = contains(html, PlutoStaticHTML.BEGIN_IDENTIFIER)
     without_begin_end = has_begin_end ? drop_begin_end(html) : html

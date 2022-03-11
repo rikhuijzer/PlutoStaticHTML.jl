@@ -43,7 +43,7 @@ checkdocs = :none
 makedocs(; sitename, pages, format, modules, strict, checkdocs)
 
 deploydocs(;
-    branch="docs",
+    branch="docs-output",
     devbranch="main",
     repo="github.com/rikhuijzer/PlutoStaticHTML.jl.git",
     push_preview=false

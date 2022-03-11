@@ -42,10 +42,9 @@ strict = true
 checkdocs = :none
 makedocs(; sitename, pages, format, modules, strict, checkdocs)
 
-repo = "github.com/rikhuijzer/PlutoStaticHTML.jl.git"
-push_preview = false
-devbranch = "main"
-deploydocs(; devbranch, repo, push_preview)
-
-# For local development.
-cd(pkgdir(PlutoStaticHTML))
+deploydocs(;
+    branch="docs",
+    devbranch="main",
+    repo="github.com/rikhuijzer/PlutoStaticHTML.jl.git",
+    push_preview=false
+)

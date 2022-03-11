@@ -26,10 +26,10 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'pull_request' }}
     steps:
-      - name: Clone `docs` branch
+      - name: Clone `docs-output` branch
         uses: actions/checkout@v2
         with:
-          ref: 'docs'
+          ref: 'docs-output'
 
       - uses: webfactory/ssh-agent@v0.5.4
         with:

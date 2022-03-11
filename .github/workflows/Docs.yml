@@ -34,30 +34,33 @@ jobs:
       - uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-          
-      - name: Generate redirects
-        shell: julia --color=yes {0}
-        run: |
-          redirects = String[]
-
-          for (root, _, files) in walkdir(".")
-              for file in files
-                  path = joinpath(root, file)
-                  if islink(path)
-                      from = lstrip(path, '.')
-                      to = readlink(path)
-                      redirect = "$from $to 301"
-                      push!(redirects, redirect)
-                  end
-              end
-          end
-
-          text = join(redirects, '\n')
-          write("_redirects", text)
 
       - name: Deploy to https://huijzer.xyz/PlutoStaticHTML.jl
         shell: julia --color=yes {0}
         run: |
+          function generate_redirects(dir)
+              cd(dir) do
+                  redirects = String[]
+                  for (root, _, files) in walkdir(".")
+                    for file in files
+                        path = joinpath(root, file)
+                        if islink(path)
+                            url_root = lstrip(root, '.')
+                            from = joinpath(url_root, file)
+                            # End with forward slashes to get redirects to index.html
+                            to = joinpath(url_root, readlink(path) * '/')
+                            redirect = "$from $to 301"
+                            @info redirect
+                            push!(redirects, redirect)
+                        end
+                    end
+                  end
+                  text = join(redirects, '\n')
+                  write("_redirects", text)
+                  return nothing
+              end
+          end
+
           from = "."
           clone = mktempdir()
           url = "git@github.com:rikhuijzer/huijzer.xyz.git"
@@ -67,6 +70,7 @@ jobs:
           cp(from, to; force=true)
           # To avoid Git submodules.
           rm(joinpath(to, ".git"); recursive=true)
+          generate_redirects(joinpath(clone, "public"))
           cd(clone) do
               run(`git add .`)
               run(`git config --global user.email 't.h.huijzer@rug.nl'`)

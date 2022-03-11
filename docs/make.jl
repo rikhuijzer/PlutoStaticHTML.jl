@@ -44,6 +44,8 @@ makedocs(; sitename, pages, format, modules, strict, checkdocs)
 
 deploydocs(;
     branch="docs",
+    # `stable` doesn't work because CloudFlare Pages don't follow symlinks.
+    canonical = "https://huijzer.xyz/PlutoStaticHTML.jl/dev/",
     devbranch="main",
     repo="github.com/rikhuijzer/PlutoStaticHTML.jl.git",
     push_preview=false

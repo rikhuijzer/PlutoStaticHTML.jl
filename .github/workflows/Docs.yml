@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Docs:
+  BuildAndDeploy:
     name: Documentation
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -20,3 +20,37 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+
+  MonoDeploy:
+    needs: BuildAndDeploy
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
+    steps:
+      - name: Clone `docs` branch
+        uses: actions/checkout@v2
+        with:
+          ref: 'docs'
+
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Deploy to https://huijzer.xyz/PlutoStaticHTML.jl
+        shell: julia --color=yes {0}
+        run: |
+          from = "."
+          clone = mktempdir()
+          url = "git@github.com:rikhuijzer/huijzer.xyz.git"
+          run(`git clone --depth=1 $url $clone`)
+          to = joinpath(clone, "public", "PlutoStaticHTML.jl")
+          mkpath(to)
+          cp(from, to; force=true)
+          # To avoid Git submodules.
+          rm(joinpath(to, ".git"); recursive=true)
+          cd(clone) do
+              run(`git add .`)
+              run(`git config --global user.email 't.h.huijzer@rug.nl'`)
+              run(`git config --global user.name 'Bot'`)
+              run(`git commit --allow-empty -m 'Deploy from PlutoStaticHTML.jl'`)
+              run(`git push`)
+          end

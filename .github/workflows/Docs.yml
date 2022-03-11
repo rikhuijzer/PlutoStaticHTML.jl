@@ -34,16 +34,26 @@ jobs:
       - uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-
-      # Fixes CloudFlare Pages not following symlinks.
-      # Documenter.jl will not touch this file after it has been created.
-      - name: Default to `dev`
+          
+      - name: Generate redirects
         shell: julia --color=yes {0}
         run: |
-          filename = "index.html"
-          if isfile(filename)
-              run(`sed --debug -i 's/stable/dev/g' $filename`)
+          redirects = String[]
+
+          for (root, _, files) in walkdir(".")
+              for file in files
+                  path = joinpath(root, file)
+                  if islink(path)
+                      from = lstrip(path, '.')
+                      to = readlink(path)
+                      redirect = "$from $to 301"
+                      push!(redirects, redirect)
+                  end
+              end
           end
+
+          text = join(redirects, '\n')
+          write("_redirects", text)
 
       - name: Deploy to https://huijzer.xyz/PlutoStaticHTML.jl
         shell: julia --color=yes {0}

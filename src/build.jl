@@ -213,8 +213,6 @@ function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::St
     # Otherwise, the outputs look wrong when opening a page for the first time.
     html = notebook2html(nb, in_path, hopts)
 
-    SessionActions.shutdown(session, nb)
-
     if bopts.output_format == franklin_output
         html = "~~~\n$(html)\n~~~"
     end
@@ -225,6 +223,13 @@ function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::St
     end
 
     _write_main_output(in_path, html, bopts, hopts)
+
+    # The sleep avoids `AssertionError: will_run_code(notebook)`
+    @async begin
+        sleep(5)
+        SessionActions.shutdown(session, nb; verbose=false)
+    end
+
     return string(html)::String
 end
 

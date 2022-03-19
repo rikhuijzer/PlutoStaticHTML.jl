@@ -23,14 +23,15 @@ function build()
     return nothing
 end
 
-if !("DISABLE_NOTEBOOK_BUILD" in keys(ENV))
+if !("DISABLE_NOTEBOOKS_BUILD" in keys(ENV))
     build()
 end
 
 sitename = "PlutoStaticHTML.jl"
 pages = [
     "PlutoStaticHTML" => "index.md",
-    "Example notebook" => "notebooks/example.md"
+    "Example notebook" => "notebooks/example.md",
+    "`with_terminal`" => "with_terminal.md"
 ]
 
 # Using MathJax3 since Pluto uses that engine too.

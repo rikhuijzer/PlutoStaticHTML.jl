@@ -11,7 +11,6 @@ end
 
 function _patch_with_terminal(body::String)
     txt = _extract_txt(body)
-    @show txt
     return """
         <pre id="plutouiterminal">
         $txt

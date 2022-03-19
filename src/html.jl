@@ -242,12 +242,17 @@ end
 
 function _output2html(cell::Cell, ::MIME"text/html", hopts)
     body = cell.output.body
+
+    if contains(body, """<script type="text/javascript" id="plutouiterminal">""")
+        return _patch_with_terminal(string(body))
+    end
+
     # The docstring is already visible in Markdown and shouldn't be shown below the code.
     if startswith(body, """<div class="pluto-docs-binding">""")
         return ""
-    else
-        return body
     end
+
+    return body
 end
 
 function _output2html(cell::Cell, ::MIME"application/vnd.pluto.stacktrace+object", hopts)

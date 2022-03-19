@@ -14,6 +14,10 @@ end
     include("mimeoverride.jl")
 end
 
+@timed_testset "with_terminal" begin
+    include("with_terminal.jl")
+end
+
 @timed_testset "html" begin
     include("html.jl")
 end

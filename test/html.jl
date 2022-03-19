@@ -136,13 +136,28 @@ end
 end
 
 @testset "show_output_above_code" begin
-    notebook = Notebook([
+    nb = Notebook([
         Cell("x = 1 + 1020"),
     ])
     hopts = HTMLOptions(; show_output_above_code=true)
-    html, nb = notebook2html_helper(notebook, hopts; use_distributed=false)
+    html, _ = notebook2html_helper(nb, hopts; use_distributed=false)
     lines = split(html, '\n')
 
     @test contains(lines[1], "1021")
     @test contains(lines[2], "1 + 1020")
+end
+
+@testset "with_terminal" begin
+    nb = Notebook([
+        Cell("using PlutoUI"),
+        Cell("f(x) = Base.inferencebarrier(x);"),
+        Cell("""
+            with_terminal() do
+                @code_warntype f(1)
+            end
+            """)
+    ])
+    html, _ = notebook2html_helper(nb)
+    # Basically, this only tests whether `_patch_with_terminal` is applied.
+    @test contains(html, """<pre id="plutouiterminal">""")
 end

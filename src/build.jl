@@ -167,19 +167,9 @@ function _write_main_output(in_path, text, bopts::BuildOptions, hopts::HTMLOptio
     return nothing
 end
 
-function _outcome2text(session, prev::Previous, in_path::String, bopts, hopts)::String
-    text = prev.text
-    if bopts.output_format == franklin_output
-        text = "~~~\n$(text)\n~~~"
-    end
-    _write_main_output(in_path, text, bopts, hopts)
-    return text
-end
-
-function _inject_script(html, script)
-    l = length(END_IDENTIFIER)
-    without_end = html[1:end-l]
-    return string(without_end, '\n', script, '\n', END_IDENTIFIER)
+"Used when creating the page for the first time and to restore the cache."
+function _wrap_franklin_output(html)
+    return "~~~\n$(html)\n~~~"
 end
 
 "Add some style overrides to make things a bit prettier and more consistent with Pluto."
@@ -202,6 +192,30 @@ function _add_documenter_style(html)
     return string(style, '\n', html)
 end
 
+"Used when creating the page for the first time and to restore the cache."
+function _wrap_documenter_output(html)
+    html = _add_documenter_style(html)
+    return "```@raw html\n$(html)\n```"
+end
+
+function _outcome2text(session, prev::Previous, in_path::String, bopts, hopts)::String
+    text = prev.text
+    if bopts.output_format == franklin_output
+        text = _wrap_franklin_output(text)
+    end
+    if bopts.output_format == documenter_output
+        text = _wrap_documenter_output(text)
+    end
+    _write_main_output(in_path, text, bopts, hopts)
+    return text
+end
+
+function _inject_script(html, script)
+    l = length(END_IDENTIFIER)
+    without_end = html[1:end-l]
+    return string(without_end, '\n', script, '\n', END_IDENTIFIER)
+end
+
 function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::String
     while !_notebook_done(nb)
         sleep(0.1)
@@ -214,12 +228,10 @@ function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::St
     html = notebook2html(nb, in_path, hopts)
 
     if bopts.output_format == franklin_output
-        html = "~~~\n$(html)\n~~~"
+        html = _wrap_franklin_output(html)
     end
-
     if bopts.output_format == documenter_output
-        html = _add_documenter_style(html)
-        html = "```@raw html\n$(html)\n```"
+        html = _wrap_documenter_output(html)
     end
 
     _write_main_output(in_path, html, bopts, hopts)

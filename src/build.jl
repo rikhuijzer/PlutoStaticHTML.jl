@@ -172,6 +172,26 @@ function _wrap_franklin_output(html)
     return "~~~\n$(html)\n~~~"
 end
 
+"Add some style overrides to make things a bit prettier and more consistent with Pluto."
+function _add_documenter_style(html)
+    style = """
+        <style>
+            table {
+                display: table !important;
+                margin: 2rem auto !important;
+                border-top: 2pt solid rgba(0,0,0,0.2);
+                border-bottom: 2pt solid rgba(0,0,0,0.2);
+            }
+
+            pre, div {
+                margin-top: 1.4rem !important;
+                margin-bottom: 1.4rem !important;
+            }
+        </style>
+        """
+    return string(style, '\n', html)
+end
+
 "Used when creating the page for the first time and to restore the cache."
 function _wrap_documenter_output(html)
     html = _add_documenter_style(html)
@@ -194,26 +214,6 @@ function _inject_script(html, script)
     l = length(END_IDENTIFIER)
     without_end = html[1:end-l]
     return string(without_end, '\n', script, '\n', END_IDENTIFIER)
-end
-
-"Add some style overrides to make things a bit prettier and more consistent with Pluto."
-function _add_documenter_style(html)
-    style = """
-        <style>
-            table {
-                display: table !important;
-                margin: 2rem auto !important;
-                border-top: 2pt solid rgba(0,0,0,0.2);
-                border-bottom: 2pt solid rgba(0,0,0,0.2);
-            }
-
-            pre, div {
-                margin-top: 1.4rem !important;
-                margin-bottom: 1.4rem !important;
-            }
-        </style>
-        """
-    return string(style, '\n', html)
 end
 
 function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::String

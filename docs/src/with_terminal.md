@@ -66,12 +66,15 @@ Next, the output can be made more to look like an embedded terminal by adding th
 
 ```css
 #plutouiterminal {
+  font-family: JuliaMono-Regular, SFMono-Regular, DejaVu Sans Mono, monospace;
+  /* Without this, the output of BenchmarkTools looks weird. */
+  line-height: 114%;
   max-height: 300px;
   overflow: auto;
   white-space: pre;
   color: white;
   background-color: black;
-  border-radius: 3px;
+  border-radius: 6px;
   margin-top: 8px;
   margin-bottom: 8px;
   padding: 15px;

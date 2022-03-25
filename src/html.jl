@@ -13,18 +13,31 @@ const IMAGEMIME = Union{
     MIME"image/gif"
 }
 
+const CODE_CLASS_DEFAULT = "language-julia"
+const OUTPUT_CLASS_DEFAULT = "code-output"
+const OUTPUT_PRE_CLASS_DEFAULT = "documenter-example-output"
+const HIDE_CODE_DEFAULT = false
+const HIDE_MD_CODE_DEFAULT = true
+const HIDE_MD_DEF_CODE_DEFAULT = true
+const ADD_STATE_DEFAULT = true
+const APPEND_BUILD_CONTEXT_DEFAULT = false
+const COMPILER_OPTIONS_DEFAULT = nothing
+const SHOW_OUTPUT_ABOVE_CODE_DEFAULT = false
+const REPLACE_CODE_TABS_DEFAULT = true
+
 """
     HTMLOptions(;
-        code_class::AbstractString="language-julia",
-        output_class::AbstractString="code-output",
-        output_pre_class::AbstractString="documenter-example-output",
-        hide_code::Bool=false,
-        hide_md_code::Bool=true,
-        hide_md_def_code::Bool=true,
-        add_state::Bool=true,
-        append_build_context::Bool=false,
-        compiler_options::Union{Nothing,CompilerOptions}=nothing,
-        show_output_above_code::Bool=false
+        code_class::AbstractString="$CODE_CLASS_DEFAULT",
+        output_class::AbstractString="$OUTPUT_CLASS_DEFAULT",
+        output_pre_class::AbstractString="$OUTPUT_CLASS_DEFAULT",
+        hide_code::Bool=$HIDE_CODE_DEFAULT,
+        hide_md_code::Bool=$HIDE_MD_CODE_DEFAULT,
+        hide_md_def_code::Bool=$HIDE_MD_DEF_CODE_DEFAULT,
+        add_state::Bool=$ADD_STATE_DEFAULT,
+        append_build_context::Bool=$APPEND_BUILD_CONTEXT_DEFAULT,
+        compiler_options::Union{Nothing,CompilerOptions}=$COMPILER_OPTIONS_DEFAULT,
+        show_output_above_code::Bool=$SHOW_OUTPUT_ABOVE_CODE_DEFAULT,
+        replace_code_tabs::Bool=$REPLACE_CODE_TABS_DEFAULT
     )
 
 Arguments:
@@ -60,6 +73,9 @@ Arguments:
     Whether to show the output from the code above the code.
     Pluto.jl shows the output above the code by default; this package shows the output below the code by default.
     To show the output above the code, set `show_output_above_code=true`.
+- `replace_code_tabs`:
+    Replace tabs at the start of lines inside code blocks with spaces.
+    This avoids inconsistent appearance of code blocks on web pages.
 """
 struct HTMLOptions
     code_class::String
@@ -72,18 +88,20 @@ struct HTMLOptions
     append_build_context::Bool
     compiler_options::Union{Nothing,CompilerOptions}
     show_output_above_code::Bool
+    replace_code_tabs::Bool
 
     function HTMLOptions(;
-        code_class::AbstractString="language-julia",
-        output_pre_class::AbstractString="documenter-example-output",
-        output_class::AbstractString="code-output",
-        hide_code::Bool=false,
-        hide_md_code::Bool=true,
-        hide_md_def_code::Bool=true,
-        add_state::Bool=true,
-        append_build_context::Bool=false,
-        compiler_options::Union{Nothing,CompilerOptions}=nothing,
-        show_output_above_code::Bool=false
+        code_class::AbstractString=CODE_CLASS_DEFAULT,
+        output_pre_class::AbstractString=OUTPUT_PRE_CLASS_DEFAULT,
+        output_class::AbstractString=OUTPUT_CLASS_DEFAULT,
+        hide_code::Bool=HIDE_CODE_DEFAULT,
+        hide_md_code::Bool=HIDE_MD_CODE_DEFAULT,
+        hide_md_def_code::Bool=HIDE_MD_DEF_CODE_DEFAULT,
+        add_state::Bool=ADD_STATE_DEFAULT,
+        append_build_context::Bool=APPEND_BUILD_CONTEXT_DEFAULT,
+        compiler_options::Union{Nothing,CompilerOptions}=COMPILER_OPTIONS_DEFAULT,
+        show_output_above_code::Bool=SHOW_OUTPUT_ABOVE_CODE_DEFAULT,
+        replace_code_tabs::Bool=REPLACE_CODE_TABS_DEFAULT
     )
         return new(
             string(code_class)::String,
@@ -95,7 +113,8 @@ struct HTMLOptions
             add_state,
             append_build_context,
             compiler_options,
-            show_output_above_code
+            show_output_above_code,
+            replace_code_tabs
         )
     end
 end
@@ -129,6 +148,16 @@ function output_block(s; class="code-output", pre_class="pre-class", var="")
     return "<pre $id class='$pre_class'><code class='$class'>$s</code></pre>"
 end
 
+"Replace tabs by spaces in code blocks."
+function _replace_code_tabs(code)
+    sep = '\n'
+    lines = split(code, sep)
+    for (i, line) in enumerate(lines)
+        while true
+    end
+    return join(lines, sep)
+end
+
 function _code2html(code::AbstractString, hopts::HTMLOptions)
     if hopts.hide_code
         return ""
@@ -141,6 +170,9 @@ function _code2html(code::AbstractString, hopts::HTMLOptions)
         if startswith(lstripped, "+++")
             return ""
         end
+    end
+    if hopts.replace_code_tabs
+        code = _replace_code_tabs
     end
     if contains(code, "# hideall")
         return ""

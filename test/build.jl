@@ -74,3 +74,29 @@ end
     @test strip(actual) == strip(expected)
 end
 
+@testset "add_documenter_style" begin
+    # optionally disable adding extra style elements for documenter
+    @testset for add_documenter_style in (true, false)
+        dir = mktempdir()
+        cd(dir) do
+            path = joinpath(dir, "notebook.jl")
+            code = pluto_notebook_content("""
+                x = 1
+                """)
+            write(path, code)
+
+            use_distributed = false
+            output_format = documenter_output
+            bo = BuildOptions(dir; use_distributed, output_format, add_documenter_style)
+            build_notebooks(bo)
+
+            output_path = joinpath(dir, "notebook.md")
+            lines = readlines(output_path)
+            if add_documenter_style
+                @test lines[2] == "<style>"
+            else
+                @test lines[2] != "<style>"
+            end
+        end
+    end
+end

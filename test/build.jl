@@ -74,9 +74,8 @@ end
     @test strip(actual) == strip(expected)
 end
 
-@testset "add_documenter_style" begin
-    # optionally disable adding extra style elements for documenter
-    @testset for add_documenter_style in (true, false)
+@testset "add_documenter_css" begin
+    @testset for add_documenter_css in (true, false)
         dir = mktempdir()
         cd(dir) do
             path = joinpath(dir, "notebook.jl")
@@ -87,12 +86,12 @@ end
 
             use_distributed = false
             output_format = documenter_output
-            bo = BuildOptions(dir; use_distributed, output_format, add_documenter_style)
+            bo = BuildOptions(dir; use_distributed, output_format, add_documenter_css)
             build_notebooks(bo)
 
             output_path = joinpath(dir, "notebook.md")
             lines = readlines(output_path)
-            if add_documenter_style
+            if add_documenter_css
                 @test lines[2] == "<style>"
             else
                 @test lines[2] != "<style>"

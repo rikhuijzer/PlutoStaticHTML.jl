@@ -75,7 +75,7 @@ end
 end
 
 @testset "add_documenter_css" begin
-    @testset for add_documenter_css in (true, false)
+    for add_documenter_css in (true, false)
         dir = mktempdir()
         cd(dir) do
             path = joinpath(dir, "notebook.jl")

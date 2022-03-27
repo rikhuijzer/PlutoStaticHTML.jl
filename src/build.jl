@@ -22,6 +22,7 @@ end
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
         output_format::OutputFormat=html_output,
+        add_documenter_style::Bool=true,
         use_distributed::Bool=true
     )
 
@@ -43,6 +44,7 @@ Arguments:
     By default this is `html_output::OutputFormat` meaning that the output of the HTML method is pure HTML.
     To generate Franklin or Documenter files, use respectively `franklin_output` or `documenter_output`.
     When `BuildOptions.write_files == true` and `output_format != html_output`, the output file has a ".md" extension instead of ".html".
+- `add_documenter_style` whether to add a CSS style to the HTML when `documenter_output=true`.
 - `use_distributed`:
     Whether to build the notebooks in different processes.
     By default, this is enabled just like in Pluto and the notebooks are build in parallel.
@@ -57,24 +59,24 @@ struct BuildOptions
     write_files::Bool
     previous_dir::Union{Nothing,String}
     output_format::OutputFormat
-    use_distributed::Bool
     add_documenter_style::Bool
+    use_distributed::Bool
 
     function BuildOptions(
         dir::AbstractString;
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
         output_format::OutputFormat=html_output,
-        use_distributed::Bool=true,
         add_documenter_style::Bool=true,
+        use_distributed::Bool=true
     )
         return new(
             string(dir)::String,
             write_files,
             nothingstring(previous_dir),
             output_format,
-            use_distributed,
             add_documenter_style,
+            use_distributed
         )
     end
 end

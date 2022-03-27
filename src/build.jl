@@ -58,20 +58,23 @@ struct BuildOptions
     previous_dir::Union{Nothing,String}
     output_format::OutputFormat
     use_distributed::Bool
+    add_documenter_style::Bool
 
     function BuildOptions(
         dir::AbstractString;
         write_files::Bool=true,
         previous_dir::Union{Nothing,AbstractString}=nothing,
         output_format::OutputFormat=html_output,
-        use_distributed::Bool=true
+        use_distributed::Bool=true,
+        add_documenter_style::Bool=true,
     )
         return new(
             string(dir)::String,
             write_files,
             nothingstring(previous_dir),
             output_format,
-            use_distributed
+            use_distributed,
+            add_documenter_style,
         )
     end
 end
@@ -193,8 +196,10 @@ function _add_documenter_style(html)
 end
 
 "Used when creating the page for the first time and to restore the cache."
-function _wrap_documenter_output(html)
-    html = _add_documenter_style(html)
+function _wrap_documenter_output(html; add_documenter_style::Bool=true)
+    if add_documenter_style
+        html = _add_documenter_style(html)
+    end
     return "```@raw html\n$(html)\n```"
 end
 
@@ -204,7 +209,7 @@ function _outcome2text(session, prev::Previous, in_path::String, bopts, hopts)::
         text = _wrap_franklin_output(text)
     end
     if bopts.output_format == documenter_output
-        text = _wrap_documenter_output(text)
+        text = _wrap_documenter_output(text; bopts.add_documenter_style)
     end
     _write_main_output(in_path, text, bopts, hopts)
     return text
@@ -231,7 +236,7 @@ function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::St
         html = _wrap_franklin_output(html)
     end
     if bopts.output_format == documenter_output
-        html = _wrap_documenter_output(html)
+        html = _wrap_documenter_output(html; bopts.add_documenter_style)
     end
 
     _write_main_output(in_path, html, bopts, hopts)

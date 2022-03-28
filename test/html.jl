@@ -163,8 +163,14 @@ end
 end
 
 @testset "replace_code_tabs" begin
-    code = "		1	"
-    @test PlutoStaticHTML._replace_code_tabs(code) == "        1	"
+    code = """
+        		1	
+        	2
+        """
+    @test PlutoStaticHTML._replace_code_tabs(code) == """
+                1	
+            2
+        """
 
     nb = Notebook([
         Cell("	a = 1 + 1021;"),
@@ -174,9 +180,8 @@ end
     html, _ = notebook2html_helper(nb, hopts; use_distributed=false)
     lines = split(html, '\n')
 
-    @show lines[1]
+    filter!(!isempty, lines)
     @test contains(lines[1], "    a = 1 + 1021")
-    @show lines[2]
-    @test contains(lines[3], "        b = 1 + 1021")
+    @test contains(lines[2], "        b = 1 + 1021")
 end
 

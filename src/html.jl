@@ -150,12 +150,10 @@ end
 
 "Replace tabs by spaces in code blocks."
 function _replace_code_tabs(code)
-    sep = '\n'
-    lines = split(code, sep)
-    for (i, line) in enumerate(lines)
-        while true
-    end
-    return join(lines, sep)
+    # Match all tabs at start of line or start of newline.
+    rx = r"(^|\r|\n)([\t]*)"
+    replacer(x::SubString{String}) = replace(x, '\t' => "    ")
+    replace(code, rx => replacer)
 end
 
 function _code2html(code::AbstractString, hopts::HTMLOptions)
@@ -172,7 +170,7 @@ function _code2html(code::AbstractString, hopts::HTMLOptions)
         end
     end
     if hopts.replace_code_tabs
-        code = _replace_code_tabs
+        code = _replace_code_tabs(code)
     end
     if contains(code, "# hideall")
         return ""

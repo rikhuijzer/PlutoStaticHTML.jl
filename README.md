@@ -1,6 +1,5 @@
 # PlutoStaticHTML.jl
 
-[![Docs stable][docs-stable-img]][docs-stable-url]
 [![Docs dev][docs-dev-img]][docs-dev-url]
 [![Code Style Blue][blue-img]][blue-url]
 [![Contributor's Guide on Collaborative Practices][colprac-img]][colprac-url]
@@ -28,10 +27,7 @@ See the [documentation](https://rikhuijzer.github.io/PlutoStaticHTML.jl/dev/) fo
 [ci-img]: https://github.com/rikhuijzer/PlutoStaticHTML.jl/workflows/CI/badge.svg
 
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[docs-dev-url]: https://rikhuijzer.github.io/PlutoStaticHTML.jl/dev/
-
-[docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://rikhuijzer.github.io/PlutoStaticHTML.jl/stable/
+[docs-dev-url]: https://huijzer.xyz/PlutoStaticHTML.jl/dev/
 
 [blue-img]: https://img.shields.io/badge/code%20style-blue-4495d1.svg
 [blue-url]: https://github.com/invenia/BlueStyle

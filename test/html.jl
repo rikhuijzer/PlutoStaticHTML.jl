@@ -161,3 +161,27 @@ end
     # Basically, this only tests whether `_patch_with_terminal` is applied.
     @test contains(html, """<pre id="plutouiterminal">""")
 end
+
+@testset "replace_code_tabs" begin
+    code = """
+        		1	
+        	2
+        """
+    @test PlutoStaticHTML._replace_code_tabs(code) == """
+                1	
+            2
+        """
+
+    nb = Notebook([
+        Cell("	a = 1 + 1021;"),
+        Cell("		b = 1 + 1021;"),
+    ])
+    hopts = HTMLOptions()
+    html, _ = notebook2html_helper(nb, hopts; use_distributed=false)
+    lines = split(html, '\n')
+
+    filter!(!isempty, lines)
+    @test contains(lines[1], "    a = 1 + 1021")
+    @test contains(lines[2], "        b = 1 + 1021")
+end
+

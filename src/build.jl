@@ -1,5 +1,5 @@
 function _is_cell_done(cell)
-    if cell.running_disabled
+    if cell.metadata["disabled"]
         return true
     else
         return !cell.queued && !cell.running

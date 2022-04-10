@@ -192,6 +192,10 @@ function _add_documenter_css(html)
                 margin-top: 1.4rem !important;
                 margin-bottom: 1.4rem !important;
             }
+
+            .code-output {
+                padding: 0.7rem 0.5rem !important;
+            }
         </style>
         """
     return string(style, '\n', html)

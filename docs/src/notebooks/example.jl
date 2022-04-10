@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.0
+# v0.19.0
 
 using Markdown
 using InteractiveUtils
@@ -14,6 +14,9 @@ The web page that you're looking is generated from a Pluto notebook.
 
 # ╔═╡ 058a7f63-7058-4229-b40c-2e98264bd77f
 1 + 1
+
+# ╔═╡ ee8c85f0-6612-4515-89a8-af04298c48bc
+(; title="a namedtuple", values=[1, 2, 3])
 
 # ╔═╡ 7ca85dab-6066-4b2a-b61c-9d9607b8756c
 lines(1:10, 1:10)
@@ -1178,6 +1181,7 @@ version = "3.5.0+0"
 # ╔═╡ Cell order:
 # ╠═751853f6-626f-4040-86b2-088339ef9a3c
 # ╠═058a7f63-7058-4229-b40c-2e98264bd77f
+# ╠═ee8c85f0-6612-4515-89a8-af04298c48bc
 # ╠═3dd303b0-373e-11ec-18e4-69bfc20b5e29
 # ╠═7ca85dab-6066-4b2a-b61c-9d9607b8756c
 # ╠═4ca09326-c8d8-44fb-8582-8dcc071bc76a

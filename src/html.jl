@@ -14,8 +14,7 @@ const IMAGEMIME = Union{
 }
 
 const CODE_CLASS_DEFAULT = "language-julia"
-const OUTPUT_CLASS_DEFAULT = "code-output"
-const OUTPUT_PRE_CLASS_DEFAULT = "documenter-example-output"
+const OUTPUT_PRE_CLASS_DEFAULT = "code-output documenter-example-output"
 const HIDE_CODE_DEFAULT = false
 const HIDE_MD_CODE_DEFAULT = true
 const HIDE_MD_DEF_CODE_DEFAULT = true
@@ -28,8 +27,7 @@ const REPLACE_CODE_TABS_DEFAULT = true
 """
     HTMLOptions(;
         code_class::AbstractString="$CODE_CLASS_DEFAULT",
-        output_class::AbstractString="$OUTPUT_CLASS_DEFAULT",
-        output_pre_class::AbstractString="$OUTPUT_CLASS_DEFAULT",
+        output_pre_class::AbstractString="$OUTPUT_PRE_CLASS_DEFAULT",
         hide_code::Bool=$HIDE_CODE_DEFAULT,
         hide_md_code::Bool=$HIDE_MD_CODE_DEFAULT,
         hide_md_def_code::Bool=$HIDE_MD_DEF_CODE_DEFAULT,
@@ -80,7 +78,6 @@ Arguments:
 struct HTMLOptions
     code_class::String
     output_pre_class::String
-    output_class::String
     hide_code::Bool
     hide_md_code::Bool
     hide_md_def_code::Bool
@@ -93,7 +90,6 @@ struct HTMLOptions
     function HTMLOptions(;
         code_class::AbstractString=CODE_CLASS_DEFAULT,
         output_pre_class::AbstractString=OUTPUT_PRE_CLASS_DEFAULT,
-        output_class::AbstractString=OUTPUT_CLASS_DEFAULT,
         hide_code::Bool=HIDE_CODE_DEFAULT,
         hide_md_code::Bool=HIDE_MD_CODE_DEFAULT,
         hide_md_def_code::Bool=HIDE_MD_DEF_CODE_DEFAULT,
@@ -106,7 +102,6 @@ struct HTMLOptions
         return new(
             string(code_class)::String,
             string(output_pre_class)::String,
-            string(output_class)::String,
             hide_code,
             hide_md_code,
             hide_md_def_code,
@@ -140,12 +135,12 @@ function code_block(code; pre_class="language-julia", code_class="")
     return "<pre class='$pre_class'><code class='$code_class'>$code</code></pre>"
 end
 
-function output_block(s; class="code-output", pre_class="pre-class", var="")
+function output_block(s; output_pre_class="pre-class", var="")
     if s == ""
         return ""
     end
     id = var == "" ? "" : "id='var-$var'"
-    return "<pre $id class='$pre_class'><code class='$class'>$s</code></pre>"
+    return "<pre $id class='$output_pre_class'>$s</pre>"
 end
 
 "Replace tabs by spaces in code blocks."
@@ -266,8 +261,7 @@ function _output2html(cell::Cell, ::MIME"text/plain", hopts)
         # Go back into Markdown mode instead of HTML
         return string("~~~\n", body, "\n~~~")
     end
-    pre_class = hopts.output_pre_class
-    output_block(body; pre_class, var)
+    output_block(body; hopts.output_pre_class, var)
 end
 
 function _output2html(cell::Cell, ::MIME"text/html", hopts)

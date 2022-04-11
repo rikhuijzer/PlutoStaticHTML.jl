@@ -92,6 +92,12 @@ function _notebook_done(notebook::Notebook)
     return all(_is_cell_done, cells)
 end
 
+function _wait_for_notebook_done(nb::Notebook)
+    while !_notebook_done(nb)
+        sleep(1)
+    end
+end
+
 function extract_previous_output(html::AbstractString)::String
     start_range = findfirst(BEGIN_IDENTIFIER, html)
     @assert !isnothing(start_range)
@@ -228,10 +234,6 @@ function _inject_script(html, script)
 end
 
 function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::String
-    while !_notebook_done(nb)
-        sleep(0.1)
-    end
-
     _throw_if_error(session, nb)
 
     # Grab output before changing binds via `_run_dynamic!`.
@@ -256,6 +258,47 @@ function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::St
     return string(html)::String
 end
 
+function _evaluate_file(bopts::BuildOptions, hopts::HTMLOptions, session, in_file)
+    dir = bopts.dir
+    in_path = joinpath(dir, in_file)::String
+    @assert isfile(in_path) "Expected .jl file at $in_path"
+
+    previous = Previous(bopts, in_file)
+    if reuse_previous(previous, dir, in_file)
+        @info "Using cache for Pluto notebook at $in_file"
+        return previous
+    else
+        @info "Starting evaluation of Pluto notebook $in_file"
+        if bopts.use_distributed
+            run_async = true
+        else
+            run_async = false
+            # `use_distributed` means mostly "whether to run in a new process".
+            session.options.evaluation.workspace_use_distributed = false
+        end
+        nb = run_notebook!(in_path, session; hopts, run_async)
+        if bopts.use_distributed
+            _wait_for_notebook_done(nb)
+        end
+        return nb
+    end
+end
+
+function _evaluate_parallel(bopts, hopts, session, files)
+    X = Vector{Any}(undef, length(files))
+    Threads.@threads :static for i in 1:length(files)
+        in_file = files[i]
+        X[i] = _evaluate_file(bopts, hopts, session, in_file)
+    end
+    return X
+end
+
+function _evaluate_sequential(bopts, hopts, session, files)
+    return map(files) do in_file
+        _evaluate_file(bopts, hopts, session, in_file)
+    end
+end
+
 """
     build_notebooks(
         bopts::BuildOptions,
@@ -273,33 +316,11 @@ function build_notebooks(
         session=ServerSession()
     )::Vector{String}
 
-    dir = bopts.dir
-
-    # Start all the notebooks in parallel with async enabled if `use_distributed`.
-    X = map(files) do in_file
-        in_path = joinpath(dir, in_file)::String
-        @assert isfile(in_path) "Expected .jl file at $in_path"
-
-        previous = Previous(bopts, in_file)
-        if reuse_previous(previous, dir, in_file)
-            @info "Using cache for Pluto notebook at $in_file"
-            return previous
-        else
-            @info "Starting evaluation of Pluto notebook $in_file"
-            if bopts.use_distributed
-                run_async = true
-            else
-                run_async = false
-                # `use_distributed` means mostly "whether to run in a new process".
-                session.options.evaluation.workspace_use_distributed = false
-            end
-            nb = run_notebook!(in_path, session; hopts, run_async)
-            return nb
-        end
-    end
+    func = bopts.use_distributed ? _evaluate_parallel : _evaluate_sequential
+    X = func(bopts, hopts, session, files)
 
     H = map(zip(files, X)) do (in_file, x)
-        in_path = joinpath(dir, in_file)
+        in_path = joinpath(bopts.dir, in_file)
         html = _outcome2text(session, x, in_path, bopts, hopts)
         return html
     end

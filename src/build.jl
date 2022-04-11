@@ -16,14 +16,22 @@ end
     html_output
 end
 
+const WRITE_FILES_DEFAULT = true
+const PREVIOUS_DIR_DEFAULT = nothing
+const OUTPUT_FORMAT_DEFAULT = html_output
+const ADD_DOCUMENTER_CSS_DEFAULT = true
+const USE_DISTRIBUTED_DEFAULT = true
+const MAX_CONCURRENT_RUNS = 4
+
 """
     BuildOptions(
         dir::AbstractString;
-        write_files::Bool=true,
-        previous_dir::Union{Nothing,AbstractString}=nothing,
-        output_format::OutputFormat=html_output,
-        add_documenter_css::Bool=true,
-        use_distributed::Bool=true
+        write_files::Bool=$WRITE_FILES_DEFAULT,
+        previous_dir::Union{Nothing,AbstractString}=$PREVIOUS_DIR_DEFAULT,
+        output_format::OutputFormat=$OUTPUT_FORMAT_DEFAULT,
+        add_documenter_css::Bool=$ADD_DOCUMENTER_CSS_DEFAULT,
+        use_distributed::Bool=$USE_DISTRIBUTED_DEFAULT,
+        max_concurrent_runs::Int=$MAX_CONCURRENT_RUNS
     )
 
 Arguments:
@@ -53,6 +61,9 @@ Arguments:
     By setting this option to `false`, all notebooks are built sequentially in the same process which avoids recompilation.
     This is likely quicker in situations where there are few threads available such as GitHub Runners depending on the notebook contents.
     Beware that `use_distributed=false` will not work with Pluto's built-in package manager.
+- `max_concurrent_runs`:
+    Maximum number of notebooks to evaluate concurrently when `use_distributed=true`.
+    Note that each notebook starts in a different thread and can start multiple threads, so don't set this number too high.
 """
 struct BuildOptions
     dir::String
@@ -61,14 +72,16 @@ struct BuildOptions
     output_format::OutputFormat
     add_documenter_css::Bool
     use_distributed::Bool
+    max_concurrent_runs::Int
 
     function BuildOptions(
         dir::AbstractString;
-        write_files::Bool=true,
-        previous_dir::Union{Nothing,AbstractString}=nothing,
-        output_format::OutputFormat=html_output,
-        add_documenter_css::Bool=true,
-        use_distributed::Bool=true
+        write_files::Bool=WRITE_FILES_DEFAULT,
+        previous_dir::Union{Nothing,AbstractString}=PREVIOUS_DIR_DEFAULT,
+        output_format::OutputFormat=OUTPUT_FORMAT_DEFAULT,
+        add_documenter_css::Bool=ADD_DOCUMENTER_CSS_DEFAULT,
+        use_distributed::Bool=USE_DISTRIBUTED_DEFAULT,
+        max_concurrent_runs::Int=MAX_CONCURRENT_RUNS
     )
         return new(
             string(dir)::String,
@@ -76,7 +89,8 @@ struct BuildOptions
             nothingstring(previous_dir),
             output_format,
             add_documenter_css,
-            use_distributed
+            use_distributed,
+            max_concurrent_runs
         )
     end
 end
@@ -284,13 +298,17 @@ function _evaluate_file(bopts::BuildOptions, hopts::HTMLOptions, session, in_fil
     end
 end
 
+"""
+Evaluate `files` in parallel.
+
+Using asynchronous tasks instead of multi-threading since Downloads is not thread-safe on Julia 1.6/1.7.
+https://github.com/JuliaLang/Downloads.jl/issues/110.
+"""
 function _evaluate_parallel(bopts, hopts, session, files)
-    X = Vector{Any}(undef, length(files))
-    Threads.@threads :static for i in 1:length(files)
-        in_file = files[i]
-        X[i] = _evaluate_file(bopts, hopts, session, in_file)
+    ntasks = bopts.max_concurrent_runs
+    asyncmap(files; ntasks) do in_file
+        _evaluate_file(bopts, hopts, session, in_file)
     end
-    return X
 end
 
 function _evaluate_sequential(bopts, hopts, session, files)

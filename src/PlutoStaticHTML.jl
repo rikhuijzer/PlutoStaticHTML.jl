@@ -52,7 +52,7 @@ export __notebook
 function __init__()
     # Loading the mimeoverrides in `__init__` to avoid "incremental compilation may be
     # fatally broken for this module" errors.
-    path = joinpath(pkgdir(PlutoStaticHTML, "src", "mimeoverride.jl"))
+    path = joinpath(pkgdir(PlutoStaticHTML), "src", "mimeoverride.jl")
     include(path)
 end
 

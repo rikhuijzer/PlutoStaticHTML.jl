@@ -40,7 +40,7 @@ y = \frac{a \cdot b}{c^2}
 md"""
 ## Admonitons
 
-When `output_format=documenter_output`, admonitons are styled by default.
+Admonitons are styled by default in the Documenter output.
 For example:
 
 !!! note
@@ -50,6 +50,7 @@ For example:
     This is a warning.
 
 See the [Documenter documentation](https://juliadocs.github.io/Documenter.jl/stable/showcase/#Admonitions) for the full list of admoniton types.
+See the `convert_admonitions` option for `HTMLOptions` for more information about how it works and how to disable it.
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001

@@ -19,7 +19,7 @@ function _add_documenter_css(html)
             }
 
             .admonition-body {
-                padding: 0em 1.25em;
+                padding: 0em 1.25em !important;
             }
         </style>
         """

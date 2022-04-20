@@ -50,13 +50,11 @@ end
 
 "Convert a single admonition from Pluto to Documenter."
 function _convert_admonition(html::AbstractString)
-    print(html, '\n')
     html = replace(html, """<div class="admonition """ =>
         """<div class="admonition is-""")
     html = replace(html, r"""<p class="admonition-title">([^<]*)</p>""" =>
         s"""\n  <header class="admonition-header">\n    \1\n  </header>\n""")
     html = _wrap_admonition_body(html)
-    print(html)
     return html
 end
 

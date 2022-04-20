@@ -23,6 +23,7 @@ const APPEND_BUILD_CONTEXT_DEFAULT = false
 const COMPILER_OPTIONS_DEFAULT = nothing
 const SHOW_OUTPUT_ABOVE_CODE_DEFAULT = false
 const REPLACE_CODE_TABS_DEFAULT = true
+const CONVERT_ADMONITIONS_DEFAULT = true
 
 """
     HTMLOptions(;
@@ -35,7 +36,8 @@ const REPLACE_CODE_TABS_DEFAULT = true
         append_build_context::Bool=$APPEND_BUILD_CONTEXT_DEFAULT,
         compiler_options::Union{Nothing,CompilerOptions}=$COMPILER_OPTIONS_DEFAULT,
         show_output_above_code::Bool=$SHOW_OUTPUT_ABOVE_CODE_DEFAULT,
-        replace_code_tabs::Bool=$REPLACE_CODE_TABS_DEFAULT
+        replace_code_tabs::Bool=$REPLACE_CODE_TABS_DEFAULT,
+        convert_admonitions::Bool=$CONVERT_ADMONITIONS_DEFAULT
     )
 
 Arguments:
@@ -74,6 +76,14 @@ Arguments:
 - `replace_code_tabs`:
     Replace tabs at the start of lines inside code blocks with spaces.
     This avoids inconsistent appearance of code blocks on web pages.
+- `convert_admonitions`:
+    Convert admonitions such as
+    ```
+    !!! note
+        This is a note.
+    ```
+    from Pluto's HTML to Documenter's HTML.
+    When this is enabled, the `documenter_output` has proper styling by default.
 """
 struct HTMLOptions
     code_class::String
@@ -86,6 +96,7 @@ struct HTMLOptions
     compiler_options::Union{Nothing,CompilerOptions}
     show_output_above_code::Bool
     replace_code_tabs::Bool
+    convert_admonitions::Bool
 
     function HTMLOptions(;
         code_class::AbstractString=CODE_CLASS_DEFAULT,
@@ -97,7 +108,8 @@ struct HTMLOptions
         append_build_context::Bool=APPEND_BUILD_CONTEXT_DEFAULT,
         compiler_options::Union{Nothing,CompilerOptions}=COMPILER_OPTIONS_DEFAULT,
         show_output_above_code::Bool=SHOW_OUTPUT_ABOVE_CODE_DEFAULT,
-        replace_code_tabs::Bool=REPLACE_CODE_TABS_DEFAULT
+        replace_code_tabs::Bool=REPLACE_CODE_TABS_DEFAULT,
+        convert_admonitions::Bool=CONVERT_ADMONITIONS_DEFAULT
     )
         return new(
             string(code_class)::String,
@@ -109,7 +121,8 @@ struct HTMLOptions
             append_build_context,
             compiler_options,
             show_output_above_code,
-            replace_code_tabs
+            replace_code_tabs,
+            convert_admonitions
         )
     end
 end
@@ -288,6 +301,9 @@ _output2html(cell::Cell, T::MIME, hopts) = error("Unknown type: $T")
 function _cell2html(cell::Cell, hopts::HTMLOptions)
     code = _code2html(cell.code, hopts)
     output = _output2html(cell, cell.output.mime, hopts)
+    if hopts.convert_admonitions
+        output = _convert_admonitions(output)
+    end
     if hopts.show_output_above_code
         return """
             $output

@@ -1,9 +1,9 @@
 before = """
-<p>foo</p>
-<div class="admonition note"><p class="admonition-title">Note</p><p>This is a note.</p>
-</div>
-<p>bar</p>
-"""
+    <p>foo</p>
+    <div class="admonition note"><p class="admonition-title">Note</p><p>This is a note.</p>
+    </div>
+    <p>bar</p>
+    """
 
 after = """
     <p>foo</p>
@@ -20,5 +20,15 @@ after = """
 
 @test PlutoStaticHTML._convert_admonitions(before) == after
 
-
-# TODO: Add test starting from MD.
+nb = Notebook([
+    Cell("""
+        md\"\"\"
+        !!! note
+            This is a note.
+        \"\"\"
+        """)
+])
+use_distributed = false
+html, _ = notebook2html_helper(nb; use_distributed)
+# This tests that there has been a hit on the `_convert_admonition` replacer.
+@test contains(html, "admonition-header")

@@ -23,7 +23,7 @@ function build()
     return nothing
 end
 
-if !("DISABLE_NOTEBOOKS_BUILD" in keys(ENV))
+if get(ENV, "DISABLE_NOTEBOOKS_BUILD", nothing) != "true"
     build()
 end
 

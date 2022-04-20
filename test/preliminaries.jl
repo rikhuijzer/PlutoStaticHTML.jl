@@ -74,3 +74,6 @@ macro timed_testset(str, block)
         end
     end
 end
+
+# Hide output when using `TestEnv.activate(); include("test/preliminaries.jl")`.
+nothing

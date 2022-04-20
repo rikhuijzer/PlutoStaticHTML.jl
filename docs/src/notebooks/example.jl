@@ -36,6 +36,22 @@ y = \frac{a \cdot b}{c^2}
 ```
 """
 
+# ╔═╡ 3207c229-6a6b-4219-9960-f08ebdff245a
+md"""
+## Admonitons
+
+When `output_format=documenter_output`, admonitons are styled by default.
+For example:
+
+!!! note
+    This is a note.
+
+!!! warning
+    This is a warning.
+
+See the [Documenter documentation](https://juliadocs.github.io/Documenter.jl/stable/showcase/#Admonitions) for the full list of admoniton types.
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -1186,5 +1202,6 @@ version = "3.5.0+0"
 # ╠═7ca85dab-6066-4b2a-b61c-9d9607b8756c
 # ╠═4ca09326-c8d8-44fb-8582-8dcc071bc76a
 # ╠═d06ba72d-a89f-4bc8-98e1-fae8962e70aa
+# ╠═3207c229-6a6b-4219-9960-f08ebdff245a
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

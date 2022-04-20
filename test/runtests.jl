@@ -22,6 +22,10 @@ end
     include("html.jl")
 end
 
+@timed_testset "style" begin
+    include("style.jl")
+end
+
 @timed_testset "build" begin
     include("build.jl")
 end

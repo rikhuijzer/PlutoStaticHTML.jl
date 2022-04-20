@@ -37,6 +37,7 @@ include("context.jl")
 include("cache.jl")
 include("with_terminal.jl")
 include("html.jl")
+include("style.jl")
 include("build.jl")
 
 export HTMLOptions

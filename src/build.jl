@@ -197,30 +197,6 @@ function _wrap_franklin_output(html)
     return "~~~\n$(html)\n~~~"
 end
 
-"Add some style overrides to make things a bit prettier and more consistent with Pluto."
-function _add_documenter_css(html)
-    style = """
-        <style>
-            table {
-                display: table !important;
-                margin: 2rem auto !important;
-                border-top: 2pt solid rgba(0,0,0,0.2);
-                border-bottom: 2pt solid rgba(0,0,0,0.2);
-            }
-
-            pre, div {
-                margin-top: 1.4rem !important;
-                margin-bottom: 1.4rem !important;
-            }
-
-            .code-output {
-                padding: 0.7rem 0.5rem !important;
-            }
-        </style>
-        """
-    return string(style, '\n', html)
-end
-
 "Used when creating the page for the first time and to restore the cache."
 function _wrap_documenter_output(html, add_documenter_css::Bool)
     if add_documenter_css

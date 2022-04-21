@@ -35,6 +35,7 @@ using TOML: parse as parsetoml
 include("module_doc.jl")
 include("context.jl")
 include("cache.jl")
+include("mimeoverride.jl")
 include("with_terminal.jl")
 include("html.jl")
 include("style.jl")
@@ -44,17 +45,5 @@ export HTMLOptions
 export documenter_output, franklin_output, html_output
 export BuildOptions, build_notebooks
 export cell2uuid
-
-# tmp
-export __build
-export _cell
-export __notebook
-
-function __init__()
-    # Loading the mimeoverrides in `__init__` to avoid "incremental compilation may be
-    # fatally broken for this module" errors.
-    path = joinpath(pkgdir(PlutoStaticHTML), "src", "mimeoverride.jl")
-    include(path)
-end
 
 end # module

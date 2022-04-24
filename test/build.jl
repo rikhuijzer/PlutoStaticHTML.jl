@@ -87,14 +87,21 @@ end
             use_distributed = false
             output_format = documenter_output
             bo = BuildOptions(dir; use_distributed, output_format, add_documenter_css)
-            build_notebooks(bo)
+            kv = [
+                "GITHUB_REPOSITORY" => "",
+                "GITHUB_REF" => ""
+            ]
+            # Disable the EditURL stuff.
+            withenv(kv...) do
+                build_notebooks(bo)
 
-            output_path = joinpath(dir, "notebook.md")
-            lines = readlines(output_path)
-            if add_documenter_css
-                @test lines[3] == "<style>"
-            else
-                @test lines[3] != "<style>"
+                output_path = joinpath(dir, "notebook.md")
+                lines = readlines(output_path)
+                if add_documenter_css
+                    @test lines[3] == "<style>"
+                else
+                    @test lines[3] != "<style>"
+                end
             end
         end
     end

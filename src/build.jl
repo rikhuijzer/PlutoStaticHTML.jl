@@ -199,15 +199,15 @@ end
 
 "Used when creating the page for the first time and when restoring the cache."
 function _wrap_documenter_output(html::String, bopts::BuildOptions, in_path::String)
-    editurl = _editurl_text(bopts, in_path)
     if bopts.add_documenter_css
         html = _add_documenter_css(html)
     end
+    editurl = _editurl_text(bopts, in_path)
     return """
-        $editurl
         ```@raw html
         $html
         ```
+        $editurl
         """
 end
 

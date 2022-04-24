@@ -92,9 +92,9 @@ end
             output_path = joinpath(dir, "notebook.md")
             lines = readlines(output_path)
             if add_documenter_css
-                @test lines[3] == "<style>"
+                @test lines[2] == "<style>"
             else
-                @test lines[3] != "<style>"
+                @test lines[2] != "<style>"
             end
         end
     end
@@ -125,3 +125,4 @@ end
             """)
     end
 end
+

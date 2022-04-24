@@ -74,6 +74,32 @@ end
     @test strip(actual) == strip(expected)
 end
 
+@testset "add_documenter_css" begin
+    for add_documenter_css in (true, false)
+        dir = mktempdir()
+        cd(dir) do
+            path = joinpath(dir, "notebook.jl")
+            code = pluto_notebook_content("""
+                x = 1
+                """)
+            write(path, code)
+
+            use_distributed = false
+            output_format = documenter_output
+            bo = BuildOptions(dir; use_distributed, output_format, add_documenter_css)
+            build_notebooks(bo)
+
+            output_path = joinpath(dir, "notebook.md")
+            lines = readlines(output_path)
+            if add_documenter_css
+                @test lines[2] == "<style>"
+            else
+                @test lines[2] != "<style>"
+            end
+        end
+    end
+end
+
 @testset "EditURL" begin
     dir = joinpath(pkgdir(PlutoStaticHTML), "docs", "src", "notebooks")
     bopts = BuildOptions(dir)
@@ -100,35 +126,3 @@ end
     end
 end
 
-@testset "add_documenter_css" begin
-    for add_documenter_css in (true, false)
-        dir = mktempdir()
-        cd(dir) do
-            path = joinpath(dir, "notebook.jl")
-            code = pluto_notebook_content("""
-                x = 1
-                """)
-            write(path, code)
-
-            use_distributed = false
-            output_format = documenter_output
-            bo = BuildOptions(dir; use_distributed, output_format, add_documenter_css)
-            kv = [
-                "GITHUB_REPOSITORY" => "",
-                "GITHUB_REF" => ""
-            ]
-            # Disable the EditURL stuff.
-            withenv(kv...) do
-                build_notebooks(bo)
-
-                output_path = joinpath(dir, "notebook.md")
-                lines = readlines(output_path)
-                if add_documenter_css
-                    @test lines[3] == "<style>"
-                else
-                    @test lines[3] != "<style>"
-                end
-            end
-        end
-    end
-end

@@ -40,6 +40,7 @@ include("with_terminal.jl")
 include("html.jl")
 include("style.jl")
 include("build.jl")
+include("documenter.jl")
 
 export HTMLOptions
 export documenter_output, franklin_output, html_output

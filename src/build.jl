@@ -21,7 +21,7 @@ const PREVIOUS_DIR_DEFAULT = nothing
 const OUTPUT_FORMAT_DEFAULT = html_output
 const ADD_DOCUMENTER_CSS_DEFAULT = true
 const USE_DISTRIBUTED_DEFAULT = true
-const MAX_CONCURRENT_RUNS = 4
+const MAX_CONCURRENT_RUNS_DEFAULT = 4
 
 """
     BuildOptions(
@@ -31,7 +31,7 @@ const MAX_CONCURRENT_RUNS = 4
         output_format::OutputFormat=$OUTPUT_FORMAT_DEFAULT,
         add_documenter_css::Bool=$ADD_DOCUMENTER_CSS_DEFAULT,
         use_distributed::Bool=$USE_DISTRIBUTED_DEFAULT,
-        max_concurrent_runs::Int=$MAX_CONCURRENT_RUNS
+        max_concurrent_runs::Int=$MAX_CONCURRENT_RUNS_DEFAULT
     )
 
 Arguments:
@@ -75,14 +75,14 @@ struct BuildOptions
     max_concurrent_runs::Int
 
     function BuildOptions(
-        dir::AbstractString;
-        write_files::Bool=WRITE_FILES_DEFAULT,
-        previous_dir::Union{Nothing,AbstractString}=PREVIOUS_DIR_DEFAULT,
-        output_format::OutputFormat=OUTPUT_FORMAT_DEFAULT,
-        add_documenter_css::Bool=ADD_DOCUMENTER_CSS_DEFAULT,
-        use_distributed::Bool=USE_DISTRIBUTED_DEFAULT,
-        max_concurrent_runs::Int=MAX_CONCURRENT_RUNS
-    )
+            dir::AbstractString;
+            write_files::Bool=WRITE_FILES_DEFAULT,
+            previous_dir::Union{Nothing,AbstractString}=PREVIOUS_DIR_DEFAULT,
+            output_format::OutputFormat=OUTPUT_FORMAT_DEFAULT,
+            add_documenter_css::Bool=ADD_DOCUMENTER_CSS_DEFAULT,
+            use_distributed::Bool=USE_DISTRIBUTED_DEFAULT,
+            max_concurrent_runs::Int=MAX_CONCURRENT_RUNS_DEFAULT
+        )
         return new(
             string(dir)::String,
             write_files,
@@ -197,12 +197,18 @@ function _wrap_franklin_output(html)
     return "~~~\n$(html)\n~~~"
 end
 
-"Used when creating the page for the first time and to restore the cache."
-function _wrap_documenter_output(html, add_documenter_css::Bool)
-    if add_documenter_css
+"Used when creating the page for the first time and when restoring the cache."
+function _wrap_documenter_output(html::String, bopts::BuildOptions, in_path::String)
+    editurl = _editurl_text(bopts, in_path)
+    if bopts.add_documenter_css
         html = _add_documenter_css(html)
     end
-    return "```@raw html\n$(html)\n```"
+    return """
+        $editurl
+        ```@raw html
+        $html
+        ```
+        """
 end
 
 function _outcome2text(session, prev::Previous, in_path::String, bopts, hopts)::String
@@ -211,7 +217,7 @@ function _outcome2text(session, prev::Previous, in_path::String, bopts, hopts)::
         text = _wrap_franklin_output(text)
     end
     if bopts.output_format == documenter_output
-        text = _wrap_documenter_output(text, bopts.add_documenter_css)
+        text = _wrap_documenter_output(text, bopts, in_path)
     end
     _write_main_output(in_path, text, bopts, hopts)
     return text
@@ -234,7 +240,7 @@ function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::St
         html = _wrap_franklin_output(html)
     end
     if bopts.output_format == documenter_output
-        html = _wrap_documenter_output(html, bopts.add_documenter_css)
+        html = _wrap_documenter_output(html, bopts, in_path)
     end
 
     _write_main_output(in_path, html, bopts, hopts)

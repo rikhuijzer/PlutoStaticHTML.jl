@@ -92,10 +92,36 @@ end
             output_path = joinpath(dir, "notebook.md")
             lines = readlines(output_path)
             if add_documenter_css
-                @test lines[2] == "<style>"
+                @test lines[3] == "<style>"
             else
-                @test lines[2] != "<style>"
+                @test lines[3] != "<style>"
             end
         end
+    end
+end
+
+@testset "EditURL" begin
+    dir = joinpath(pkgdir(PlutoStaticHTML), "docs", "src", "notebooks")
+    bopts = BuildOptions(dir)
+    in_path = "example.jl"
+    kv = [
+        "GITHUB_REPOSITORY" => "",
+        "GITHUB_REF" => ""
+    ]
+    withenv(kv...) do
+        @test PlutoStaticHTML._editurl_text(bopts, in_path) == ""
+    end
+
+    kv = [
+        "GITHUB_REPOSITORY" => "rikhuijzer/PlutoStaticHTML.jl",
+        "GITHUB_REF" => "refs/heads/main"
+    ]
+    withenv(kv...) do
+        url = "https://github.com/rikhuijzer/PlutoStaticHTML.jl/blob/main/docs/src/notebooks/example.jl"
+        @test strip(PlutoStaticHTML._editurl_text(bopts, in_path)) == strip("""
+            ```@meta
+            EditURL = "$url"
+            ```
+            """)
     end
 end

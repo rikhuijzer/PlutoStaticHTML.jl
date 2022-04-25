@@ -51,6 +51,7 @@ The `output_format=documenter_output` is used at various places which can all se
 - "docs/make.jl" in this repository.
 - [TuringGLM.jl](https://github.com/TuringLang/TuringGLM.jl); for example output see the [linear regression tutorial](https://turinglang.github.io/TuringGLM.jl/dev/tutorials/linear_regression/).
 - [Resample.jl](https://github.com/rikhuijzer/Resample.jl); for example output see the [SMOTE tutorial](https://rikhuijzer.github.io/Resample.jl/dev/notebooks/smote/).
+- [Manopt.jl](https://manoptjl.org/) for teir tutorials, see for example the [Optimize!](https://manoptjl.org/stable/pluto/Optimize!/) start tutorial.
 
 !!! warn
     Avoid calling the conversion from inside a Documenter.jl code block.

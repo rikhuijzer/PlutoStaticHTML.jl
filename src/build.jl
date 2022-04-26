@@ -327,7 +327,6 @@ function build_notebooks(
 
     return H
 end
-precompile(build_notebooks, (BuildOptions, Vector{Any}, HTMLOptions))
 
 function _is_pluto_file(path::AbstractString)::Bool
     first(eachline(string(path))) == "### A Pluto.jl notebook ###"
@@ -352,5 +351,3 @@ function build_notebooks(
     end
     return build_notebooks(bopts, files, hopts)
 end
-precompile(build_notebooks, (BuildOptions, HTMLOptions))
-

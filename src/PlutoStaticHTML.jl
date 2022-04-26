@@ -29,6 +29,7 @@ using Pluto:
     update_dependency_cache!,
     update_run!,
     update_save_run!
+using PrecompileSignatures: precompile_directives
 using SHA: sha256
 using TOML: parse as parsetoml
 
@@ -45,6 +46,9 @@ include("documenter.jl")
 export HTMLOptions
 export documenter_output, franklin_output, html_output
 export BuildOptions, build_notebooks
-export cell2uuid
+
+if ccall(:jl_generating_output, Cint, ()) == 1
+    include(precompile_directives(PlutoStaticHTML))
+end
 
 end # module

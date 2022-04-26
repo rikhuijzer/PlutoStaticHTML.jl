@@ -17,4 +17,3 @@ function _patch_with_terminal(body::String)
         </pre>
         """
 end
-precompile(_patch_with_terminal, (String,))

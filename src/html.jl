@@ -345,7 +345,6 @@ function notebook2html(nb::Notebook, path, hopts::HTMLOptions=HTMLOptions())::St
     html = string(BEGIN_IDENTIFIER, '\n', html, '\n', END_IDENTIFIER)::String
     return html
 end
-precompile(notebook2html, (Notebook, String, HTMLOptions))
 
 const TMP_COPY_PREFIX = "_tmp_"
 
@@ -415,7 +414,6 @@ function run_notebook!(
     cd(previous_dir)
     return nb
 end
-precompile(run_notebook!, (String, ServerSession))
 
 """
     notebook2html(
@@ -435,4 +433,3 @@ function notebook2html(
     html = notebook2html(nb, path, hopts)
     return html
 end
-precompile(notebook2html, (String, HTMLOptions))

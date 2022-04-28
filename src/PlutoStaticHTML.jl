@@ -1,5 +1,12 @@
 module PlutoStaticHTML
 
+if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@optlevel"))
+    @eval Base.Experimental.@optlevel 1
+end
+if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@max_methods"))
+    @eval Base.Experimental.@max_methods 1
+end
+
 import Base:
     show,
     string
@@ -8,6 +15,7 @@ import Pluto:
     WorkspaceManager
 
 using Base64: base64encode
+using Dates
 using Pkg:
     Types.Context,
     Types.UUID,

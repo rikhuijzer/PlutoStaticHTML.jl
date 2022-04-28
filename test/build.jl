@@ -126,3 +126,13 @@ end
     end
 end
 
+@testset "Elapsed time" begin
+    n = now()
+    sleep(1)
+    n2 = now()
+    @test PlutoStaticHTML._pretty_elapsed(n2 - n) == "1 second"
+    sleep(1)
+    n2 = now()
+    @test PlutoStaticHTML._pretty_elapsed(n2 - n) == "2 seconds"
+end
+

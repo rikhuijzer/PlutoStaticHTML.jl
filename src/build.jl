@@ -254,7 +254,26 @@ function _outcome2text(session, nb::Notebook, in_path::String, bopts, hopts)::St
     return string(html)::String
 end
 
-function _evaluate_file(bopts::BuildOptions, hopts::HTMLOptions, session, in_file)
+const TimeState = Dict{String,DateTime}
+
+_time_init!(time_state::TimeState, in_file::String) = setindex!(time_state, now(), in_file)
+_time_elapsed(time_state::TimeState, in_file::String) = now() - time_state[in_file]
+
+"Return `... minutes and ... seconds`."
+function _pretty_elapsed(t::Millisecond)
+    value = t.value
+    seconds = Float64(value) / 1000
+    min, sec = divrem(seconds, 60)
+    rmin = round(Int, min)
+    min_text = rmin == 0 ? "" :
+        rmin == 1 ? "$rmin minute and " :
+        "$rmin minutes and "
+    rsec = round(Int, sec)
+    sec_text = rsec == 1 ? "$rsec second" : "$rsec seconds"
+    return string(min_text, sec_text)
+end
+
+function _evaluate_file(bopts::BuildOptions, hopts::HTMLOptions, session, in_file, time_state)
     dir = bopts.dir
     in_path = joinpath(dir, in_file)::String
     @assert isfile(in_path) "Expected .jl file at $in_path"
@@ -274,8 +293,13 @@ function _evaluate_file(bopts::BuildOptions, hopts::HTMLOptions, session, in_fil
         end
         nb = run_notebook!(in_path, session; hopts, run_async)
         if bopts.use_distributed
+            # The notebook is running in a distributed process, but we still need to wait to
+            # avoid spawning too many processes in `_evaluate_parallel`.
             _wait_for_notebook_done(nb)
         end
+        elapsed = _time_elapsed(time_state, in_file)
+        pretty_elapsed = _pretty_elapsed(elapsed)
+        @info "Finished evaluation of Pluto notebook $in_file in $pretty_elapsed"
         return nb
     end
 end
@@ -286,16 +310,18 @@ Evaluate `files` in parallel.
 Using asynchronous tasks instead of multi-threading since Downloads is not thread-safe on Julia 1.6/1.7.
 https://github.com/JuliaLang/Downloads.jl/issues/110.
 """
-function _evaluate_parallel(bopts, hopts, session, files)
+function _evaluate_parallel(bopts, hopts, session, files, time_state)
     ntasks = bopts.max_concurrent_runs
     asyncmap(files; ntasks) do in_file
-        _evaluate_file(bopts, hopts, session, in_file)
+        _time_init!(time_state, in_file)
+        _evaluate_file(bopts, hopts, session, in_file, time_state)
     end
 end
 
-function _evaluate_sequential(bopts, hopts, session, files)
+function _evaluate_sequential(bopts, hopts, session, files, time_state)
     return map(files) do in_file
-        _evaluate_file(bopts, hopts, session, in_file)
+        _time_init!(time_state, in_file)
+        _evaluate_file(bopts, hopts, session, in_file, time_state)
     end
 end
 
@@ -316,8 +342,9 @@ function build_notebooks(
         session=ServerSession()
     )::Vector{String}
 
+    time_state = TimeState()
     func = bopts.use_distributed ? _evaluate_parallel : _evaluate_sequential
-    X = func(bopts, hopts, session, files)
+    X = func(bopts, hopts, session, files, time_state)
 
     H = map(zip(files, X)) do (in_file, x)
         in_path = joinpath(bopts.dir, in_file)

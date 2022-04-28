@@ -1,8 +1,5 @@
 module PlutoStaticHTML
 
-if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@optlevel"))
-    @eval Base.Experimental.@optlevel 1
-end
 if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@max_methods"))
     @eval Base.Experimental.@max_methods 1
 end

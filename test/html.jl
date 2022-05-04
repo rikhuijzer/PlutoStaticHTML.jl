@@ -5,7 +5,14 @@
 
     notebook = Notebook([
         Cell("x = 1 + 1"),
-        Cell("using Images: load"),
+        Cell("""
+            begin
+                using Pkg
+                Pkg.activate(; temp=true)
+                Pkg.add(; name="Images", version="0.25.2")
+                using Images: load
+            end
+            """),
         Cell("PKGDIR = \"$PKGDIR\""),
         Cell("""im_file(ext) = joinpath(PKGDIR, "test", "im", "im.\$ext")"""),
         Cell("""load(im_file("png"))""")
@@ -17,7 +24,8 @@
     @test contains(lines[2], "2")
     @test contains(lines[2], "class='$(PlutoStaticHTML.OUTPUT_PRE_CLASS_DEFAULT)'")
 
-    @test contains(lines[end-1], """<img src=\"data:image/png;base64,""")
+    @test contains(lines[end-1], """src=\"data:image/png;base64,""")
+    @test contains(lines[end-1], "<img")
 
     notebook = Notebook([
         Cell("struct A end"),

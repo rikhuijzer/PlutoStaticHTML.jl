@@ -5,14 +5,7 @@
 
     notebook = Notebook([
         Cell("x = 1 + 1"),
-        Cell("""
-            begin
-                using Pkg
-                Pkg.activate(; temp=true)
-                Pkg.add(; name="Images", version="0.25.2")
-                using Images: load
-            end
-            """),
+        Cell("using Images: load"),
         Cell("PKGDIR = \"$PKGDIR\""),
         Cell("""im_file(ext) = joinpath(PKGDIR, "test", "im", "im.\$ext")"""),
         Cell("""load(im_file("png"))""")

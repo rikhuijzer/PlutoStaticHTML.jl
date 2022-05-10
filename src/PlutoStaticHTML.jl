@@ -34,7 +34,7 @@ using Pluto:
     update_dependency_cache!,
     update_run!,
     update_save_run!
-using PrecompileSignatures: precompile_directives
+using PrecompileSignatures: @precompile_signatures
 using SHA: sha256
 using TOML: parse as parsetoml
 
@@ -52,8 +52,6 @@ export HTMLOptions
 export documenter_output, franklin_output, html_output
 export BuildOptions, build_notebooks
 
-if ccall(:jl_generating_output, Cint, ()) == 1
-    include(precompile_directives(PlutoStaticHTML))
-end
+@precompile_signatures(PlutoStaticHTML)
 
 end # module

@@ -14,5 +14,5 @@ TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 
 [compat]
 Pluto = "=0.19.4"
-PrecompileSignatures = "1"
+PrecompileSignatures = "3"
 julia = "1.6"

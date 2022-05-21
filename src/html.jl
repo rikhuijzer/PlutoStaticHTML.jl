@@ -222,7 +222,7 @@ function _output2html(cell::Cell, ::MIME"application/vnd.pluto.table+object", ho
         catch
             first.(first.(row))
         end
-        if eltype(elements) != Char && wide_truncated && eltype(elements) != Char
+        if eltype(elements) != Char && wide_truncated
             elements[end] = ""
         end
         eltype(index) != Char ? pushfirst!(elements, string(index)::String) : ""

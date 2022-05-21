@@ -206,9 +206,15 @@ function _output2html(cell::Cell, ::MIME"application/vnd.pluto.table+object", ho
     body = cell.output.body::Dict{Symbol,Any}
     rows = body[:rows]
     nms = body[:schema][:names]
-    headers = _tr_wrap(["<th>$colname</th>" for colname in nms])
+    wide_truncated = false
+    if rows[1][end][end] == "more"
+        # Replace "more" by "..." in the last column of wide tables.
+        nms[end] = "..."
+        wide_truncated = true
+    end
+    headers = _tr_wrap(["<th>$colname</th>" for colname in [""; nms]])
     contents = map(rows) do row
-        # Drop index.
+        index = row[1]
         row = row[2:end]
         # Unpack the type and throw away mime info.
         elements = try
@@ -216,6 +222,11 @@ function _output2html(cell::Cell, ::MIME"application/vnd.pluto.table+object", ho
         catch
             first.(first.(row))
         end
+        if eltype(elements) != Char && wide_truncated && eltype(elements) != Char
+            elements[end] = ""
+        end
+        @show typeof(row[1])
+        eltype(index) != Char ? pushfirst!(elements, string(index)::String) : ""
         elements = ["<td>$e</td>" for e in elements]
         return _tr_wrap(elements)
     end

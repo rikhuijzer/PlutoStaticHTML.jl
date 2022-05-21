@@ -186,3 +186,14 @@ end
     @test contains(lines[2], "        b = 1 + 1021")
 end
 
+@testset "big table" begin
+    # Using DataFrames here instead of Tables to get the number of rows for long tables.
+    nb = Notebook([
+        Cell("using DataFrames: DataFrame"),
+        Cell("DataFrame(rand(120, 20), :auto)")
+    ])
+    hopts = HTMLOptions()
+    html, _ = notebook2html_helper(nb, hopts; use_distributed=false)
+    # Use write(tmp.html, html) to test this.
+    
+end

@@ -225,7 +225,6 @@ function _output2html(cell::Cell, ::MIME"application/vnd.pluto.table+object", ho
         if eltype(elements) != Char && wide_truncated && eltype(elements) != Char
             elements[end] = ""
         end
-        @show typeof(row[1])
         eltype(index) != Char ? pushfirst!(elements, string(index)::String) : ""
         elements = ["<td>$e</td>" for e in elements]
         return _tr_wrap(elements)

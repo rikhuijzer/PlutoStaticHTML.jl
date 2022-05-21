@@ -1,3 +1,4 @@
+using DataFrames: DataFrame
 using Dates
 using PlutoStaticHTML
 using Pluto:

@@ -1,3 +1,4 @@
+using Aqua: Aqua
 using DataFrames: DataFrame
 using Dates
 using PlutoStaticHTML

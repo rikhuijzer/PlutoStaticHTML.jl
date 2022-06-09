@@ -23,7 +23,8 @@ function build()
     return nothing
 end
 
-if get(ENV, "DISABLE_NOTEBOOKS_BUILD", nothing) != "true"
+# Build the notebooks; defaults to true.
+if get(ENV, "BUILD_DOCS_NOTEBOOKS", "true") == "true"
     build()
 end
 

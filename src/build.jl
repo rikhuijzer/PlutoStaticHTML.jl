@@ -365,7 +365,7 @@ end
         hopts::HTMLOptions=HTMLOptions()
     ) -> Vector{String}
 
-Build all ".jl" files in `dir` in parallel.
+Build all ".jl" files in `dir`.
 """
 function build_notebooks(
         bopts::BuildOptions,

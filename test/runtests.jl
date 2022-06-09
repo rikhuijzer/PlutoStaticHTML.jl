@@ -30,4 +30,8 @@ end
     include("build.jl")
 end
 
+@timed_testset "aqua" begin
+    Aqua.test_all(PlutoStaticHTML; ambiguities=false)
+end
+
 show(TIMEROUTPUT; compact=true, sortby=:firstexec)

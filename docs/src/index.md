@@ -23,8 +23,8 @@ In general, the idea is to
 
 1. Create a bunch of Pluto notebooks.
 1. Get the name of the directory `dir` which contains your Pluto notebooks.
-1. Choose an appropriate `output_format` depending on how the output will be used.
-    The output format can be `html_output`, `documenter_output` or `franklin_output`.
+1. Choose one or more appropriate `output_format`s depending on how the output will be used.
+    The output format can be `html_output`, `documenter_output`, `franklin_output` or `pdf_output`.
 1. Pass the paths to [`build_notebooks`](@ref) which, depending on `output_format`, writes HTML or Markdown outputs to files.
 1. Read the output from the files and show them on a website via either your own logic or Documenter or Franklin.
 
@@ -36,7 +36,7 @@ As an extension of Pluto, this package provides `# hide` and `# hideall` comment
 A `# hideall` somewhere in a Pluto code block will hide the code (but not the output).
 A `# hide` behind a line in a code block will hide the line.
 Also, by default, this package hides all Markdown code blocks since readers are probably only interested in reading the output of the Markdown code block.
-This and more options can be tuned via [`HTMLOptions`](@ref).
+This and more options can be tuned via [`OutputOptions`](@ref).
 
 See below for more specific instructions on
 
@@ -97,12 +97,12 @@ julia> build_notebooks(bopts, files)
 
 In CI, be sure to call this before using Franklin `serve` or `optimize`.
 
-For more options, such as `append_build_context` to add Julia and packages version information, you can pass [`HTMLOptions`](@ref):
+For more options, such as `append_build_context` to add Julia and packages version information, you can pass [`OutputOptions`](@ref):
 
 ```julia
-julia> hopts = HTMLOptions(; append_build_context=true);
+julia> oopts = OutputOptions(; append_build_context=true);
 
-julia> build_notebooks(bopts, files, hopts)
+julia> build_notebooks(bopts, files, oopts)
 [...]
 ```
 
@@ -140,5 +140,5 @@ For Documenter, see `docs/make.jl` in this repository.
 ```@docs
 build_notebooks
 BuildOptions
-HTMLOptions
+OutputOptions
 ```

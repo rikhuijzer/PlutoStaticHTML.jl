@@ -43,12 +43,14 @@ include("context.jl")
 include("cache.jl")
 include("mimeoverride.jl")
 include("with_terminal.jl")
-include("html.jl")
+include("output.jl")
 include("style.jl")
+include("html.jl")
+include("pdf.jl")
 include("build.jl")
 include("documenter.jl")
 
-export HTMLOptions
+export OutputOptions
 export documenter_output, franklin_output, html_output
 export BuildOptions, build_notebooks
 

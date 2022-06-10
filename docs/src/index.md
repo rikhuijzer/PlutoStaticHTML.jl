@@ -80,16 +80,18 @@ julia> using PlutoStaticHTML: build_notebooks
 
 julia> dir = joinpath("posts", "notebooks");
 
-julia> build_notebooks(BuildOptions(dir));
+julia> bopts = BuildOptions(dir);
+
+julia> build_notebooks(bopts);
 [...]
 ```
 
-To run only specific notebooks, use:
+To run only specific notebooks, specify the `files`:
 
 ```julia
 julia> files = ["notebook1.jl", "notebook2.jl"];
 
-julia> build_notebooks(BuildOptions(dir), files)
+julia> build_notebooks(bopts, files)
 [...]
 ```
 
@@ -98,8 +100,6 @@ In CI, be sure to call this before using Franklin `serve` or `optimize`.
 For more options, such as `append_build_context` to add Julia and packages version information, you can pass [`HTMLOptions`](@ref):
 
 ```julia
-julia> bopts = BuildOptions(dir);
-
 julia> hopts = HTMLOptions(; append_build_context=true);
 
 julia> build_notebooks(bopts, files, hopts)

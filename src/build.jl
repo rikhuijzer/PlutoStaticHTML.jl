@@ -276,7 +276,11 @@ end
 function _evaluate_file(bopts::BuildOptions, hopts::HTMLOptions, session, in_file, time_state)
     dir = bopts.dir
     in_path = joinpath(dir, in_file)::String
-    @assert isfile(in_path) "Expected .jl file at $in_path"
+
+    # Check whether file exists
+    @assert isfile(in_path) "File not found: `$in_file`"
+    # Check that it is a Julia file
+    @assert (string(splitext(in_file)[2]) == ".jl") "File does not seem to be a Julia (.jl) file: $in_file"
 
     previous = Previous(bopts, in_file)
     if reuse_previous(previous, dir, in_file)

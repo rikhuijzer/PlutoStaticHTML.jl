@@ -101,6 +101,29 @@ function _output2html(cell::Cell, ::MIME"application/vnd.pluto.table+object", oo
         """
 end
 
+"""
+    _var(cell::Cell)::Symbol
+
+Return the variable which is set by `cell`.
+This method requires that the notebook to be executed be able to give the right results.
+"""
+function _var(cell::Cell)::Symbol
+    ra = cell.output.rootassignee
+    if isnothing(ra)
+        mapping = cell.cell_dependencies.downstream_cells_map
+        K = keys(mapping)
+        if isempty(K)
+            h = hash(cell.code)
+            # This is used when storing binds to give it reproducible name.
+            return Symbol(first(string("hash", h), 10))
+        end
+        # `only` cannot be used because loading packages can give multiple keys.
+        return first(K)
+    else
+        return ra
+    end
+end
+
 function _output2html(cell::Cell, ::MIME"text/plain", oopts)
     var = _var(cell)
     body = cell.output.body
@@ -176,7 +199,7 @@ function notebook2html(nb::Notebook, path, oopts::OutputOptions=OutputOptions())
     return html
 end
 
-function _outcome2html(nb::Notebook, in_path, oopts::OutputOptions)
+function _outcome2html(nb::Notebook, in_path, bopts::BuildOptions, oopts::OutputOptions)
     html = notebook2html(nb, in_path, oopts)
 
     if bopts.output_format == franklin_output

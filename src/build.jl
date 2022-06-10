@@ -75,7 +75,7 @@ struct BuildOptions
     dir::String
     write_files::Bool
     previous_dir::Union{Nothing,String}
-    output_format::Union{OutputFormat,Vector{OutputFormat}}
+    output_format::Vector{OutputFormat}
     add_documenter_css::Bool
     use_distributed::Bool
     compiler_options::Union{Nothing,CompilerOptions}
@@ -91,6 +91,9 @@ struct BuildOptions
             compiler_options::Union{Nothing,CompilerOptions}=COMPILER_OPTIONS_DEFAULT,
             max_concurrent_runs::Int=MAX_CONCURRENT_RUNS_DEFAULT
         )
+        if !(output_format isa Vector)
+            output_format = OutputFormat[output_format]
+        end
         return new(
             string(dir)::String,
             write_files,
@@ -221,7 +224,7 @@ function _wrap_documenter_output(html::String, bopts::BuildOptions, in_path::Str
 end
 
 function _outcome2text(session, prevs::Vector{Previous}, in_path::String, bopts, oopts)::Vector{String}
-    texts = map(zip(prevs, bopts.output_format) do (prev, output_format)
+    texts = map(zip(prevs, bopts.output_format)) do (prev, output_format)
         text = prev.text
         if bopts.output_format == franklin_output
             text = _wrap_franklin_output(text)
@@ -246,9 +249,9 @@ function _outcome2text(session, nb::Notebook, in_path::String, bopts, oopts)::Ve
 
     texts = map(bopts.output_format) do output_format
         if output_format == pdf_output
-            return _outcome2pdf(nb, in_path, oopts)
+            return _outcome2pdf(nb, in_path, bopts, oopts)
         else
-            return _outcome2html(nb, in_path, oopts)
+            return _outcome2html(nb, in_path, bopts, oopts)
         end
     end
 
@@ -281,20 +284,21 @@ function _pretty_elapsed(t::Millisecond)
 end
 
 "Return multiple previous files (caches) or nothing when a new evaluation is needed."
-function _prevs(bopts::BuildOptions, dir, in_file)
-    return map(bopts.output_format) do output_format
-        previous = Previous(bopts.previous_dir, bopts.output_format, in_file)
-        if !reuse_previous(previous, dir, in_file)
+function _prevs(bopts::BuildOptions, dir, in_file)::Union{Vector{Previous},Nothing}
+    prevs = Previous[]
+    for output_format in bopts.output_format
+        prev = Previous(bopts.previous_dir, output_format, in_file)
+        if !reuse_previous(prev, dir, in_file)
             return nothing
         end
-        previous
+        push!(prevs, prev)
     end
 end
 
 function run_notebook!(
         path::AbstractString,
         session::ServerSession,
-        compiler_options::CompilerOptions;
+        compiler_options::Union{Nothing,CompilerOptions};
         run_async=false
     )
     # Avoid changing pwd.
@@ -325,7 +329,7 @@ function _evaluate_file(bopts::BuildOptions, oopts::OutputOptions, session, in_f
     prevs = _prevs(bopts, dir, in_file)
     if !isnothing(prevs)
         @info "Using cache for Pluto notebook at $in_file"
-        returns prevs
+        return prevs
     else
         @info "Starting evaluation of Pluto notebook $in_file"
         if bopts.use_distributed
@@ -335,7 +339,7 @@ function _evaluate_file(bopts::BuildOptions, oopts::OutputOptions, session, in_f
             # `use_distributed` means mostly "whether to run in a new process".
             session.options.evaluation.workspace_use_distributed = false
         end
-        nb = run_notebook!(in_path, session, bopts.compiler_options, run_async)
+        nb = run_notebook!(in_path, session, bopts.compiler_options; run_async)
         if bopts.use_distributed
             # The notebook is running in a distributed process, but we still need to wait to
             # avoid spawning too many processes in `_evaluate_parallel`.
@@ -375,7 +379,7 @@ end
         files,
         oopts::OutputOptions=OutputOptions();
         session=ServerSession()
-    ) -> Vector{String}
+    )
 
 Build all `files` in `dir` in parallel.
 """
@@ -384,19 +388,21 @@ function build_notebooks(
         files,
         oopts::OutputOptions=OutputOptions();
         session=ServerSession()
-    )::Vector{String}
+    )::Dict{String,Vector{String}}
 
     time_state = TimeState()
     func = bopts.use_distributed ? _evaluate_parallel : _evaluate_sequential
-    X = func(bopts, oopts, session, files, time_state)::Union{Vector{Previous},Notebook}
+    X = func(bopts, oopts, session, files, time_state)::Union{Vector{Previous},Vector{Notebook}}
 
-    H = map(zip(files, X)) do (in_file, x)
+    # One `String` for every build_output.
+    outputs = Dict{String,Vector{String}}()
+    for (in_file, x) in zip(files, X)
         in_path = joinpath(bopts.dir, in_file)
-        html = _outcome2text(session, x, in_path, bopts, oopts)
-        return html
+        text = _outcome2text(session, x, in_path, bopts, oopts)
+        outputs[in_file] = text
     end
 
-    return H
+    return outputs
 end
 
 function _is_pluto_file(path::AbstractString)::Bool
@@ -407,14 +413,14 @@ end
     build_notebooks(
         bopts::BuildOptions,
         oopts::OutputOptions=OutputOptions()
-    ) -> Vector{String}
+    )
 
 Build all ".jl" files in `dir`.
 """
 function build_notebooks(
         bopts::BuildOptions,
         oopts::OutputOptions=OutputOptions()
-    )::Vector{String}
+    )::Dict{String,Vector{String}}
     dir = bopts.dir
     files = filter(readdir(dir)) do file
         path = joinpath(dir, file)

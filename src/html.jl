@@ -198,17 +198,3 @@ function notebook2html(nb::Notebook, path, oopts::OutputOptions=OutputOptions())
     html = string(BEGIN_IDENTIFIER, '\n', html, '\n', END_IDENTIFIER)::String
     return html
 end
-
-function _outcome2html(nb::Notebook, in_path, bopts, oopts::OutputOptions)
-    html = notebook2html(nb, in_path, oopts)
-
-    if bopts.output_format == franklin_output
-        html = _wrap_franklin_output(html)
-    end
-    if bopts.output_format == documenter_output
-        html = _wrap_documenter_output(html, bopts, in_path)
-    end
-
-    _write_main_output(in_path, html, bopts, oopts)
-    return string(html)::String
-end

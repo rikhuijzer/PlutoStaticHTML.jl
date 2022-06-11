@@ -191,14 +191,22 @@ end
 Write to a ".html" or ".md" file depending on `OutputOptions.output_format`.
 The output file is always a sibling to the file at `in_path`.
 """
-function _write_main_output(in_path, text, bopts::BuildOptions, oopts::OutputOptions)
-    ext = bopts.output_format == html_output ? ".html" : ".md"
+function _write_main_output(
+        in_path::String,
+        text::String,
+        bopts::BuildOptions,
+        output_format::OutputFormat,
+        oopts::OutputOptions
+    )
+    ext = output_format == html_output ? ".html" :
+        output_format == pdf_output ? ".pdf" : ".md"
     if bopts.write_files
         dir = dirname(in_path)
         in_file = basename(in_path)
         without_extension, _ = splitext(in_file)
         out_file = "$(without_extension)$(ext)"
         out_path = joinpath(dir, out_file)
+        @info "Writing output to $out_path"
         write(out_path, text)
     end
     return nothing
@@ -226,13 +234,13 @@ end
 function _outcome2text(session, prevs::Vector{Previous}, in_path::String, bopts, oopts)::Vector{String}
     texts = map(zip(prevs, bopts.output_format)) do (prev, output_format)
         text = prev.text
-        if bopts.output_format == franklin_output
+        if output_format == franklin_output
             text = _wrap_franklin_output(text)
         end
-        if bopts.output_format == documenter_output
+        if output_format == documenter_output
             text = _wrap_documenter_output(text, bopts, in_path)
         end
-        _write_main_output(in_path, text, bopts, oopts)
+        _write_main_output(in_path, text, bopts, output_format, oopts)
         return text
     end
     return texts
@@ -244,14 +252,44 @@ function _inject_script(html, script)
     return string(without_end, '\n', script, '\n', END_IDENTIFIER)
 end
 
+function _outcome2pdf(
+        nb::Notebook,
+        in_path::String,
+        bopts::BuildOptions,
+        output_format::OutputFormat,
+        oopts::OutputOptions
+    )
+    error("Not implemented")
+end
+
+function _outcome2html(
+        nb::Notebook,
+        in_path::String,
+        bopts::BuildOptions,
+        output_format::OutputFormat,
+        oopts::OutputOptions
+    )
+    html = notebook2html(nb, in_path, oopts)
+
+    if output_format == franklin_output
+        html = _wrap_franklin_output(html)
+    end
+    if output_format == documenter_output
+        html = _wrap_documenter_output(html, bopts, in_path)
+    end
+
+    _write_main_output(in_path, html, bopts, output_format, oopts)
+    return string(html)::String
+end
+
 function _outcome2text(session, nb::Notebook, in_path::String, bopts, oopts)::Vector{String}
     _throw_if_error(session, nb)
 
     texts = map(bopts.output_format) do output_format
         if output_format == pdf_output
-            return _outcome2pdf(nb, in_path, bopts, oopts)
+            return _outcome2pdf(nb, in_path, bopts, output_format, oopts)
         else
-            return _outcome2html(nb, in_path, bopts, oopts)
+            return _outcome2html(nb, in_path, bopts, output_format, oopts)
         end
     end
 
@@ -293,6 +331,7 @@ function _prevs(bopts::BuildOptions, dir, in_file)::Union{Vector{Previous},Nothi
         end
         push!(prevs, prev)
     end
+    return prevs
 end
 
 function run_notebook!(
@@ -340,6 +379,7 @@ function _evaluate_file(bopts::BuildOptions, oopts::OutputOptions, session, in_f
             session.options.evaluation.workspace_use_distributed = false
         end
         nb = run_notebook!(in_path, session, bopts.compiler_options; run_async)
+
         if bopts.use_distributed
             # The notebook is running in a distributed process, but we still need to wait to
             # avoid spawning too many processes in `_evaluate_parallel`.
@@ -360,17 +400,19 @@ https://github.com/JuliaLang/Downloads.jl/issues/110.
 """
 function _evaluate_parallel(bopts, oopts, session, files, time_state)
     ntasks = bopts.max_concurrent_runs
-    return asyncmap(files; ntasks) do in_file
+    X = asyncmap(files; ntasks) do in_file
         _time_init!(time_state, in_file)
         _evaluate_file(bopts, oopts, session, in_file, time_state)
     end
+    return X
 end
 
 function _evaluate_sequential(bopts, oopts, session, files, time_state)
-    return map(files) do in_file
+    X = map(files) do in_file
         _time_init!(time_state, in_file)
         _evaluate_file(bopts, oopts, session, in_file, time_state)
     end
+    return X
 end
 
 """
@@ -392,11 +434,12 @@ function build_notebooks(
 
     time_state = TimeState()
     func = bopts.use_distributed ? _evaluate_parallel : _evaluate_sequential
-    X = func(bopts, oopts, session, files, time_state)::Union{Vector{Previous},Vector{Notebook}}
+    # Vector containing Notebooks and or Previous.
+    X = func(bopts, oopts, session, files, time_state)::Vector
 
     # One `String` for every build_output.
     outputs = Dict{String,Vector{String}}()
-    for (in_file, x) in zip(files, X)
+    for (in_file, x::Union{Vector{Previous},Notebook}) in zip(files, X)
         in_path = joinpath(bopts.dir, in_file)
         text = _outcome2text(session, x, in_path, bopts, oopts)
         outputs[in_file] = text

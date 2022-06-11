@@ -1,3 +1,3 @@
-function _outcome2pdf(nb::Notebook, in_path, bopts::BuildOptions, oopts::OutputOptions)
+function _outcome2pdf(nb::Notebook, in_path, bopts, oopts::OutputOptions)
     error("Not implemented")
 end

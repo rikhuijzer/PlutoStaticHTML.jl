@@ -7,28 +7,36 @@
     @test state.julia_version == string(VERSION)
 end
 
+exception_text(ex) = sprint(Base.showerror, ex)
+
 function try_read(file)::String
-    for i in 1:100
+    for i in 1:30
         try
             return read(file, String)
         catch
             sleep(0.2)
         end
     end
-    # Throw original error if still no success.
-    read(file, String)
+    try
+        return read(file, String)
+    catch ex
+        error("try_read was unable to read file: $(exception_text(ex))")
+    end
 end
 
 function try_rm(file)
-    for i in 1:100
+    for i in 1:30
         try
             return rm(file)
         catch
             sleep(0.2)
         end
     end
-    # Throw original error if still no success.
-    rm(file)
+    try
+        return rm(file)
+    catch ex
+        error("try_rm was unable to remove file: $(exception_text(ex))")
+    end
 end
 
 @testset "caching" begin

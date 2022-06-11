@@ -368,7 +368,7 @@ end
 
 function _evaluate_sequential(bopts, oopts, session, files, time_state)
     return map(files) do in_file
-        time_init!(time_state, in_file)
+        _time_init!(time_state, in_file)
         _evaluate_file(bopts, oopts, session, in_file, time_state)
     end
 end

@@ -199,7 +199,7 @@ function notebook2html(nb::Notebook, path, oopts::OutputOptions=OutputOptions())
     return html
 end
 
-function _outcome2html(nb::Notebook, in_path, bopts::BuildOptions, oopts::OutputOptions)
+function _outcome2html(nb::Notebook, in_path, bopts, oopts::OutputOptions)
     html = notebook2html(nb, in_path, oopts)
 
     if bopts.output_format == franklin_output

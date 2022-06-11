@@ -336,8 +336,8 @@ end
 
 function run_notebook!(
         path::AbstractString,
-        session::ServerSession,
-        compiler_options::Union{Nothing,CompilerOptions};
+        session::ServerSession;
+        compiler_options::Union{Nothing,CompilerOptions}=nothing,
         run_async=false
     )
     # Avoid changing pwd.
@@ -378,7 +378,7 @@ function _evaluate_file(bopts::BuildOptions, oopts::OutputOptions, session, in_f
             # `use_distributed` means mostly "whether to run in a new process".
             session.options.evaluation.workspace_use_distributed = false
         end
-        nb = run_notebook!(in_path, session, bopts.compiler_options; run_async)
+        nb = run_notebook!(in_path, session; bopts.compiler_options, run_async)
 
         if bopts.use_distributed
             # The notebook is running in a distributed process, but we still need to wait to

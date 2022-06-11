@@ -176,7 +176,7 @@ function _cell2html(cell::Cell, oopts::OutputOptions)
 end
 
 """
-    notebook2html(nb::Notebook, path, opts::OutputOptions=OutputOptions()) -> String
+    notebook2html(nb::Notebook, path, opts::OutputOptions=OutputOptions())::String
 
 Return the code and output as HTML for `nb`.
 Assumes that the notebook has already been executed.

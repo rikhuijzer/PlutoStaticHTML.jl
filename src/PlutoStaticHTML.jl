@@ -51,7 +51,7 @@ include("build.jl")
 include("documenter.jl")
 
 export OutputOptions
-export documenter_output, franklin_output, html_output
+export documenter_output, franklin_output, html_output, pdf_output
 export BuildOptions, build_notebooks
 
 @precompile_signatures(PlutoStaticHTML)

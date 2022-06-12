@@ -38,6 +38,7 @@ using Pluto:
 using PrecompileSignatures: @precompile_signatures
 using SHA: sha256
 using TOML: parse as parsetoml
+using tectonic_jll: tectonic
 
 include("module_doc.jl")
 include("context.jl")

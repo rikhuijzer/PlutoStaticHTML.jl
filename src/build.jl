@@ -259,7 +259,12 @@ function _outcome2pdf(
         output_format::OutputFormat,
         oopts::OutputOptions
     )
-    error("Not implemented")
+    @assert output_format == pdf_output
+    tex = notebook2tex(nb, in_path, oopts)
+
+    # _write_main_output(...)
+
+    return tex
 end
 
 function _outcome2html(

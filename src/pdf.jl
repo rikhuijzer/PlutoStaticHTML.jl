@@ -2,10 +2,36 @@ function run_tectonic(args::Vector)
     return read(`$(tectonic()) $args`, String)
 end
 
-tectonic_version() = run_tectonic(["--version"])
+tectonic_version() = strip(run_tectonic(["--version"]))
 
 function _code2tex(code::String, oopts::OutputOptions)
     return code
+end
+
+function _verbatim(text::String, language::String)
+    return """
+        \\begin{lstlisting}[language=$language]
+        $text
+        \\end{lstlisting}
+        """
+end
+
+function tex_code_block(code)
+    if code == ""
+        return ""
+    end
+    return _verbatim(code, "Julia")
+end
+
+function tex_output_block(text::String)
+    if text == ""
+        return ""
+    end
+    return _verbatim(text, "Output")
+end
+
+function _output2tex(cell::Cell, ::MIME"text/plain", oopts)
+    return pdf_output_block(body)
 end
 
 function _output2tex(cell::Cell, T, oopts::OutputOptions)

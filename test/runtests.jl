@@ -30,6 +30,10 @@ end
     include("build.jl")
 end
 
+@timed_testset "pdf" begin
+    include("pdf.jl")
+end
+
 @timed_testset "aqua" begin
     Aqua.test_all(PlutoStaticHTML; ambiguities=false)
 end

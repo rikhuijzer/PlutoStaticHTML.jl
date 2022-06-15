@@ -13,6 +13,7 @@ import Pluto:
 
 using Base64: base64encode
 using Dates
+using LazyArtifacts
 using Pkg:
     Types.Context,
     Types.UUID,
@@ -37,19 +38,22 @@ using Pluto:
 using PrecompileSignatures: @precompile_signatures
 using SHA: sha256
 using TOML: parse as parsetoml
+using tectonic_jll: tectonic
 
 include("module_doc.jl")
 include("context.jl")
 include("cache.jl")
 include("mimeoverride.jl")
 include("with_terminal.jl")
-include("html.jl")
+include("output.jl")
 include("style.jl")
+include("html.jl")
+include("pdf.jl")
 include("build.jl")
 include("documenter.jl")
 
-export HTMLOptions
-export documenter_output, franklin_output, html_output
+export OutputOptions
+export documenter_output, franklin_output, html_output, pdf_output
 export BuildOptions, build_notebooks
 
 @precompile_signatures(PlutoStaticHTML)

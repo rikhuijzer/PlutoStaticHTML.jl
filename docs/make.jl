@@ -16,7 +16,7 @@ Run all Pluto notebooks (".jl" files) in `NOTEBOOK_DIR`.
 """
 function build()
     println("Building notebooks")
-    hopts = HTMLOptions(; append_build_context=true)
+    hopts = OutputOptions(; append_build_context=true)
     output_format = documenter_output
     bopts = BuildOptions(NOTEBOOK_DIR; output_format)
     build_notebooks(bopts, hopts)

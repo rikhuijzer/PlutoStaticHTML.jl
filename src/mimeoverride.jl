@@ -1,6 +1,9 @@
 # Putting the override in a expr because it needs to be evaluated in this process and the
 # distributed process.
-const show_richest_override = :(
+const show_richest_override = quote
+    using Markdown
+    using InteractiveUtils
+
     # Override for `show_richest`.
     # Override the full method because allmimes was replaced by the compiler.
     function PlutoRunner.show_richest(io::IO, @nospecialize(x))::Tuple{<:Any,MIME}
@@ -32,7 +35,7 @@ const show_richest_override = :(
             nothing, mime
         end
     end
-)
+end
 
 # Giving `val` back so that the stacktrace can be printed easily.
 const format_output_exception_override = :(

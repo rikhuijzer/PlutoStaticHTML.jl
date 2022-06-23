@@ -1,8 +1,8 @@
 # Putting the override in a expr because it needs to be evaluated in this process and the
 # distributed process.
 const show_richest_override = quote
+    # Used inside this quote.
     using Markdown
-    using InteractiveUtils
 
     # Override for `show_richest`.
     # Override the full method because allmimes was replaced by the compiler.

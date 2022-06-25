@@ -16,6 +16,10 @@ const show_richest_override = quote
             end
         end
 
+        # Calling Markdown here to be sure that it works.
+        markdown_pkg = Base.PkgId(Base.UUID("d6f4376e-aef5-505a-96c1-9c027394607a"), "Markdown")
+        Markdown = Base.loaded_modules[markdown_pkg]
+
         if mime in PlutoRunner.imagemimes
             show(io, mime, x)
             nothing, mime

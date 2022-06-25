@@ -186,12 +186,6 @@ end
     @test contains(lines[2], "        b = 1 + 1021")
 end
 
-@testset "smoke test latex in override" begin
-    nb = Notebook([Cell("md\"\$bar\$ foo\"")])
-    html, _ = notebook2html_helper(nb, HTMLOptions(); use_distributed=false)
-    html, _ = notebook2html_helper(nb, HTMLOptions(); use_distributed=true)
-end
-
 @testset "big-table" begin
     # Using DataFrames here instead of Tables to get the number of rows for long tables.
     nb = Notebook([

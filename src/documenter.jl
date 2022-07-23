@@ -58,21 +58,12 @@ end
 Return raw_html where Markdown headers hidden in the HTML are converted back to Markdown so that Documenter parses them.
 """
 function _fix_header_links(html::String)
-    lines = split(html, '\n')
-    rx = r"""<div class="markdown"><h([1-2])>([^<]*)<\/h[1-2]>"""
-    for i in 1:length(lines)
-        m = match(rx, lines[i])
-        isnothing(m) && continue
-        level = parse(Int, m[1])
-        header = m[2]
-        md_header = string(repeat('#', level), " $header")::String
-        updated_text = """
+    rx = r"""<div class="markdown"><h2>([^<]*)<\/h2>"""
+    substitution_string = s"""
             ```
-            $(repeat('#', level)) $header
+            ## \1
             ```@raw html
             <div class="markdown">
             """
-        lines[i] = updated_text
-    end
-    return join(lines, '\n')
+    return replace(html, rx => substitution_string)
 end

@@ -135,6 +135,24 @@ end
         """
     @test PlutoStaticHTML._fix_header_links("""<div class="markdown"><h2>Admonitons</h2>""") == expected
     @test PlutoStaticHTML._fix_header_links("") == ""
+
+    mktempdir() do dir
+        cd(dir) do
+            path = joinpath(dir, "notebook.jl")
+            code = pluto_notebook_content("""
+                md"## Some header"
+                """)
+            write(path, code)
+            use_distributed = false
+            output_format = documenter_output
+            bo = BuildOptions(dir; use_distributed, output_format)
+            build_notebooks(bo)
+
+            output_path = joinpath(dir, "notebook.md")
+            output = read(output_path, String)
+            @test contains(output, "## Some header")
+        end
+    end
 end
 
 @testset "Elapsed time" begin
@@ -147,3 +165,4 @@ end
     @test PlutoStaticHTML._pretty_elapsed(n2 - n) == "2 seconds"
 end
 
+nothing

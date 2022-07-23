@@ -186,7 +186,5 @@ end
         output2 = read(output_path, String)
 
         @test output == output2
-        # _fix_header_links is applied.
-        @test contains(output, "# Some header")
     end
 end

@@ -167,7 +167,7 @@ end
     cd(dir) do
         path = joinpath(dir, "notebook.jl")
         code = pluto_notebook_content("""
-            md"# Some header"
+            x = 1
             """)
         write(path, code)
 

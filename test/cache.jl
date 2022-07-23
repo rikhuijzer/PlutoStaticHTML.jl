@@ -161,7 +161,7 @@ end
 end
 
 @testset "documenter_cache_output" begin
-    # Test whether the Franklin Markdown copied from the cache is correct.
+    # Test whether the Documenter HTML + Markdown copied from the cache is correct.
     dir = mktempdir()
 
     cd(dir) do

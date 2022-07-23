@@ -53,3 +53,26 @@ function _editurl_text(bopts::BuildOptions, in_path::String)::String
         return ""
     end
 end
+
+"""
+Return raw_html where Markdown headers hidden in the HTML are converted back to Markdown so that Documenter parses them.
+"""
+function _fix_header_links(html::String)
+    lines = split(html, '\n')
+    rx = r"""<div class="markdown"><h([1-2])>([^<]*)<\/h[1-2]>"""
+    for i in 1:length(lines)
+        m = match(rx, lines[i])
+        isnothing(m) && continue
+        level = parse(Int, m[1])
+        header = m[2]
+        md_header = string(repeat('#', level), " $header")::String
+        updated_text = """
+            ```
+            $(repeat('#', level)) $header
+            ```@raw html
+            <div class="markdown">
+            """
+        lines[i] = updated_text
+    end
+    return join(lines, '\n')
+end

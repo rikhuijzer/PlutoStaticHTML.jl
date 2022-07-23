@@ -126,6 +126,17 @@ end
     end
 end
 
+@testset "Fix header links" begin
+    expected = """
+        ```
+        ## Admonitons
+        ```@raw html
+        <div class="markdown">
+        """
+    @test PlutoStaticHTML._fix_header_links("""<div class="markdown"><h2>Admonitons</h2>""") == expected
+    @test PlutoStaticHTML._fix_header_links("") == ""
+end
+
 @testset "Elapsed time" begin
     n = now()
     sleep(1)

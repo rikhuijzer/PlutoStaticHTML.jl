@@ -202,6 +202,7 @@ function _wrap_documenter_output(html::String, bopts::BuildOptions, in_path::Str
     if bopts.add_documenter_css
         html = _add_documenter_css(html)
     end
+    html = _fix_header_links(html)
     editurl = _editurl_text(bopts, in_path)
     return """
         ```@raw html

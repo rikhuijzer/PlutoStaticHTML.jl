@@ -1,4 +1,4 @@
-# `with_terminal`
+# Terminal output from Pluto
 
 `PlutoUI` has a well-known function `with_terminal` to show terminal output with a black background and colored text.
 For example, when having loaded `PlutoUI` via `using PlutoUI`, the following code will show the text "Some terminal output" in a mini terminal window inside `Pluto`:

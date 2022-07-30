@@ -1,6 +1,8 @@
+using Markdown: Markdown
+
 # Putting the override in a expr because it needs to be evaluated in this process and the
 # distributed process.
-const show_richest_override = :(
+const show_richest_override = quote
     # Override for `show_richest`.
     # Override the full method because allmimes was replaced by the compiler.
     function PlutoRunner.show_richest(io::IO, @nospecialize(x))::Tuple{<:Any,MIME}
@@ -13,6 +15,10 @@ const show_richest_override = :(
                 break
             end
         end
+
+        # Calling Markdown here to be sure that it works.
+        markdown_pkg = Base.PkgId(Base.UUID("d6f4376e-aef5-505a-96c1-9c027394607a"), "Markdown")
+        Markdown = Base.loaded_modules[markdown_pkg]
 
         if mime in PlutoRunner.imagemimes
             show(io, mime, x)
@@ -32,7 +38,7 @@ const show_richest_override = :(
             nothing, mime
         end
     end
-)
+end
 
 # Giving `val` back so that the stacktrace can be printed easily.
 const format_output_exception_override = :(

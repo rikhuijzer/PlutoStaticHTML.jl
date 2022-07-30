@@ -225,7 +225,7 @@ function _wrap_documenter_output(html::String, bopts::BuildOptions, in_path::Str
     editurl = _editurl_text(bopts, in_path)
     return """
         ```@raw html
-        $html
+        $(_fix_header_links(html))
         ```
         $editurl
         """

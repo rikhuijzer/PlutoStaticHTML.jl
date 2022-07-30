@@ -15,7 +15,7 @@ const NOTEBOOK_DIR = joinpath(@__DIR__, "src", "notebooks")
 Run all Pluto notebooks (".jl" files) in `NOTEBOOK_DIR`.
 """
 function build()
-    println("Building notebooks")
+    println("Building notebooks in $NOTEBOOK_DIR")
     hopts = OutputOptions(; append_build_context=true)
     output_format = documenter_output
     bopts = BuildOptions(NOTEBOOK_DIR; output_format)

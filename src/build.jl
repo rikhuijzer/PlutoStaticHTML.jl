@@ -343,7 +343,7 @@ function run_notebook!(
         path::AbstractString,
         session::ServerSession;
         compiler_options::Union{Nothing,CompilerOptions}=nothing,
-        run_async=false
+        run_async::Bool=false
     )
     # Avoid changing pwd.
     previous_dir = pwd()

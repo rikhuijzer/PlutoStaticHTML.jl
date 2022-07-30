@@ -24,14 +24,17 @@ function tex_code_block(code)
 end
 
 function tex_output_block(text::String)
-    if text == ""
-        return ""
-    end
+    text == "" && return ""
     return _verbatim(text, "Output")
 end
 
-function _output2tex(cell::Cell, ::MIME"text/plain", oopts)
-    return pdf_output_block(body)
+function _output2tex(cell::Cell, ::MIME"text/plain", oopts::OutputOptions)
+    body = cell.output.body
+    # `+++` means that it is a cell with Franklin definitions.
+    if oopts.hide_md_def_code && startswith(body, "+++")
+        return ""
+    end
+    return tex_output_block(body)
 end
 
 function _output2tex(cell::Cell, T, oopts::OutputOptions)

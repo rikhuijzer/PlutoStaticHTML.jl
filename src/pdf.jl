@@ -80,6 +80,7 @@ function _tex_header()
         \\usepackage{fontspec}
         \\newfontfamily\\JuliaMono{JuliaMono}[
             Path = $juliamono_dir,
+            Extension = .ttf,
             UprightFont = *-Regular,
             BoldFont = *-Bold
         ]

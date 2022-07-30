@@ -76,21 +76,14 @@ function _tex_header()
 
     uprightfont = joinpath(juliamono_dir, "JuliaMono-Regular")
     boldfont = joinpath(juliamono_dir, "JuliaMono-Bold")
+    @show boldfont
     return """
         \\documentclass{article}
         \\usepackage[left=3cm,top=1.5cm,right=3cm,bottom=2cm]{geometry}
 
         \\usepackage{fontspec}
-        \\fontspec [
-            Extension = .ttf,
-            UprightFont = $(uprightfont),
-            BoldFont = $(boldfont)
-        ]{JuliaMono}
-
-        \\newfontface\\JuliaMonoRegular{JuliaMono-Regular}
-        \\newfontface\\JuliaMonoBold{JuliaMono-Bold}
-
         \\setmonofont{JuliaMono-Medium}[
+            Path = $(juliamono_dir)/,
             Contextuals = Alternate,
             Ligatures = NoCommon
         ]

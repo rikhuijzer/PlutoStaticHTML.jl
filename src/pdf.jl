@@ -73,16 +73,18 @@ function _tex_header()
     @show juliamono_dir
     listings = joinpath(PKGDIR, "src", "listings", "julia_listings.tex")
     unicode = joinpath(PKGDIR, "src", "listings", "julia_listings_unicode.tex")
+
+    uprightfont = joinpath(juliamono_dir, "JuliaMono-Regular")
+    boldfont = joinpath(juliamono_dir, "JuliaMono-Bold")
     return """
         \\documentclass{article}
         \\usepackage[left=3cm,top=1.5cm,right=3cm,bottom=2cm]{geometry}
 
         \\usepackage{fontspec}
         \\fontspec [
-            Path = $juliamono_dir,
             Extension = .ttf,
-            UprightFont = *-Regular,
-            BoldFont = *-Bold
+            UprightFont = $(uprightfont),
+            BoldFont = $(boldfont)
         ]{JuliaMono}
 
         \\newfontface\\JuliaMonoRegular{JuliaMono-Regular}

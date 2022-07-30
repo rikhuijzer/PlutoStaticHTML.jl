@@ -78,12 +78,13 @@ function _tex_header()
         \\usepackage[left=3cm,top=1.5cm,right=3cm,bottom=2cm]{geometry}
 
         \\usepackage{fontspec}
-        \\newfontfamily\\JuliaMono{JuliaMono}[
+        \\fontspec [
             Path = $juliamono_dir,
             Extension = .ttf,
             UprightFont = *-Regular,
             BoldFont = *-Bold
-        ]
+        ]{JuliaMono}
+
         \\newfontface\\JuliaMonoRegular{JuliaMono-Regular}
         \\newfontface\\JuliaMonoBold{JuliaMono-Bold}
 

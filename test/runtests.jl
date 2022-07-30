@@ -2,6 +2,10 @@ include("preliminaries.jl")
 
 const TIMEROUTPUT = TimerOutput()
 
+@timed_testset "pdf" begin
+    include("pdf.jl")
+end
+
 @timed_testset "context" begin
     include("context.jl")
 end
@@ -28,10 +32,6 @@ end
 
 @timed_testset "build" begin
     include("build.jl")
-end
-
-@timed_testset "pdf" begin
-    include("pdf.jl")
 end
 
 @timed_testset "aqua" begin

@@ -5,7 +5,11 @@ end
 tectonic_version() = strip(run_tectonic(["--version"]))
 
 function _code2tex(code::String, oopts::OutputOptions)
-    return code
+    return """
+        \\begin{lstlisting}[language=Julia]
+        $code
+        \\end{lstlisting}
+        """
 end
 
 function _verbatim(text::String, language::String)
@@ -57,6 +61,41 @@ function _cell2tex(cell::Cell, oopts::OutputOptions)
     end
 end
 
+"Return the directory of JuliaMono with a trailing slash to please fontspec."
+function _juliamono_dir()
+    artifact = LazyArtifacts.artifact"JuliaMono"
+    dir = joinpath(artifact, string("juliamono-", JULIAMONO_VERSION))
+    return string(dir, '/')
+end
+
+function _tex_header()
+    juliamono_dir = _juliamono_dir()
+    listings = joinpath(PKGDIR, "src", "listings", "julia_listings.tex")
+    unicode = joinpath(PKGDIR, "src", "listings", "julia_listings_unicode.tex")
+    return """
+        \\documentclass{article}
+
+        \\usepackage{fontspec}
+        \\newfontfamily\\JuliaMono{JuliaMono}[
+            Path = $juliamono_dir,
+            UprightFont = *-Regular,
+            BoldFont = *-Bold
+        ]
+        \\newfontface\\JuliaMonoRegular{JuliaMono-Regular}
+        \\newfontface\\JuliaMonoBold{JuliaMono-Bold}
+
+        \\setmonofont{JuliaMono-Medium}[
+            Contextuals = Alternate,
+            Ligatures = NoCommon
+        ]
+
+        \\input{$listings}
+        \\input{$unicode}
+
+        \\begin{document}
+        """
+end
+
 function notebook2tex(nb::Notebook, in_path::String, oopts::OutputOptions)
     @assert isready(nb)
     order = nb.cell_order
@@ -64,11 +103,44 @@ function notebook2tex(nb::Notebook, in_path::String, oopts::OutputOptions)
         cell = nb.cells_dict[cell_uuid]
         _cell2tex(cell, oopts)
     end
+    header = _tex_header()
     body = join(outputs, '\n')
     tex = """
-        <header>
+        $header
         $body
-        <footer>
+        \\end{document}
         """
     return tex
 end
+
+function _tectonic(args::Vector{String})
+    tectonic() do bin
+        run(`$bin $args`)
+    end
+end
+
+function _tex2pdf(tex_path::String)
+    dir = dirname(tex_path)
+    args = [
+        tex_path,
+        "--outdir=$dir",
+        "--print"
+    ]
+    _tectonic(args)
+    return nothing
+end
+
+function notebook2pdf(nb::Notebook, in_path::String, oopts::OutputOptions)
+    tex = notebook2tex(nb, in_path, oopts)
+    dir = dirname(in_path)
+    filename, _ = splitext(basename(in_path))
+    tex_path = joinpath(dir, string(filename, ".tex"))
+    @debug "Writing tex file for debugging purposes to $tex_path"
+    write(tex_path, tex)
+
+    pdf_path = joinpath(dir, string(filename, ".pdf"))
+    @debug "Writing pdf file to $pdf_path"
+    _tex2pdf(tex_path)
+    return pdf_path
+end
+

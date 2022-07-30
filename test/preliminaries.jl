@@ -50,9 +50,11 @@ function nb_tmppath(nb::Notebook, use_distributed::Bool)
     session = ServerSession()
     session.options.evaluation.workspace_use_distributed = use_distributed
     nb = PlutoStaticHTML.run_notebook!(tmppath, session)
-    @async begin
-        sleep(5)
-        Pluto.SessionActions.shutdown(session, nb)
+    if use_distributed
+        @async begin
+            sleep(5)
+            Pluto.SessionActions.shutdown(session, nb)
+        end
     end
     return (nb, tmppath)
 end
@@ -84,6 +86,16 @@ function notebook2tex_helper(
     nb, tmppath = nb_tmppath(nb, use_distributed)
     tex = PlutoStaticHTML.notebook2tex(nb, tmppath, oopts)
     return (tex, nb)
+end
+
+function notebook2pdf_helper(
+        nb::Notebook,
+        oopts=OutputOptions();
+        use_distributed::Bool=true
+    )
+    nb, tmppath = nb_tmppath(nb, use_distributed)
+    pdf_path = PlutoStaticHTML.notebook2pdf(nb, tmppath, oopts)
+    return (pdf_path, nb)
 end
 
 # Credits to Tensors.jl/test/runtests.jl

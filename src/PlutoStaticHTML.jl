@@ -40,6 +40,9 @@ using SHA: sha256
 using TOML: parse as parsetoml
 using tectonic_jll: tectonic
 
+const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
+const JULIAMONO_VERSION = "0.045"
+
 include("module_doc.jl")
 include("context.jl")
 include("cache.jl")
@@ -56,6 +59,6 @@ export OutputOptions
 export documenter_output, franklin_output, html_output, pdf_output
 export BuildOptions, build_notebooks
 
-@precompile_signatures(PlutoStaticHTML)
+# @precompile_signatures(PlutoStaticHTML)
 
 end # module

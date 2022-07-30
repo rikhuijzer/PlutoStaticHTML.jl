@@ -82,10 +82,14 @@ function _tex_header()
         \\usepackage[left=3cm,top=1.5cm,right=3cm,bottom=2cm]{geometry}
 
         \\usepackage{fontspec}
-        \\setmonofont{JuliaMono-Medium}[
+        \\setmonofont{JuliaMono-Regular.ttf}[
             Path = $(juliamono_dir)/,
             Contextuals = Alternate,
             Ligatures = NoCommon
+        ]
+
+        \\newfontfamily{\\juliabold}{JuliaMono-Bold.ttf}[
+            Path = $(juliamono_dir)/
         ]
 
         \\input{$listings}
@@ -97,6 +101,10 @@ function _tex_header()
         \\cfoot{Page \\thepage\\ of \\pageref{LastPage}}
 
         \\begin{document}
+
+        \\ttfamily This should be JuliaMono \\newline
+
+        \\juliabold This should be bold
         """
 end
 

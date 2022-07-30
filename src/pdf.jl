@@ -70,10 +70,12 @@ end
 
 function _tex_header()
     juliamono_dir = _juliamono_dir()
+    @show juliamono_dir
     listings = joinpath(PKGDIR, "src", "listings", "julia_listings.tex")
     unicode = joinpath(PKGDIR, "src", "listings", "julia_listings_unicode.tex")
     return """
         \\documentclass{article}
+        \\usepackage[left=3cm,top=1.5cm,right=3cm,bottom=2cm]{geometry}
 
         \\usepackage{fontspec}
         \\newfontfamily\\JuliaMono{JuliaMono}[
@@ -91,6 +93,11 @@ function _tex_header()
 
         \\input{$listings}
         \\input{$unicode}
+
+        \\usepackage{lastpage}
+        \\usepackage{fancyhdr}
+        \\pagestyle{fancy}
+        \\cfoot{Page \\thepage\\ of \\pageref{LastPage}}
 
         \\begin{document}
         """

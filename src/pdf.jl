@@ -5,6 +5,12 @@ end
 tectonic_version() = strip(run_tectonic(["--version"]))
 
 function _code2tex(code::String, oopts::OutputOptions)
+    if oopts.hide_code
+        return ""
+    end
+    if oopts.hide_md_code && startswith(code, "md\"")
+        return ""
+    end
     return """
         \\begin{lstlisting}[language=Julia]
         $code
@@ -41,6 +47,11 @@ function _output2tex(cell::Cell, ::MIME"text/plain", oopts::OutputOptions)
     return tex_output_block(body)
 end
 
+function _output2tex(cell::Cell, ::MIME"text/html", oopts::OutputOptions)
+    body = cell.output.body
+    return _html2tex(body)
+end
+
 function _output2tex(cell::Cell, T, oopts::OutputOptions)
     return "<output>"
 end
@@ -70,13 +81,8 @@ end
 
 function _tex_header()
     juliamono_dir = _juliamono_dir()
-    @show juliamono_dir
     listings = joinpath(PKGDIR, "src", "listings", "julia_listings.tex")
     unicode = joinpath(PKGDIR, "src", "listings", "julia_listings_unicode.tex")
-
-    uprightfont = joinpath(juliamono_dir, "JuliaMono-Regular")
-    boldfont = joinpath(juliamono_dir, "JuliaMono-Bold")
-    @show boldfont
     return """
         \\documentclass{article}
         \\usepackage[left=3cm,top=1.5cm,right=3cm,bottom=2cm]{geometry}
@@ -89,7 +95,9 @@ function _tex_header()
         ]
 
         \\newfontfamily{\\juliabold}{JuliaMono-Bold.ttf}[
-            Path = $(juliamono_dir)/
+            Path = $(juliamono_dir)/,
+            Contextuals = Alternate,
+            Ligatures = NoCommon
         ]
 
         \\input{$listings}
@@ -101,10 +109,6 @@ function _tex_header()
         \\cfoot{Page \\thepage\\ of \\pageref{LastPage}}
 
         \\begin{document}
-
-        \\ttfamily This should be JuliaMono \\newline
-
-        \\juliabold This should be bold
         """
 end
 

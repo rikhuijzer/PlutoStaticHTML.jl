@@ -11,6 +11,7 @@ using Pluto:
 using Test
 using TimerOutputs: TimerOutput, @timeit
 
+const PS = PlutoStaticHTML
 const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
 const NOTEBOOK_DIR = joinpath(PKGDIR, "docs", "src", "notebooks")
 
@@ -43,20 +44,22 @@ function drop_begin_end(html::AbstractString)
     return join(lines[2:end-1], sep)
 end
 
-function nb_tmppath(nb::Notebook, use_distributed::Bool)
-    tmpdir = mktempdir(; cleanup=true)
-    tmppath = joinpath(tmpdir, "notebook.jl")
-    Pluto.save_notebook(nb, tmppath)
+function nb_tmppath(
+        nb::Notebook,
+        use_distributed::Bool;
+        in_path::String=joinpath(mktempdir(), "notebook.jl")
+        )
+    Pluto.save_notebook(nb, in_path)
     session = ServerSession()
     session.options.evaluation.workspace_use_distributed = use_distributed
-    nb = PlutoStaticHTML.run_notebook!(tmppath, session)
+    nb = PlutoStaticHTML.run_notebook!(in_path, session)
     if use_distributed
         @async begin
             sleep(5)
             Pluto.SessionActions.shutdown(session, nb)
         end
     end
-    return (nb, tmppath)
+    return (nb, in_path)
 end
 
 function notebook2html_helper(
@@ -90,10 +93,11 @@ end
 
 function notebook2pdf_helper(
         nb::Notebook,
+        in_path::String,
         oopts=OutputOptions();
         use_distributed::Bool=true
     )
-    nb, tmppath = nb_tmppath(nb, use_distributed)
+    nb, tmppath = nb_tmppath(nb, use_distributed; in_path)
     pdf_path = PlutoStaticHTML.notebook2pdf(nb, tmppath, oopts)
     return (pdf_path, nb)
 end

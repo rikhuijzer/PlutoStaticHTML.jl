@@ -9,3 +9,4 @@
 docs/src/dynamic/
 **/*backup*.jl
 tmp.*
+test/tmp/

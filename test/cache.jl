@@ -7,28 +7,36 @@
     @test state.julia_version == string(VERSION)
 end
 
+exception_text(ex) = sprint(Base.showerror, ex)
+
 function try_read(file)::String
-    for i in 1:100
+    for i in 1:30
         try
             return read(file, String)
         catch
             sleep(0.2)
         end
     end
-    # Throw original error if still no success.
-    read(file, String)
+    try
+        return read(file, String)
+    catch ex
+        error("try_read was unable to read file: $(exception_text(ex))")
+    end
 end
 
 function try_rm(file)
-    for i in 1:100
+    for i in 1:30
         try
             return rm(file)
         catch
             sleep(0.2)
         end
     end
-    # Throw original error if still no success.
-    rm(file)
+    try
+        return rm(file)
+    catch ex
+        error("try_rm was unable to remove file: $(exception_text(ex))")
+    end
 end
 
 @testset "caching" begin
@@ -36,6 +44,7 @@ end
     use_distributed = false
 
     cd(dir) do
+        @info "Evaluating notebooks in $dir without caching"
         path(name) = joinpath(dir, "$name.txt")
         code = pluto_notebook_content("""
             begin
@@ -66,6 +75,7 @@ end
         dir = mktempdir()
 
         cd(dir) do
+            @info "Evaluating notebooks in $dir with caching"
             cp(joinpath(previous_dir, "a.jl"), joinpath(dir, "a.jl"))
             cp(joinpath(previous_dir, "b.jl"), joinpath(dir, "b.jl"))
 
@@ -73,7 +83,7 @@ end
             build_notebooks(bo)
 
             # a was evaluated because "a.html" was removed.
-            # note that pluto always writes txt files to the first dir.
+            # note that Pluto always writes txt files to the first dir.
             @test try_read(joinpath(previous_dir, "a.txt")) == "a"
             try_read("a.html")
 

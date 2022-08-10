@@ -39,15 +39,15 @@
     notebook = Notebook([
         Cell("md\"my text\"")
     ])
-    html, nb = notebook2html_helper(notebook, HTMLOptions(; hide_md_code=true); use_distributed)
+    html, nb = notebook2html_helper(notebook, OutputOptions(; hide_md_code=true); use_distributed)
     lines = split(html, '\n')
     @test lines[1] == ""
 
-    html, nb = notebook2html_helper(notebook, HTMLOptions(; hide_md_code=false); use_distributed)
+    html, nb = notebook2html_helper(notebook, OutputOptions(; hide_md_code=false); use_distributed)
     lines = split(html, '\n')
     @test lines[1] != ""
 
-    opts = HTMLOptions(; hide_md_code=false, hide_code=true)
+    opts = OutputOptions(; hide_md_code=false, hide_code=true)
     html, nb = notebook2html_helper(notebook, opts; use_distributed)
     lines = split(html, '\n')
     @test lines[1] == ""
@@ -56,7 +56,7 @@ end
 @testset "use_distributed=false and pwd" begin
     dir = pwd()
     nb = Notebook([Cell("1 + 1")])
-    _, _ = notebook2html_helper(nb, HTMLOptions(; hide_md_code=true); use_distributed=false)
+    _, _ = notebook2html_helper(nb, OutputOptions(; hide_md_code=true); use_distributed=false)
     @test pwd() == dir
 end
 
@@ -80,7 +80,7 @@ end
         file = joinpath(dir, "tmp.jl")
         content = pluto_notebook_content("x = 1 + 2")
         write(file, content)
-        html = PlutoStaticHTML.notebook2html(file)
+        html = notebook2html(file)
         @test contains(html, "3")
     end
 end
@@ -140,8 +140,8 @@ end
     nb = Notebook([
         Cell("x = 1 + 1020"),
     ])
-    hopts = HTMLOptions(; show_output_above_code=true)
-    html, _ = notebook2html_helper(nb, hopts; use_distributed=false)
+    oopts = OutputOptions(; show_output_above_code=true)
+    html, _ = notebook2html_helper(nb, oopts; use_distributed=false)
     lines = split(html, '\n')
 
     @test contains(lines[1], "1021")
@@ -177,8 +177,8 @@ end
         Cell("	a = 1 + 1021;"),
         Cell("		b = 1 + 1021;"),
     ])
-    hopts = HTMLOptions()
-    html, _ = notebook2html_helper(nb, hopts; use_distributed=false)
+    oopts = OutputOptions()
+    html, _ = notebook2html_helper(nb, oopts; use_distributed=false)
     lines = split(html, '\n')
 
     filter!(!isempty, lines)
@@ -192,8 +192,8 @@ end
         Cell("using DataFrames: DataFrame"),
         Cell("DataFrame(rand(120, 20), :auto)")
     ])
-    hopts = HTMLOptions()
-    html, _ = notebook2html_helper(nb, hopts; use_distributed=false)
+    oopts = OutputOptions()
+    html, _ = notebook2html_helper(nb, oopts; use_distributed=false)
     # Use write(tmp.html, html) to look at this.
 
     # First column is empty in the header (because of indexes).

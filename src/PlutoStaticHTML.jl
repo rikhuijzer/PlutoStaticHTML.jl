@@ -36,12 +36,11 @@ using Pluto:
     update_run!,
     update_save_run!
 using PrecompileSignatures: @precompile_signatures
-using RelocatableFolders: @path
 using SHA: sha256
 using TOML: parse as parsetoml
 using tectonic_jll: tectonic
 
-const PKGDIR = @path string(pkgdir(PlutoStaticHTML))::String
+const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
 const JULIAMONO_VERSION = "0.045"
 
 include("module_doc.jl")

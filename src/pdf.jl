@@ -72,11 +72,9 @@ function _cell2tex(cell::Cell, oopts::OutputOptions)
     end
 end
 
-"Return the directory of JuliaMono with a trailing slash to please fontspec."
 function _juliamono_dir()
     artifact = LazyArtifacts.artifact"JuliaMono"
-    dir = joinpath(artifact, string("juliamono-", JULIAMONO_VERSION))
-    return string(dir, '/')
+    return joinpath(artifact, string("juliamono-", JULIAMONO_VERSION))
 end
 
 function _tex_header()

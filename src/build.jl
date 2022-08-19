@@ -246,7 +246,7 @@ function _outcome2text(session, prevs::Vector{Previous}, in_path::String, bopts,
     return texts
 end
 
-function _inject_script(html, script)
+function _inject_script(html, scriphopts = OutputOptions(; append_build_context=true)t)
     l = length(END_IDENTIFIER)
     without_end = html[1:end-l]
     return string(without_end, '\n', script, '\n', END_IDENTIFIER)

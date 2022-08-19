@@ -423,12 +423,27 @@ end
 """
     build_notebooks(
         bopts::BuildOptions,
-        files,
+        [files,]
         oopts::OutputOptions=OutputOptions();
         session=ServerSession()
     )
 
-Build all `files` in `dir` in parallel.
+Build Pluto notebook `files` in `dir`.
+Here, 
+When not passing `files`, then all Pluto notebooks in `dir` will be built.
+
+# Example
+```
+julia> dir = joinpath(homedir(), "my_project", "notebooks");
+
+julia> bopts = BuildOptions(dir);
+
+julia> oopts = OutputOptions(; append_build_context=true);
+
+julia> files = ["pi.jl", "math.jl"];
+
+julia> build_notebooks(bopts, files, oopts);
+```
 """
 function build_notebooks(
         bopts::BuildOptions,
@@ -457,14 +472,6 @@ function _is_pluto_file(path::AbstractString)::Bool
     first(eachline(string(path))) == "### A Pluto.jl notebook ###"
 end
 
-"""
-    build_notebooks(
-        bopts::BuildOptions,
-        oopts::OutputOptions=OutputOptions()
-    )
-
-Build all ".jl" files in `dir`.
-"""
 function build_notebooks(
         bopts::BuildOptions,
         oopts::OutputOptions=OutputOptions()

@@ -1,7 +1,0 @@
-[JuliaMono]
-git-tree-sha1 = "45f34ceb7f1b7b67949715de56b123afeaa72e47"
-lazy = true
-
-    [[JuliaMono.download]]
-    sha256 = "b3822fd9ead36f9f6428215d2a996eea72245b60ae6882d6c41e8566b5e044aa"
-    url = "https://github.com/cormullion/juliamono/archive/v0.045.tar.gz"

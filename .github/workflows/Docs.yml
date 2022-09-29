@@ -16,6 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/julia-buildpkg@latest
+
+      - run: julia --project -e 'using Pkg; Pkg.add(url="https://github.com/fonsp/Pluto.jl", rev="rh/allow-rich-mime-override")'
+
       - uses: julia-actions/julia-docdeploy@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

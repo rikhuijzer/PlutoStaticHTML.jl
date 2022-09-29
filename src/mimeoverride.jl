@@ -1,7 +1,3 @@
-using Markdown: Markdown
-
-# Putting the override in a expr because it needs to be evaluated in this process and the
-# distributed process.
 const show_richest_override = quote
     PlutoRunner.is_mime_enabled(::MIME"application/vnd.pluto.tree+object") = false
     PlutoRunner.is_tree_viewer_enabled(::MIME"text/plain") = false
@@ -21,9 +17,10 @@ const OLD_PROCESS_PREAMBLE = WorkspaceManager.process_preamble()
 # Override the preamble to disable Pluto's pretty printing.
 WorkspaceManager.process_preamble() = quote
     $OLD_PROCESS_PREAMBLE
-    $(show_richest_override)
     $(format_output_exception_override)
 end
+
+# $(show_richest_override)
 
 # Yes. These overrides are used when `use_distributed=false`.
 eval(show_richest_override)

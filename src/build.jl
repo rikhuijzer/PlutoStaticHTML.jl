@@ -356,6 +356,15 @@ function run_notebook!(
     return nb
 end
 
+function _add_extra_preamble!(session::ServerSession)
+    @show "Running _add_extra_preamble!"
+    if !isnothing(session.options.evaluation.extra_preamble)
+        @warn "Expected the `extra_preamble` setting to not be set; overriding it."
+    end
+    session.options.evaluation.extra_preamble = show_richest_override
+    return session
+end
+
 """
     _evaluate_file(bopts, oopts, session, in_file, time_state)
 
@@ -369,6 +378,8 @@ function _evaluate_file(bopts::BuildOptions, oopts::OutputOptions, session, in_f
 
     @assert isfile(in_path) "File not found at $in_path"
     @assert (string(splitext(in_file)[2]) == ".jl") "File doesn't have a `.jl` extension at $in_path"
+
+    _add_extra_preamble!(session)
 
     prevs = _prevs(bopts, dir, in_file)
     if !isnothing(prevs)

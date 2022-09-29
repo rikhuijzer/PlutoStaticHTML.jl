@@ -33,6 +33,9 @@ jobs:
         with:
           cache-registries: 'true'
       - uses: julia-actions/julia-buildpkg@latest
+
+      - run: julia --project -e 'using Pkg; Pkg.add(url="https://github.com/fonsp/Pluto.jl", rev="rh/allow-rich-mime-override")'
+
       - uses: julia-actions/julia-runtest@v1
         with:
           coverage: 'false'

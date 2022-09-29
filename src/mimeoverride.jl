@@ -20,9 +20,7 @@ WorkspaceManager.process_preamble() = quote
     $(format_output_exception_override)
 end
 
-# $(show_richest_override)
-
-# Yes. These overrides are used when `use_distributed=false`.
+# These overrides are used when `use_distributed=false`.
 eval(show_richest_override)
 eval(format_output_exception_override)
 

@@ -18,6 +18,7 @@ jobs:
       - uses: julia-actions/julia-buildpkg@latest
 
       - run: julia --project -e 'using Pkg; Pkg.add(url="https://github.com/fonsp/Pluto.jl", rev="rh/allow-rich-mime-override")'
+      - run: julia --project=docs -e 'using Pkg; Pkg.add(url="https://github.com/fonsp/Pluto.jl", rev="rh/allow-rich-mime-override")'
 
       - uses: julia-actions/julia-docdeploy@latest
         env:

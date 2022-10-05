@@ -358,10 +358,10 @@ end
 
 function _add_extra_preamble!(session::ServerSession)
     @show "Running _add_extra_preamble!"
-    if !isnothing(session.options.evaluation.extra_preamble)
-        @warn "Expected the `extra_preamble` setting to not be set; overriding it."
+    if !isnothing(session.options.evaluation.workspace_custom_startup_expr)
+        @warn "Expected the `workspace_custom_startup_expr` setting to not be set; overriding it."
     end
-    session.options.evaluation.extra_preamble = show_richest_override
+    session.options.evaluation.workspace_custom_startup_expr = show_richest_override
     return session
 end
 

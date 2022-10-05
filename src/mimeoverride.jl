@@ -1,6 +1,5 @@
 const show_richest_override = quote
     PlutoRunner.is_mime_enabled(::MIME"application/vnd.pluto.tree+object") = false
-    PlutoRunner.is_tree_viewer_enabled(::MIME"text/plain") = false
 end
 
 # Giving `val` back so that the stacktrace can be printed easily.

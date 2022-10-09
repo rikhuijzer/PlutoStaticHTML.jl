@@ -52,6 +52,8 @@ function nb_tmppath(
     Pluto.save_notebook(nb, in_path)
     session = ServerSession()
     session.options.evaluation.workspace_use_distributed = use_distributed
+    PlutoStaticHTML._add_extra_preamble!(session)
+
     nb = PlutoStaticHTML.run_notebook!(in_path, session)
     if use_distributed
         @async begin

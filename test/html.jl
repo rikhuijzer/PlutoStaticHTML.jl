@@ -1,3 +1,12 @@
+@testset "mimeoverride" begin
+    nb = Notebook([
+        Cell("""PlutoRunner.is_mime_enabled(MIME"application/vnd.pluto.tree+object"()) ? "enabled" : "disabled" """)
+    ])
+
+    html, nb = notebook2html_helper(nb)
+    @test contains(html, "disabled")
+end
+
 @testset "contains" begin
     html = "<b>foo</b>"
     block = PlutoStaticHTML.code_block(html)

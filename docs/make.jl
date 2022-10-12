@@ -32,7 +32,6 @@ sitename = "PlutoStaticHTML.jl"
 pages = [
     "PlutoStaticHTML" => "index.md",
     "Example notebook" => "notebooks/example.md",
-    "Test notebook" => "notebooks/test.md",
     "`with_terminal`" => "with_terminal.md"
 ]
 

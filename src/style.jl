@@ -33,19 +33,23 @@ Regex matching won't work here because the body can contain arbitrary HTML.
 This function is applied after the other conversions, so we know that the first and last `p` tags must denote the start and end point of the body.
 """
 function _wrap_admonition_body(html::AbstractString)
-    start_p = first(findfirst("<p>", html)::UnitRange{Int})::Int
-    end_p = last(findlast("</p>", html)::UnitRange{Int})::Int
-    body_with_p = html[start_p:end_p]
+    start = first(findfirst("</header>", html)::UnitRange{Int}) + 10
+    stop = try
+        first(findlast("</div>", html)::UnitRange{Int}) - 2
+    catch
+        length(html)
+    end
+    body = html[start:stop]
 
-    function wrap_body(body_with_p)
+    function wrap_body(body)
         return rstrip("""
               <div class="admonition-body">
-                $body_with_p
+                $body
               </div>
             """)
     end
 
-    replace(html, body_with_p => wrap_body)
+    return replace(html, body => wrap_body)
 end
 
 "Convert a single admonition from Pluto to Documenter."

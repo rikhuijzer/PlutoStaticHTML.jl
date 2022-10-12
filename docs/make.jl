@@ -16,10 +16,10 @@ Run all Pluto notebooks (".jl" files) in `NOTEBOOK_DIR`.
 """
 function build()
     println("Building notebooks in $NOTEBOOK_DIR")
-    hopts = OutputOptions(; append_build_context=true)
+    oopts = OutputOptions(; append_build_context=true)
     output_format = documenter_output
     bopts = BuildOptions(NOTEBOOK_DIR; output_format)
-    build_notebooks(bopts, hopts)
+    build_notebooks(bopts, oopts)
     return nothing
 end
 
@@ -32,6 +32,7 @@ sitename = "PlutoStaticHTML.jl"
 pages = [
     "PlutoStaticHTML" => "index.md",
     "Example notebook" => "notebooks/example.md",
+    "Test notebook" => "notebooks/test.md",
     "`with_terminal`" => "with_terminal.md"
 ]
 

@@ -4,6 +4,7 @@ using Dates
 using PlutoStaticHTML
 using Pluto:
     Cell,
+    Markdown,
     Notebook,
     Pluto,
     ServerSession,

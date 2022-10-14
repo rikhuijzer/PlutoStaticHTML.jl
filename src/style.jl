@@ -54,6 +54,8 @@ end
 
 "Convert a single admonition from Pluto to Documenter."
 function _convert_admonition(html::AbstractString)
+    return parsed
+
     html = replace(html, """<div class="admonition """ =>
         """<div class="admonition is-""")
     html = replace(html, r"""<p class="admonition-title">([^<]*)</p>""" =>
@@ -62,11 +64,69 @@ function _convert_admonition(html::AbstractString)
     return html
 end
 
+function _convert_admonition_class!(el::HTMLElement{:div})
+    @assert el.children[1].attributes["class"] == "admonition-title"
+    attributes = el.attributes
+    class = attributes["class"]
+    updated_class = replace(class, "admonition " => "admonition is-")
+    attributes["class"] = updated_class
+    return nothing
+end
+
+function _convert_p_to_header!(el::HTMLElement{:div})
+    p = el.children[1]
+    new = let
+        children = p.children
+        parent = el
+        attributes = Dict("class" => "admonition-header")
+        HTMLElement{:header}(children, parent, attributes)
+    end
+    el.children[1] = new
+    return nothing
+end
+
+function _convert_admonition!(el::HTMLElement{:div})
+    _convert_admonition_class!(el)
+    _convert_p_to_header!(el)
+    return nothing
+end
+
+function _convert_admonitions!(el::HTMLElement{:div})
+    if haskey(el.attributes, "class")
+        if startswith(el.attributes["class"], "admonition")
+            first_child = el.children[1]
+            if first_child isa HTMLElement{:p}
+                if haskey(first_child.attributes, "class")
+                    if first_child.attributes["class"] == "admonition-title"
+                        _convert_admonition!(el)
+                    end
+                end
+            end
+        end
+    end
+    return nothing
+end
+
+# HTMLText and such.
+_convert_admonitions!(el) = nothing
+
+function _convert_admonitions!(el::HTMLElement)
+    for child in el.children
+        _convert_admonitions!(child)
+    end
+    return nothing
+end
+
 """
 Convert Pluto's admonitions HTML to Documenter's admonitions HTML.
 This ensures that admonitions are properly styled in `documenter_output`.
 """
 function _convert_admonitions(html::AbstractString)
+    parsed = parsehtml(html)
+    body = parsed.root.children[2]
+    _convert_admonitions!(body)
+    return parsed
+    # _convert_admonition_class!(parsed)
     rx = r"""<div class="admonition[^"]*">[^\n]*\n[^\n]*"""
     return replace(html, rx => _convert_admonition)
 end

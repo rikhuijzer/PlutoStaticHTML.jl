@@ -1,6 +1,8 @@
 before = """
     <p>foo</p>
-    <div class="admonition note"><p class="admonition-title">Note</p><p>This is a note.</p>
+    <div class="admonition note">
+        <p class="admonition-title">Note</p>
+        <p>This is a note.</p>
     </div>
     <p>bar</p>
     """
@@ -35,8 +37,10 @@ html, _ = notebook2html_helper(nb; use_distributed)
 
 # https://github.com/rikhuijzer/PlutoStaticHTML.jl/issues/148.
 before = """
-    <div class="markdown"><div class="admonition info"><p class="admonition-title">This is how the Error we expect here looks like</p><pre><code>DomainError with 0.0:
-        Lorem</code></pre>
+    <div class="markdown">
+        <div class="admonition info">
+            <p class="admonition-title">This is how the Error we expect here looks like</p>
+            <pre><code>DomainError with 0.0: Lorem</code></pre>
     </div>
     </div>
     """

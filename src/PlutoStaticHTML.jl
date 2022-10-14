@@ -13,6 +13,7 @@ import Pluto:
 
 using Base64: base64encode
 using Dates
+using Gumbo: Gumbo, HTMLDocument, HTMLElement, parsehtml
 using LazyArtifacts
 using Pkg:
     Types.Context,

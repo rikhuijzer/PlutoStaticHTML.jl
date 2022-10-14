@@ -24,7 +24,7 @@ end
 
     @test contains(lines[1], "1 + 1")
     @test contains(lines[2], "2")
-    @test contains(lines[2], "class='$(PlutoStaticHTML.OUTPUT_PRE_CLASS_DEFAULT)'")
+    @test contains(lines[2], "class=\"$(PlutoStaticHTML.OUTPUT_PRE_CLASS_DEFAULT)\"")
 
     @test contains(lines[end-1], """src=\"data:image/png;base64,""")
     @test contains(lines[end-1], "<img")
@@ -141,7 +141,7 @@ end
         Cell("@benchmark sum(x)"),
         Cell("x = [1, 2]")
     ])
-    html, nb = notebook2html_helper(nb)
+    html, nb = notebook2html_helper(nb; use_distributed=true)
     @test contains(html, "BenchmarkTools.Trial")
 end
 
@@ -192,7 +192,7 @@ end
 
     filter!(!isempty, lines)
     @test contains(lines[1], "    a = 1 + 1021")
-    @test contains(lines[2], "        b = 1 + 1021")
+    @test contains(lines[3], "        b = 1 + 1021")
 end
 
 @testset "big-table" begin
@@ -206,13 +206,11 @@ end
     # Use write(tmp.html, html) to look at this.
 
     # First column is empty in the header (because of indexes).
-    @test contains(html, """
-        <table>
-        <tr>
-        <th></th>
-        """)
+    # The tbody is added by Gumbo.
+    @test contains(html, """<table><tbody><tr><th></th>""")
+
     # At least one of the rows contains three dots.
-    @test contains(html, "<th>...</th>\n</tr>")
+    @test contains(html, "<th>...</th></tr>")
 
     # The number of rows is shown.
     @test contains(html, "<td>120</td>")

@@ -8,19 +8,27 @@ before = """
     """
 
 after = """
+    <!DOCTYPE >
+    <HTML>
+    <head></head>
+    <body>
     <p>foo</p>
     <div class="admonition is-note">
-      <header class="admonition-header">
-        Note
-      </header>
-      <div class="admonition-body">
-        <p>This is a note.</p>
-      </div>
+    <header class="admonition-header">
+    Note
+    </header>
+    <div class="admonition-body">
+    <p>This is a note.</p>
+    </div>
     </div>
     <p>bar</p>
+    </body>
+    </HTML>
     """
 
-@test PlutoStaticHTML._convert_admonitions(before) == after
+expected = replace(after, '\n' => "")
+
+@test PlutoStaticHTML._convert_admonitions(before) == expected
 
 nb = Notebook([
     Cell("""

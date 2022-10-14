@@ -85,9 +85,22 @@ function _convert_p_to_header!(el::HTMLElement{:div})
     return nothing
 end
 
+function _convert_siblings_to_admonition_body!(el)
+    siblings = el.children[2:end]
+    new = let
+        children = siblings
+        parent = el
+        attributes = Dict("class" => "admonition-body")
+        HTMLElement{:div}(children, parent, attributes)
+    end
+    el.children[2] = new
+    return nothing
+end
+
 function _convert_admonition!(el::HTMLElement{:div})
     _convert_admonition_class!(el)
     _convert_p_to_header!(el)
+    _convert_siblings_to_admonition_body!(el)
     return nothing
 end
 
@@ -125,8 +138,5 @@ function _convert_admonitions(html::AbstractString)
     parsed = parsehtml(html)
     body = parsed.root.children[2]
     _convert_admonitions!(body)
-    return parsed
-    # _convert_admonition_class!(parsed)
-    rx = r"""<div class="admonition[^"]*">[^\n]*\n[^\n]*"""
-    return replace(html, rx => _convert_admonition)
+    return string(parsed)::String
 end

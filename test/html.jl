@@ -192,7 +192,7 @@ end
 
     filter!(!isempty, lines)
     @test contains(lines[1], "    a = 1 + 1021")
-    @test contains(lines[2], "        b = 1 + 1021")
+    @test contains(lines[3], "        b = 1 + 1021")
 end
 
 @testset "big-table" begin
@@ -206,11 +206,9 @@ end
     # Use write(tmp.html, html) to look at this.
 
     # First column is empty in the header (because of indexes).
-    @test contains(html, """
-        <table>
-        <tr>
-        <th></th>
-        """)
+    # The tbody is added by Gumbo.
+    @test contains(html, """<table><tbody><tr><th></th>""")
+
     # At least one of the rows contains three dots.
     @test contains(html, "<th>...</th></tr>")
 

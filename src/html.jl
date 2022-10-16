@@ -27,10 +27,11 @@ function output_block(s; output_pre_class="pre-class", var="")
     return "<pre $id class='$output_pre_class'>$s</pre>"
 end
 
-function _code2html(code::AbstractString, oopts::OutputOptions)
-    if oopts.hide_code
+function _code2html(cell::Cell, oopts::OutputOptions)
+    if oopts.hide_code || cell.code_folded
         return ""
     end
+    code = cell.code
     if oopts.hide_md_code && startswith(code, "md\"")
         return ""
     end
@@ -157,7 +158,10 @@ end
 _output2html(cell::Cell, T::MIME, oopts) = error("Unknown type: $T")
 
 function _cell2html(cell::Cell, oopts::OutputOptions)
-    code = _code2html(cell.code, oopts)
+    if cell.metadata["disabled"]
+        return ""
+    end
+    code = _code2html(cell, oopts)
     output = _output2html(cell, cell.output.mime, oopts)
     if oopts.convert_admonitions
         output = _convert_admonitions(output)

@@ -218,3 +218,20 @@ end
     # If not being careful, the first element of the last column is taken, so "more" becomes "m".
     @test !contains(html, "<td>m</td>")
 end
+
+@testset "handle cell metadata" begin
+    nb = Notebook([
+        Cell("a = 1000 + 1"),
+        Cell("b = 2000 + 1"),
+        Cell("c = 3000 + 1")
+    ])
+    nb.cells[1].code_folded = true
+    nb.cells[2].metadata["disabled"] = true
+    html, _ = notebook2html_helper(nb)
+
+    @test !contains(html, "1000 + 1")
+    @test contains(html, "1001")
+
+    @test !contains(html, "2000 + 1")
+    @test !contains(html, "2001")
+end

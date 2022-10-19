@@ -192,8 +192,6 @@ end
 
     filter!(!isempty, lines)
 
-    @show lines
-
     @test contains(lines[1], "    a = 1 + 1021")
     @test contains(lines[2], "        b = 1 + 1021")
 end

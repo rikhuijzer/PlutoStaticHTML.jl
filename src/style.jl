@@ -104,5 +104,6 @@ function _convert_admonitions(html::AbstractString)
     parsed = parsehtml(html)
     body = parsed.root.children[2]
     _convert_admonitions!(body)
-    return string(parsed)::String
+    body_content = join(string.(body.children)::Vector{String}, '\n')
+    return body_content
 end

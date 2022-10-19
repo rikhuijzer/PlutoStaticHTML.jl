@@ -7,28 +7,14 @@ before = """
     <p>bar</p>
     """
 
+# Do not accept Gumbo's full HTML body because `_convert_admonitions` is called for each cell.
 after = """
-    <!DOCTYPE >
-    <HTML>
-    <head></head>
-    <body>
     <p>foo</p>
-    <div class="admonition is-note">
-    <header class="admonition-header">
-    Note
-    </header>
-    <div class="admonition-body">
-    <p>This is a note.</p>
-    </div>
-    </div>
+    <div class="admonition is-note"><header class="admonition-header">Note</header><div class="admonition-body"><p>This is a note.</p></div></div>
     <p>bar</p>
-    </body>
-    </HTML>
     """
 
-expected = replace(after, '\n' => "")
-
-@test PlutoStaticHTML._convert_admonitions(before) == expected
+@test PlutoStaticHTML._convert_admonitions(before) == rstrip(after)
 
 nb = Notebook([
     Cell("""
@@ -54,10 +40,6 @@ before = """
     """
 
 after = """
-    <!DOCTYPE >
-    <HTML>
-    <head></head>
-    <body>
     <div class="markdown">
     <div class="admonition is-info">
     <header class="admonition-header">
@@ -72,8 +54,6 @@ after = """
     </div>
     </div>
     </div>
-    </body>
-    </HTML>
     """
 
 expected = replace(after, '\n' => "")

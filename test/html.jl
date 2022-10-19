@@ -191,8 +191,9 @@ end
     lines = split(html, '\n')
 
     filter!(!isempty, lines)
+
     @test contains(lines[1], "    a = 1 + 1021")
-    @test contains(lines[3], "        b = 1 + 1021")
+    @test contains(lines[2], "        b = 1 + 1021")
 end
 
 @testset "big-table" begin

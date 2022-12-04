@@ -357,8 +357,9 @@ function run_notebook!(
 end
 
 function _add_extra_preamble!(session::ServerSession)
-    if !isnothing(session.options.evaluation.workspace_custom_startup_expr)
-        @warn "Expected the `workspace_custom_startup_expr` setting to not be set; overriding it."
+    current = session.options.evaluation.workspace_custom_startup_expr
+    if current !== nothing && current != CONFIG_PLUTORUNNER
+        @warn "Expected the `workspace_custom_startup_expr` setting to not be set by someone else; overriding it."
     end
     session.options.evaluation.workspace_custom_startup_expr = CONFIG_PLUTORUNNER
     return session

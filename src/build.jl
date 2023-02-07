@@ -168,6 +168,7 @@ function Previous(previous_dir, output_format::OutputFormat, in_file)
     ext = output_format == html_output ? ".html" : ".md"
     prev_path = joinpath(prev_dir, "$name$ext")
     if !isfile(prev_path)
+        @info "Could not find cache for \"$in_file\" at \"$prev_path\""
         return Previous(nothing, "")
     end
     text = read(prev_path, String)
@@ -179,10 +180,18 @@ function reuse_previous(previous::Previous, dir, in_file)::Bool
     curr = path2state(in_path)
 
     prev = previous.state
-    isnothing(prev) && return false
+    if isnothing(prev)
+        return false
+    end
 
     sha_match = prev.input_sha == curr.input_sha
+    if !sha_match
+        @info "SHA of previous file did not match the SHA of the current file. Ignoring cache for \"$in_file\""
+    end
     julia_match = prev.julia_version == curr.julia_version
+    if !julia_match
+        @info "Julia version of previous file did not match the current version. Ignoring cache for \"$in_file\""
+    end
     reuse = sha_match && julia_match
     return reuse
 end
@@ -206,7 +215,7 @@ function _write_main_output(
         without_extension, _ = splitext(in_file)
         out_file = "$(without_extension)$(ext)"
         out_path = joinpath(dir, out_file)
-        @info "Writing output to $out_path"
+        @info "Writing output to \"$out_path\""
         write(out_path, text)
     end
     return nothing
@@ -376,17 +385,17 @@ function _evaluate_file(bopts::BuildOptions, oopts::OutputOptions, session, in_f
     dir = bopts.dir
     in_path = joinpath(dir, in_file)::String
 
-    @assert isfile(in_path) "File not found at $in_path"
-    @assert (string(splitext(in_file)[2]) == ".jl") "File doesn't have a `.jl` extension at $in_path"
+    @assert isfile(in_path) "File not found at \"$in_path\""
+    @assert (string(splitext(in_file)[2]) == ".jl") "File doesn't have a `.jl` extension at \"$in_path\""
 
     _add_extra_preamble!(session)
 
     prevs = _prevs(bopts, dir, in_file)
     if !isnothing(prevs)
-        @info "Using cache for Pluto notebook at $in_file"
+        @info "Using cache for Pluto notebook at \"$in_file\""
         return prevs
     else
-        @info "Starting evaluation of Pluto notebook $in_file"
+        @info "Starting evaluation of Pluto notebook \"$in_file\""
         if bopts.use_distributed
             run_async = true
         else
@@ -403,7 +412,7 @@ function _evaluate_file(bopts::BuildOptions, oopts::OutputOptions, session, in_f
         end
         elapsed = _time_elapsed(time_state, in_file)
         pretty_elapsed = _pretty_elapsed(elapsed)
-        @info "Finished evaluation of Pluto notebook $in_file in $pretty_elapsed"
+        @info "Finished evaluation of Pluto notebook \"$in_file\" in $pretty_elapsed"
         return nb
     end
 end

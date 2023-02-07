@@ -44,12 +44,12 @@ end
     use_distributed = false
 
     cd(dir) do
-        @info "Evaluating notebooks in $dir without caching"
+        @info "Evaluating notebooks in \"$dir\" without caching"
         path(name) = joinpath(dir, "$name.txt")
         code = pluto_notebook_content("""
             begin
                 path = "$(path('a'))"
-                println("Writing to \$path")
+                @info "Writing to \$path"
                 write(path, "a")
             end
             """)
@@ -75,7 +75,7 @@ end
         dir = mktempdir()
 
         cd(dir) do
-            @info "Evaluating notebooks in $dir with caching"
+            @info "Evaluating notebooks in \"$dir\" with caching"
             cp(joinpath(previous_dir, "a.jl"), joinpath(dir, "a.jl"))
             cp(joinpath(previous_dir, "b.jl"), joinpath(dir, "b.jl"))
 

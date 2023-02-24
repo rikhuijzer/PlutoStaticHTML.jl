@@ -127,7 +127,7 @@ end
 
 function _output2html(cell::Cell, ::MIME"text/plain", oopts)
     var = _var(cell)
-    body = cell.output.body
+    body = string(cell.output.body)::String
     # `+++` means that it is a cell with Franklin definitions.
     if oopts.hide_md_def_code && startswith(body, "+++")
         # Go back into Markdown mode instead of HTML
@@ -137,10 +137,10 @@ function _output2html(cell::Cell, ::MIME"text/plain", oopts)
 end
 
 function _output2html(cell::Cell, ::MIME"text/html", oopts)
-    body = cell.output.body
+    body = string(cell.output.body)::String
 
     if contains(body, """<script type="text/javascript" id="plutouiterminal">""")
-        return _patch_with_terminal(string(body))
+        return _patch_with_terminal(body)
     end
 
     # The docstring is already visible in Markdown and shouldn't be shown below the code.

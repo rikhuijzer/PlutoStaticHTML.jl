@@ -39,7 +39,7 @@ function tex_output_block(text::String)
 end
 
 function _output2tex(cell::Cell, ::MIME"text/plain", oopts::OutputOptions)
-    body = cell.output.body
+    body = string(cell.output.body)::String
     # `+++` means that it is a cell with Franklin definitions.
     if oopts.hide_md_def_code && startswith(body, "+++")
         return ""

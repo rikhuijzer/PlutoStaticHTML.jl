@@ -32,9 +32,9 @@ jobs:
       - uses: julia-actions/cache@v1
         with:
           cache-registries: 'true'
-      - uses: julia-actions/julia-buildpkg@latest
+      - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         with:
-          coverage: 'false'
+          coverage: false
         env:
           JULIA_NUM_THREADS: 2

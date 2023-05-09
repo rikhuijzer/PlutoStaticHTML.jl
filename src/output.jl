@@ -120,12 +120,15 @@ struct OutputOptions
     end
 end
 
+function _code_tabs_replacer(x::SubString{String})
+    replace(x, '\t' => "    ")
+end
+
 "Replace tabs by spaces in code blocks."
 function _replace_code_tabs(code)
     # Match all tabs at start of line or start of newline.
     rx = r"(^|\r|\n)([\t]*)"
-    replacer(x::SubString{String}) = replace(x, '\t' => "    ")
-    replace(code, rx => replacer)
+    replace(code, rx => _code_tabs_replacer)
 end
 
 abstract type Struct end

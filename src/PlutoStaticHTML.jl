@@ -61,4 +61,6 @@ export OutputOptions
 export documenter_output, franklin_output, html_output, pdf_output
 export BuildOptions, build_notebooks
 
+include("precompile.jl")
+
 end # module

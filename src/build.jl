@@ -370,7 +370,8 @@ function _add_extra_preamble!(session::ServerSession)
     if current !== nothing && current != CONFIG_PLUTORUNNER
         @warn "Expected the `workspace_custom_startup_expr` setting to not be set by someone else; overriding it."
     end
-    session.options.evaluation.workspace_custom_startup_expr = CONFIG_PLUTORUNNER
+    custom = string(CONFIG_PLUTORUNNER)::String
+    session.options.evaluation.workspace_custom_startup_expr = custom
     return session
 end
 

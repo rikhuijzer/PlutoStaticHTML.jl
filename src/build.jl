@@ -367,7 +367,7 @@ end
 
 function _add_extra_preamble!(session::ServerSession)
     current = session.options.evaluation.workspace_custom_startup_expr
-    config = CONFIG_PLUTORUNNER
+    config = string(CONFIG_PLUTORUNNER)::String
     # Avoids warning message to show up multiple every time
     # https://github.com/rikhuijzer/PlutoStaticHTML.jl/pull/172.
     if current !== nothing

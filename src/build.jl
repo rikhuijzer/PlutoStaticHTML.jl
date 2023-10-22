@@ -368,6 +368,9 @@ end
 function _add_extra_preamble!(session::ServerSession)
     current = session.options.evaluation.workspace_custom_startup_expr
     config = CONFIG_PLUTORUNNER
+    # Avoids warning message to show up multiple every time
+    # https://github.com/rikhuijzer/PlutoStaticHTML.jl/pull/172.
+    @assert typeof(current) == typeof(config)
     if current !== nothing && current != config
         @warn "Expected the `workspace_custom_startup_expr` setting to not be set by someone else; overriding it."
     end

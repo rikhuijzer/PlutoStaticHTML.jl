@@ -228,11 +228,18 @@ end
     ])
     nb.cells[1].code_folded = true
     nb.cells[2].metadata["disabled"] = true
-    html, _ = notebook2html_helper(nb)
+    html, _ = notebook2html_helper(nb; use_distributed=false)
 
     @test !contains(html, "1000 + 1")
     @test contains(html, "1001")
 
     @test !contains(html, "2000 + 1")
     @test !contains(html, "2001")
+end
+
+@testset "pluto tree data" begin
+    nb = Notebook([
+        Cell("nt = (; A = [1, 2], B = [3, 4])")
+    ])
+    html, _ = notebook2html_helper(nb; use_distributed=false)
 end

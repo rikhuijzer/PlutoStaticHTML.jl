@@ -1,5 +1,5 @@
 const CONFIG_PLUTORUNNER = """
-    PlutoRunner.is_mime_enabled(::MIME"application/vnd.pluto.table+object") = false
+    PlutoRunner.is_mime_enabled(::MIME"application/vnd.pluto.tree+object") = false
     PlutoRunner.PRETTY_STACKTRACES[] = false
 """
 

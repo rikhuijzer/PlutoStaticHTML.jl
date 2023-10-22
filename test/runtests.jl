@@ -35,3 +35,5 @@ end
 @testset "aqua" begin
     Aqua.test_all(PlutoStaticHTML; ambiguities=false)
 end
+
+nothing

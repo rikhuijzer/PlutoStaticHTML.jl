@@ -10,7 +10,6 @@ using Pluto:
     ServerSession,
     SessionActions
 using Test
-using TimerOutputs: TimerOutput, @timeit
 
 const PS = PlutoStaticHTML
 const PKGDIR = string(pkgdir(PlutoStaticHTML))::String
@@ -103,17 +102,6 @@ function notebook2pdf_helper(
     nb, tmppath = nb_tmppath(nb, use_distributed; in_path)
     pdf_path = PlutoStaticHTML.notebook2pdf(nb, tmppath, oopts)
     return (pdf_path, nb)
-end
-
-# Credits to Tensors.jl/test/runtests.jl
-macro timed_testset(str, block)
-    return quote
-        @timeit TIMEROUTPUT "$($(esc(str)))" begin
-            @testset "$($(esc(str)))" begin
-                $(esc(block))
-            end
-        end
-    end
 end
 
 function notebook2html(

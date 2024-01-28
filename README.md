@@ -3,7 +3,6 @@
 [![Docs dev][docs-dev-img]][docs-dev-url]
 [![Code Style Blue][blue-img]][blue-url]
 [![Contributor's Guide on Collaborative Practices][colprac-img]][colprac-url]
-[![PlutoStaticHTML Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/PlutoStaticHTML)](https://pkgs.genieframework.com?packages=PlutoStaticHTML)
 
 A [Julia package](https://julialang.org/) to convert [Pluto notebooks](https://github.com/fonsp/Pluto.jl) to static HTML.
 Unlike [PlutoSliderServer](https://github.com/JuliaPluto/PlutoSliderServer.jl), the HTML files generated using PlutoStaticHTML are very minimal, and do not require JavaScript on the user side to render.

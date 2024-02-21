@@ -174,15 +174,19 @@ function _throw_if_error(session::ServerSession, nb::Notebook)
                     continue
                 end
             end
+            filename = _indent(nb.path)
+            code = _indent(cell.code)
             body = cell.output.body::Dict{Symbol,Any}
             msg = body[:msg]::String
-            val = body[:stacktrace]::CapturedException
-            io = IOBuffer()
-            ioc = IOContext(io, :color => Base.get_have_color())
-            showerror(ioc, val)
-            error_text = _indent(String(take!(io)))
-            code = _indent(cell.code)
-            filename = _indent(nb.path)
+            error_text::String = if body[:stacktrace] isa CapturedException
+                val = body[:stacktrace]::CapturedException
+                io = IOBuffer()
+                ioc = IOContext(io, :color => Base.get_have_color())
+                showerror(ioc, val)
+                _indent(String(take!(io)))
+            else
+                _indent(string(body[:stacktrace])::String)
+            end
             msg = """
                 Execution of notebook failed.
                 Does the notebook show any errors when opening it in Pluto?

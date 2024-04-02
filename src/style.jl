@@ -2,14 +2,14 @@
 function _add_documenter_css(html)
     style = """
         <style>
-            table {
+            #documenter-page table {
                 display: table !important;
                 margin: 2rem auto !important;
                 border-top: 2pt solid rgba(0,0,0,0.2);
                 border-bottom: 2pt solid rgba(0,0,0,0.2);
             }
 
-            pre, div {
+            #documenter-page pre, #documenter-page div {
                 margin-top: 1.4rem !important;
                 margin-bottom: 1.4rem !important;
             }

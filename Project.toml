@@ -20,6 +20,7 @@ tectonic_jll = "d7dd28d6-a5e6-559c-9131-7eb760cdacc5"
 [compat]
 AbstractTrees = "0.4"
 Gumbo = "0.8"
+LazyArtifacts = "1"
 Pluto = "=0.19.39"
 PrecompileTools = "1.1"
 RelocatableFolders = "0.3, 1"

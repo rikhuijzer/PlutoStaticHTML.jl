@@ -243,3 +243,25 @@ end
     ])
     html, _ = notebook2html_helper(nb; use_distributed=false)
 end
+
+@testset "patch_dollar_symbols" begin
+    nb = Notebook([
+        Cell(raw"""
+        md\"\"\"
+        # Foo
+
+        ```markdown
+        The prices are \$4 and \$5.
+        ```
+        The prices are \$10 and \$20.
+
+        But this is math $x$.
+        \"\"\"
+        """)
+    ])
+    html, _ = notebook2html_helper(nb; use_distributed=false)
+    # Verify that inline math is converted to `<span class="tex">` by Pluto.
+    @test contains(html, raw"But this is math <span class=\"tex\">$x$</span>.")
+    @test contains(html, raw"The prices are \$4 and \$5")
+    @test contains(html, raw"The prices are \$10 and \$20")
+end

@@ -143,7 +143,7 @@ function _patch_dollar_symbols(body::String)::String
     for i in 1:length(lines)
         line = lines[i]
         if !(contains(line, "<pre>") || contains(line, "<code>"))
-            lines[i] = replace(line, "&#36;" => "\\\$")
+            lines[i] = replace(line, "&#36;" => raw"\$")
         end
     end
     return join(lines, '\n')

@@ -142,7 +142,7 @@ function _patch_dollar_symbols(body::String)::String
     # we should escape it since it is not a LaTeX expression.
     for i in 1:length(lines)
         line = lines[i]
-        if !(contains(line, "<pre>") || contains(line, "<code>"))
+        if !(contains(line, "<pre>") || contains(line, "<code>") || contains(line, "class=\"tex\""))
             lines[i] = replace(line, "&#36;" => raw"\$")
         end
     end

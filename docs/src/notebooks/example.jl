@@ -35,7 +35,7 @@ For example, $x = 3\pi$ and
 y = \frac{a \cdot b}{c^2}
 ```
 
-For using the dollar symbol normally, escape it with a leading backslash just like in Pluto:
+For using the dollar symbol normally, escape it with a backslash just like in Pluto:
 ```markdown
 The prices were \$5 and \$10.
 ```

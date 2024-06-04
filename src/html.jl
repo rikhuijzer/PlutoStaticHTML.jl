@@ -138,7 +138,7 @@ end
 
 function _patch_dollar_symbols(body::String)::String
     lines = split(body, '\n')
-    # Pluto wraps inline HTML in a tex class, so if we see a dollar symbol in a plain text output,
+    # Pluto wraps inline LaTeX in a tex class, so if we see a dollar symbol in a plain text output,
     # we should escape it since it is not a LaTeX expression.
     for i in 1:length(lines)
         line = lines[i]

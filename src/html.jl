@@ -136,8 +136,22 @@ function _output2html(cell::Cell, ::MIME"text/plain", oopts)
     output_block(body; oopts.output_pre_class, var)
 end
 
+function _patch_dollar_symbols(body::String)::String
+    lines = split(body, '\n')
+    # Pluto wraps inline HTML in a tex class, so if we see a dollar symbol in a plain text output,
+    # we should escape it since it is not a LaTeX expression.
+    for i in 1:length(lines)
+        line = lines[i]
+        if !(contains(line, "<pre>") || contains(line, "<code>"))
+            lines[i] = replace(line, "&#36;" => "\\\$")
+        end
+    end
+    return join(lines, '\n')
+end
+
 function _output2html(cell::Cell, ::MIME"text/html", oopts)
     body = string(cell.output.body)::String
+    body = _patch_dollar_symbols(body)::String
 
     if contains(body, """<script type="text/javascript" id="plutouiterminal">""")
         return _patch_with_terminal(body)

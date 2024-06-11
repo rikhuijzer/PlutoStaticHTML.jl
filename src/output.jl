@@ -177,19 +177,15 @@ function _throw_if_error(session::ServerSession, nb::Notebook)
             filename = _indent(nb.path)
             code = _indent(cell.code)
             body = cell.output.body::Dict{Symbol,Any}
-            error_text::String = if haskey(body, :stacktrace)
-                if body[:stacktrace] isa CapturedException
-                    val = body[:stacktrace]::CapturedException
-                    io = IOBuffer()
-                    ioc = IOContext(io, :color => Base.get_have_color())
-                    showerror(ioc, val)
-                    _indent(String(take!(io)))
-                else
-                    _indent(string(body[:stacktrace])::String)
-                end
+            msg = body[:msg]::String
+            error_text::String = if body[:stacktrace] isa CapturedException
+                val = body[:stacktrace]::CapturedException
+                io = IOBuffer()
+                ioc = IOContext(io, :color => Base.get_have_color())
+                showerror(ioc, val)
+                _indent(String(take!(io)))
             else
-                # Fallback.
-                string(body)::String
+                _indent(string(body[:stacktrace])::String)
             end
             msg = """
                 Execution of notebook failed.

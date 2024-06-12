@@ -66,6 +66,32 @@ For `output_format=franklin_output` examples, see
 - [My blog](https://gitlab.com/rikh/blog).
     For example, a post on [random forests](https://huijzer.xyz/posts/random-forest/).
 
+Specifically, use the following KaTeX options:
+
+```javascript
+const options = {
+  delimiters: [
+    {left: "$$", right: "$$", display: true},
+    {left: "\\begin{equation}", right: "\\end{equation}", display: true},
+    {left: "\\begin{align}", right: "\\end{align}", display: true},
+    {left: "\\begin{alignat}", right: "\\end{alignat}", display: true},
+    {left: "\\begin{gather}", right: "\\end{gather}", display: true},
+    {left: "\\(", right: "\\)", display: false},
+    {left: "\\[", right: "\\]", display: true}
+  ]
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderMathInElement(document.body, options);
+});
+```
+
+Note that `$x$` will not be interpreted as inline math by this KaTeX configuration.
+This is to avoid conflicts with using the dollar symbol to represent the dollar (currency).
+Instead, `PlutoStaticHTML.jl` automatically converts inline math from `$x$` to `\($x\)`.
+With above KaTeX settings, `Franklin.jl` will interpret this as inline math.
+By default, `Documenter.jl` will also automatically interpret this as inline math.
+
 ## Parallel build
 
 To speed up the build, this package defines [`build_notebooks`](@ref).

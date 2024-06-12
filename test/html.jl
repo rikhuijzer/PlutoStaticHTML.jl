@@ -252,5 +252,5 @@ end
     ])
     html, _ = notebook2html_helper(nb; use_distributed=false)
     # Verify that Pluto.jl's inline math as `<span class="tex">$x$</span>` is replaced.
-    @test contains(html, raw"""Some inline math with \(x\).""")
+    @test contains(html, raw"""Some inline math with <span class="tex">\(x\)</span>.""")
 end

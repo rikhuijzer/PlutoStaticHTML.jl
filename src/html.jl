@@ -137,8 +137,8 @@ function _output2html(cell::Cell, ::MIME"text/plain", oopts)
 end
 
 function _patch_inline_math(body::String)::String
-    body = replace(body, raw"""<span class="tex">$""" => raw"\(")
-    body = replace(body, raw"""$</span>""" => raw"\)")
+    body = replace(body, raw"""<span class="tex">$""" => raw"""<span class="tex">\(""")
+    body = replace(body, raw"""$</span>""" => raw"""\)</span>""")
     body
 end
 

@@ -40,9 +40,8 @@ mathengine = MathJax3()
 prettyurls = get(ENV, "CI", nothing) == "true"
 format = HTML(; mathengine, prettyurls)
 modules = [PlutoStaticHTML]
-strict = true
 checkdocs = :none
-makedocs(; sitename, pages, format, modules, strict, checkdocs)
+makedocs(; sitename, pages, format, modules, checkdocs)
 
 deploydocs(;
     branch="docs-output",

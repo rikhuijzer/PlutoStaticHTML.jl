@@ -136,8 +136,15 @@ function _output2html(cell::Cell, ::MIME"text/plain", oopts)
     output_block(body; oopts.output_pre_class, var)
 end
 
+function _patch_inline_math(body::String)::String
+    body = replace(body, raw"""<span class="tex">$""" => raw"\(")
+    body = replace(body, raw"""$</span>""" => raw"\)")
+    body
+end
+
 function _output2html(cell::Cell, ::MIME"text/html", oopts)
     body = string(cell.output.body)::String
+    body = _patch_inline_math(body)
 
     if contains(body, """<script type="text/javascript" id="plutouiterminal">""")
         return _patch_with_terminal(body)

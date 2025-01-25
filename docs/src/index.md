@@ -10,7 +10,10 @@ Typically, converting Pluto notebooks to HTML is useful for things like
 - documentation
 
 For a quick preview, this package is used for the tutorials at [TuringGLM.jl](https://turinglang.github.io/TuringGLM.jl/dev/tutorials/linear_regression/).
-Also, I'm using this package for my own blog, for example: <https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/>.
+
+Also, I have used this package for my own blog, for example: <https://huijzer.xyz/posts/frequentist-bayesian-coin-flipping/>.
+Currently, I would advise against using PlutoStaticHTML.jl for blogs though as I wrote [in a blog post](https://huijzer.xyz/posts/blogs-with-code/).
+Internal dashboards could still work.
 
 ## API overview
 

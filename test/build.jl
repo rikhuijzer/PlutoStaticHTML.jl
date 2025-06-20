@@ -150,7 +150,8 @@ end
 
             output_path = joinpath(dir, "notebook.md")
             output = read(output_path, String)
-            @test contains(output, "## Some header")
+            expected = "<h2 id=\"Some-header\">Some header</h2>"
+            @test contains(output, expected)
         end
     end
 end

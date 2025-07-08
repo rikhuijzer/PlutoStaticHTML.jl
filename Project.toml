@@ -1,7 +1,7 @@
 name = "PlutoStaticHTML"
 uuid = "359b1769-a58e-495b-9770-312e911026ad"
 authors = ["Rik Huijzer <github@huijzer.xyz>"]
-version = "7.0.5"
+version = "7.0.6"
 
 [deps]
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"

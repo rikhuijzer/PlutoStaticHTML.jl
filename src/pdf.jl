@@ -2,7 +2,7 @@ function run_tectonic(args::Vector)
     return read(`$(tectonic()) $args`, String)
 end
 
-tectonic_version() = strip(run_tectonic(["--version"]))
+tectonic_version() = strip(run_tectonic(["--help"]))
 
 function _code2tex(code::String, oopts::OutputOptions)
     if oopts.hide_code

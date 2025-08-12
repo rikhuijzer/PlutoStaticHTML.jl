@@ -1,4 +1,4 @@
-@test contains(PS.tectonic_version(), "Tectonic")
+@test contains(PS.tectonic_version(), "Usage: tectonic")
 
 nb = Notebook([
         Cell("x = 1 + 1"),

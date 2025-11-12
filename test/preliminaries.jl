@@ -18,7 +18,7 @@ const NOTEBOOK_DIR = joinpath(PKGDIR, "docs", "src", "notebooks")
 function pluto_notebook_content(code)
     return """
         ### A Pluto.jl notebook ###
-        # v0.18.1
+        # v0.20.21
 
         using Markdown
         using InteractiveUtils

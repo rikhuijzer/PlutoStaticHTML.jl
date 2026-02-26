@@ -56,7 +56,7 @@ The `output_format=documenter_output` is used at various places which can all se
 - [Resample.jl](https://github.com/rikhuijzer/Resample.jl); for example output see the [SMOTE tutorial](https://rikhuijzer.github.io/Resample.jl/dev/notebooks/smote/).
 - [GraphNeuralNetworks.jl](https://github.com/CarloLucibello/GraphNeuralNetworks.jl) tutorials, see for example [Hand-On Graph Neural Networks](https://carlolucibello.github.io/GraphNeuralNetworks.jl/dev/tutorials/gnn_intro_pluto/).
 
-!!! warn
+!!! warning
     Avoid calling the conversion from inside a Documenter.jl code block.
     For some reason, that is likely to freeze or hang; probably due to `stdout` being flooded with information.
     Instead generate Markdown files via `docs/make.jl` and point to these files in `pages`.

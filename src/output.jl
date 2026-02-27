@@ -74,7 +74,7 @@ Arguments:
     This avoids inconsistent appearance of code blocks on web pages.
 - `convert_admonitions`:
     Convert admonitions such as
-    ```
+    ```markdown
     !!! note
         This is a note.
     ```

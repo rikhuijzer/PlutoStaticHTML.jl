@@ -4,7 +4,7 @@ let
 
         To quickly build two notebooks (evaluate all the code and convert the output to HTML), use:
 
-        ```
+        ```julia-repl
         julia> dir = joinpath("posts", "notebooks");
 
         julia> files = ["notebook1.jl", "notebook2.jl"];
@@ -14,7 +14,7 @@ let
 
         and to build all notebooks, use:
 
-        ```
+        ```julia-repl
         julia> build_notebooks(BuildOptions(dir))
         ```
 

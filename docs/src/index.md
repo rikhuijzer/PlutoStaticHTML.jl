@@ -103,7 +103,7 @@ Also, it can use [Caching](@ref) to speed up the build even more.
 
 To use it, pass a `dir` to write HTML files for all notebook files (the files are recognized by the ".jl" extension and that the file starts with `### A Pluto.jl notebook ###`):
 
-```julia
+```julia-repl
 julia> using PlutoStaticHTML: build_notebooks
 
 julia> dir = joinpath("posts", "notebooks");
@@ -116,7 +116,7 @@ julia> build_notebooks(bopts);
 
 To run only specific notebooks, specify the `files`:
 
-```julia
+```julia-repl
 julia> files = ["notebook1.jl", "notebook2.jl"];
 
 julia> build_notebooks(bopts, files)
@@ -127,7 +127,7 @@ In CI, be sure to call this before using Franklin `serve` or `optimize`.
 
 For more options, such as `append_build_context` to add Julia and packages version information, you can pass [`OutputOptions`](@ref):
 
-```julia
+```julia-repl
 julia> oopts = OutputOptions(; append_build_context=true);
 
 julia> build_notebooks(bopts, files, oopts)

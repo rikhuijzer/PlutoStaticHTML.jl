@@ -459,7 +459,7 @@ Here, `files` is optional.
 When not passing `files`, then all Pluto notebooks in `dir` will be built.
 
 # Example
-```
+```julia-repl
 julia> dir = joinpath(homedir(), "my_project", "notebooks");
 
 julia> bopts = BuildOptions(dir);

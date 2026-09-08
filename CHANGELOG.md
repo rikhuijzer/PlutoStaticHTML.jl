@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [8.2.0] - 2026-09-09
 
 ### Features
 
-- Make documenter output compatible to DocumenterCodeBlocks
+- Make documenter output compatible to DocumenterCodeBlocks via the
+  `documenter_code_blocks` option
   - Make the identification of literal string cells configurable
 
 ## [8.1.0] - 2026-08-31

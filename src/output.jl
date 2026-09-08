@@ -77,26 +77,26 @@ Arguments:
     Replace tabs at the start of lines inside code blocks with spaces.
     This avoids inconsistent appearance of code blocks on web pages.
 - `convert_admonitions`:
-    Convert admonitions such as
-    ```markdown
+    Convert admonitions from Pluto's HTML to Documenter's HTML.
+    When this is enabled, the `documenter_output` has proper styling by default.
+    Example: 
+```markdown
     !!! note
         This is a note.
-    ```
-    from Pluto's HTML to Documenter's HTML.
-    When this is enabled, the `documenter_output` has proper styling by default.
+```
+   
 - `documenter_code_blocks`:
-    Whether to render plain code cells as fenced Markdown code blocks, for example:
-    ```markdown
-    ```julia
-    1 + 1
-    ```
-    ```
-    instead of embedding them as raw HTML `<pre>` blocks.
+    Whether to render plain code cells as fenced Markdown code blocks  instead of embedding them as raw HTML `<pre>` blocks.
     This only has an effect when `output_format=documenter_output` (see [`BuildOptions`](@ref)).
     It allows tools which operate on Documenter's code blocks, such as `DocumenterCodeBlocks.jl`,
     to process the code in Pluto notebooks.
     Markdown cells (`md"..."`) and raw HTML cells (`html"..."`) are unaffected by this option
-    and remain embedded as raw HTML.
+    and remain embedded as raw HTML. The contents of code cells is passed like for example
+```markdown
+    ```julia
+    1 + 1
+    ```
+```
 - `literal_string_cell_prefixes`:
     Array of string prefixes that identify literal string cells.
     Cells with code starting with any of these prefixes (followed by `"`) are treated as literal strings.

@@ -68,11 +68,12 @@ end
 function notebook2html_helper(
         nb::Notebook,
         oopts=OutputOptions();
-        use_distributed::Bool=true
+        use_distributed::Bool=true,
+        fenced_code::Bool=false
     )
 
     nb, tmppath = nb_tmppath(nb, use_distributed)
-    html = PlutoStaticHTML.notebook2html(nb, tmppath, oopts)
+    html = PlutoStaticHTML.notebook2html(nb, tmppath, oopts, fenced_code)
 
     has_begin_end = contains(html, PlutoStaticHTML.BEGIN_IDENTIFIER)
     without_begin_end = has_begin_end ? drop_begin_end(html) : html

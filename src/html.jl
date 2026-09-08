@@ -27,30 +27,52 @@ function output_block(s; output_pre_class="pre-class", var="")
     return "<pre $id class='$output_pre_class'>$s</pre>"
 end
 
-function _code2html(cell::Cell, oopts::OutputOptions)
+"""
+Return the final plain-text code for `cell`, after applying `oopts`'s hide/tab-replace
+rules, or `nothing` when the code should not be shown at all.
+"""
+function _code_text(cell::Cell, oopts::OutputOptions)::Union{Nothing, String}
     if oopts.hide_code || cell.code_folded
-        return ""
+        return nothing
     end
     code = cell.code
     if oopts.hide_md_code && startswith(code, "md\"")
-        return ""
+        return nothing
     end
     if oopts.hide_md_def_code
         lstripped = lstrip(code, ['\"', ' ', '\n', '\r'])
         if startswith(lstripped, "+++")
-            return ""
+            return nothing
         end
     end
     if oopts.replace_code_tabs
         code = _replace_code_tabs(code)
     end
     if contains(code, "# hideall")
-        return ""
+        return nothing
     end
     sep = '\n'
     lines = split(code, sep)
     filter!(!endswith("# hide"), lines)
-    code = join(lines, sep)
+    return join(lines, sep)
+end
+
+"Whether `code` is a literal `md\"...\"` or `html\"...\"` cell, which is never fenced."
+function _is_literal_string_cell(code::AbstractString)::Bool
+    return startswith(code, "md\"") || startswith(code, "html\"")
+end
+
+function _code2html(cell::Cell, oopts::OutputOptions, fenced_code::Bool=false)
+    code = _code_text(cell, oopts)
+    isnothing(code) && return ""
+    if fenced_code && !_is_literal_string_cell(cell.code)
+        stripped = rstrip(code, ['\n', '\r'])
+        return string(
+            FENCED_CODE_BEGIN, '\n',
+            "```julia\n", stripped, "\n```",
+            '\n', FENCED_CODE_END
+        )
+    end
     return code_block(code; oopts.code_class)
 end
 
@@ -164,11 +186,11 @@ end
 
 _output2html(cell::Cell, T::MIME, oopts) = error("Unknown type: $T")
 
-function _cell2html(cell::Cell, oopts::OutputOptions)
+function _cell2html(cell::Cell, oopts::OutputOptions, fenced_code::Bool=false)
     if cell.metadata["disabled"]
         return ""
     end
-    code = _code2html(cell, oopts)
+    code = _code2html(cell, oopts, fenced_code)
     output = _output2html(cell, cell.output.mime, oopts)
     if oopts.convert_admonitions
         output = _convert_admonitions(output)
@@ -192,12 +214,17 @@ end
 Return the code and output as HTML for `nb`.
 Assumes that the notebook has already been executed.
 """
-function notebook2html(nb::Notebook, path, oopts::OutputOptions=OutputOptions())::String
+function notebook2html(
+        nb::Notebook,
+        path,
+        oopts::OutputOptions = OutputOptions(),
+        fenced_code::Bool = false
+    )::String
     @assert isready(nb)
     order = nb.cell_order
     outputs = map(order) do cell_uuid
         cell = nb.cells_dict[cell_uuid]
-        _cell2html(cell, oopts)
+        _cell2html(cell, oopts, fenced_code)
     end
     html = join(outputs, '\n')
     if oopts.add_state && !isnothing(path)

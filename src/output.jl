@@ -24,6 +24,7 @@ const COMPILER_OPTIONS_DEFAULT = nothing
 const SHOW_OUTPUT_ABOVE_CODE_DEFAULT = false
 const REPLACE_CODE_TABS_DEFAULT = true
 const CONVERT_ADMONITIONS_DEFAULT = true
+const DOCUMENTER_CODE_BLOCKS_DEFAULT = false
 
 """
     OutputOptions(;
@@ -36,7 +37,8 @@ const CONVERT_ADMONITIONS_DEFAULT = true
         append_build_context::Bool=$APPEND_BUILD_CONTEXT_DEFAULT,
         show_output_above_code::Bool=$SHOW_OUTPUT_ABOVE_CODE_DEFAULT,
         replace_code_tabs::Bool=$REPLACE_CODE_TABS_DEFAULT,
-        convert_admonitions::Bool=$CONVERT_ADMONITIONS_DEFAULT
+        convert_admonitions::Bool=$CONVERT_ADMONITIONS_DEFAULT,
+        documenter_code_blocks::Bool=$DOCUMENTER_CODE_BLOCKS_DEFAULT
     )
 
 Arguments:
@@ -80,6 +82,19 @@ Arguments:
     ```
     from Pluto's HTML to Documenter's HTML.
     When this is enabled, the `documenter_output` has proper styling by default.
+- `documenter_code_blocks`:
+    Whether to render plain code cells as fenced Markdown code blocks, for example:
+    ```markdown
+    ```julia
+    1 + 1
+    ```
+    ```
+    instead of embedding them as raw HTML `<pre>` blocks.
+    This only has an effect when `output_format=documenter_output` (see [`BuildOptions`](@ref)).
+    It allows tools which operate on Documenter's code blocks, such as `DocumenterCodeBlocks.jl`,
+    to process the code in Pluto notebooks.
+    Markdown cells (`md"..."`) and raw HTML cells (`html"..."`) are unaffected by this option
+    and remain embedded as raw HTML.
 """
 struct OutputOptions
     code_class::String
@@ -92,6 +107,7 @@ struct OutputOptions
     show_output_above_code::Bool
     replace_code_tabs::Bool
     convert_admonitions::Bool
+    documenter_code_blocks::Bool
 
     function OutputOptions(;
             code_class::AbstractString=CODE_CLASS_DEFAULT,
@@ -103,7 +119,8 @@ struct OutputOptions
             append_build_context::Bool=APPEND_BUILD_CONTEXT_DEFAULT,
             show_output_above_code::Bool=SHOW_OUTPUT_ABOVE_CODE_DEFAULT,
             replace_code_tabs::Bool=REPLACE_CODE_TABS_DEFAULT,
-            convert_admonitions::Bool=CONVERT_ADMONITIONS_DEFAULT
+            convert_admonitions::Bool=CONVERT_ADMONITIONS_DEFAULT,
+            documenter_code_blocks::Bool=DOCUMENTER_CODE_BLOCKS_DEFAULT
         )
         return new(
             string(code_class)::String,
@@ -115,7 +132,8 @@ struct OutputOptions
             append_build_context,
             show_output_above_code,
             replace_code_tabs,
-            convert_admonitions
+            convert_admonitions,
+            documenter_code_blocks
         )
     end
 end

@@ -67,3 +67,27 @@ function _fix_header_links(html::String)
             """
     return replace(html, rx => substitution_string)
 end
+
+const FENCED_CODE_BEGIN = "<!-- PlutoStaticHTML.FencedCodeBegin -->"
+const FENCED_CODE_END = "<!-- PlutoStaticHTML.FencedCodeEnd -->"
+
+"""
+Split `html` into `:raw => text` and `:code => text` segments.
+The `:code` segments are the fenced Markdown code blocks previously inserted between
+[`FENCED_CODE_BEGIN`](@ref) and [`FENCED_CODE_END`](@ref) markers (see `_code2html`);
+everything else is `:raw`.
+When `html` contains no markers, this returns a single `:raw => html` element.
+"""
+function _split_on_fenced_code(html::String)::Vector{Pair{Symbol, String}}
+    rx = Regex(string(FENCED_CODE_BEGIN, "\\n(.*?)\\n", FENCED_CODE_END), "s")
+    parts = Pair{Symbol, String}[]
+    pos = firstindex(html)
+    for m in eachmatch(rx, html)
+        start = m.offset
+        push!(parts, :raw => string(html[pos:prevind(html, start)])::String)
+        push!(parts, :code => string(m.captures[1])::String)
+        pos = start + ncodeunits(m.match)
+    end
+    push!(parts, :raw => string(html[pos:end])::String)
+    return parts
+end

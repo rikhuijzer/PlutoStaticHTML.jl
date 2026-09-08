@@ -25,6 +25,7 @@ const SHOW_OUTPUT_ABOVE_CODE_DEFAULT = false
 const REPLACE_CODE_TABS_DEFAULT = true
 const CONVERT_ADMONITIONS_DEFAULT = true
 const DOCUMENTER_CODE_BLOCKS_DEFAULT = false
+const LITERAL_STRING_CELL_PREFIXES_DEFAULT = ["md", "html", "htl"]
 
 """
     OutputOptions(;
@@ -38,7 +39,8 @@ const DOCUMENTER_CODE_BLOCKS_DEFAULT = false
         show_output_above_code::Bool=$SHOW_OUTPUT_ABOVE_CODE_DEFAULT,
         replace_code_tabs::Bool=$REPLACE_CODE_TABS_DEFAULT,
         convert_admonitions::Bool=$CONVERT_ADMONITIONS_DEFAULT,
-        documenter_code_blocks::Bool=$DOCUMENTER_CODE_BLOCKS_DEFAULT
+        documenter_code_blocks::Bool=$DOCUMENTER_CODE_BLOCKS_DEFAULT,
+        literal_string_cell_prefixes::Vector{<:AbstractString}=LITERAL_STRING_CELL_PREFIXES_DEFAULT
     )
 
 Arguments:
@@ -95,6 +97,11 @@ Arguments:
     to process the code in Pluto notebooks.
     Markdown cells (`md"..."`) and raw HTML cells (`html"..."`) are unaffected by this option
     and remain embedded as raw HTML.
+- `literal_string_cell_prefixes`:
+    Array of string prefixes that identify literal string cells.
+    Cells with code starting with any of these prefixes (followed by `"`) are treated as literal strings.
+    Default is `["md", "html", "htl"]` where `"htl"` stands for HypertextLiteral from the corresponding package.
+    Literal string cells are never fenced by the `documenter_code_blocks` option.
 """
 struct OutputOptions
     code_class::String
@@ -108,6 +115,7 @@ struct OutputOptions
     replace_code_tabs::Bool
     convert_admonitions::Bool
     documenter_code_blocks::Bool
+    literal_string_cell_prefixes::Vector{String}
 
     function OutputOptions(;
             code_class::AbstractString=CODE_CLASS_DEFAULT,
@@ -120,7 +128,8 @@ struct OutputOptions
             show_output_above_code::Bool=SHOW_OUTPUT_ABOVE_CODE_DEFAULT,
             replace_code_tabs::Bool=REPLACE_CODE_TABS_DEFAULT,
             convert_admonitions::Bool=CONVERT_ADMONITIONS_DEFAULT,
-            documenter_code_blocks::Bool=DOCUMENTER_CODE_BLOCKS_DEFAULT
+            documenter_code_blocks::Bool=DOCUMENTER_CODE_BLOCKS_DEFAULT,
+            literal_string_cell_prefixes::Vector{<:AbstractString}=LITERAL_STRING_CELL_PREFIXES_DEFAULT
         )
         return new(
             string(code_class)::String,
@@ -133,7 +142,8 @@ struct OutputOptions
             show_output_above_code,
             replace_code_tabs,
             convert_admonitions,
-            documenter_code_blocks
+            documenter_code_blocks,
+            string.(literal_string_cell_prefixes)::Vector{String}
         )
     end
 end

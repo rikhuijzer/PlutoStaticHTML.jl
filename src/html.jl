@@ -57,15 +57,20 @@ function _code_text(cell::Cell, oopts::OutputOptions)::Union{Nothing, String}
     return join(lines, sep)
 end
 
-"Whether `code` is a literal `md\"...\"` or `html\"...\"` cell, which is never fenced."
-function _is_literal_string_cell(code::AbstractString)::Bool
-    return startswith(code, "md\"") || startswith(code, "html\"")
+"Whether `code` is a literal string cell (e.g., `md\"...\"`, `html\"...\"`, or `htl\"...\"`) based on configured prefixes, which is never fenced."
+function _is_literal_string_cell(code::AbstractString, oopts::OutputOptions)::Bool
+    for prefix in oopts.literal_string_cell_prefixes
+        if startswith(code, prefix * "\"")
+            return true
+        end
+    end
+    return false
 end
 
 function _code2html(cell::Cell, oopts::OutputOptions, fenced_code::Bool=false)
     code = _code_text(cell, oopts)
     isnothing(code) && return ""
-    if fenced_code && !_is_literal_string_cell(cell.code)
+    if fenced_code && !_is_literal_string_cell(cell.code, oopts)
         stripped = rstrip(code, ['\n', '\r'])
         return string(
             FENCED_CODE_BEGIN, '\n',

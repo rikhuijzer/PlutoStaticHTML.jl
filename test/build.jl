@@ -166,4 +166,48 @@ end
     @test PlutoStaticHTML._pretty_elapsed(n2 - n) == "2 seconds"
 end
 
+@testset "documenter_code_blocks build" begin
+    mktempdir() do dir
+        cd(dir) do
+            path = joinpath(dir, "notebook.jl")
+            code = pluto_notebook_content("""
+                x = 1 + 1
+                """)
+            write(path, code)
+
+            use_distributed = false
+            output_format = documenter_output
+            oopts = OutputOptions(; documenter_code_blocks=true)
+            bo = BuildOptions(dir; use_distributed, output_format)
+            build_notebooks(bo, ["notebook.jl"], oopts)
+
+            output_path = joinpath(dir, "notebook.md")
+            output = read(output_path, String)
+            @test contains(output, "```julia\nx = 1 + 1\n```")
+            @test !contains(output, PlutoStaticHTML.FENCED_CODE_BEGIN)
+        end
+    end
+
+    # With the flag left at its default (false), behavior is unchanged: no fenced block.
+    mktempdir() do dir
+        cd(dir) do
+            path = joinpath(dir, "notebook.jl")
+            code = pluto_notebook_content("""
+                x = 1 + 1
+                """)
+            write(path, code)
+
+            use_distributed = false
+            output_format = documenter_output
+            bo = BuildOptions(dir; use_distributed, output_format)
+            build_notebooks(bo, ["notebook.jl"])
+
+            output_path = joinpath(dir, "notebook.md")
+            output = read(output_path, String)
+            @test !contains(output, "```julia\nx = 1 + 1\n```")
+            @test contains(output, "```@raw html")
+        end
+    end
+end
+
 nothing

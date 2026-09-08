@@ -263,12 +263,20 @@ function _wrap_documenter_output(html::String, bopts::BuildOptions, in_path::Str
         html = _add_documenter_css(html)
     end
     editurl = _editurl_text(bopts, in_path)
+    parts = _split_on_fenced_code(html)
+    rendered = map(parts) do (kind, text)
+        if kind == :code
+            return text
+        end
+        text = _fix_header_links(text)
+        return isempty(strip(text)) ? "" : "```@raw html\n$(text)\n```"
+    end
+    filter!(!isempty, rendered)
+    body = join(rendered, "\n")
     return """
-    ```@raw html
-    $(_fix_header_links(html))
-    ```
-    $editurl
-    """
+        $body
+        $editurl
+        """
 end
 
 function _outcome2text(session, prevs::Vector{Previous}, in_path::String, bopts, oopts)::Vector{String}
@@ -314,7 +322,8 @@ function _outcome2html(
         output_format::OutputFormat,
         oopts::OutputOptions
     )
-    html = notebook2html(nb, in_path, oopts)
+    fenced_code = oopts.documenter_code_blocks && output_format == documenter_output
+    html = notebook2html(nb, in_path, oopts, fenced_code)
 
     if output_format == franklin_output
         html = _wrap_franklin_output(html)

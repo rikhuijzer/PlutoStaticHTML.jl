@@ -254,3 +254,27 @@ end
     # Verify that Pluto.jl's inline math as `<span class="tex">$x$</span>` is replaced.
     @test contains(html, raw"""Some inline math with <span class="tex">\(x\)</span>.""")
 end
+
+@testset "documenter_code_blocks" begin
+    nb = Notebook([
+        Cell("x = 1 + 1")
+    ])
+    html, _ = notebook2html_helper(nb; use_distributed=false, fenced_code=true)
+    @test contains(html, PlutoStaticHTML.FENCED_CODE_BEGIN)
+    @test contains(html, "```julia\nx = 1 + 1\n```")
+    @test contains(html, PlutoStaticHTML.FENCED_CODE_END)
+
+    # Without the flag, the code is embedded as raw HTML instead.
+    html, _ = notebook2html_helper(nb; use_distributed=false, fenced_code=false)
+    @test !contains(html, PlutoStaticHTML.FENCED_CODE_BEGIN)
+    @test contains(html, "<pre class='language-julia'>")
+
+    # Markdown cells are never fenced, even when their code is shown.
+    nb = Notebook([
+        Cell("""md"my text" """)
+    ])
+    opts = OutputOptions(; hide_md_code=false)
+    html, _ = notebook2html_helper(nb, opts; use_distributed=false, fenced_code=true)
+    @test !contains(html, PlutoStaticHTML.FENCED_CODE_BEGIN)
+    @test contains(html, "<pre class='language-julia'>")
+end
